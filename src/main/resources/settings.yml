@@ -1,0 +1,52 @@
+# !-----------------------------------------------------------------------------------------------!
+#                       Welcome to the main configuration of ${project.name}
+# !-----------------------------------------------------------------------------------------------!
+#
+# -------------------------------------------------------------------------------------------------
+# Edit your default turret setting
+# -------------------------------------------------------------------------------------------------
+Default_Turret_Settings:
+  # Enable or disable lasers for all turrets
+  Enable_Lasers: true
+  # How much damage should a laser deal per a second (set the value to 0 if you would like to disable this feature)
+  Laser_Damage: 1
+  # How far should the turrets shoot from
+  Turret_Range: 20
+
+# -------------------------------------------------------------------------------------------------
+# What commands should trigger the main plugin command group?
+#
+# * THE FIRST ALIAS IS THE MAIN LABEL, PLEASE DO NOT REMOVE IT. *
+# -------------------------------------------------------------------------------------------------
+Command_Aliases: [ laserturrets, turrets, turret, lt ]
+
+# -------------------------------------------------------------------------------------------------
+# What language should we use for messages? If it exists, the language file will be copied 
+# to your messages/ folder where you can edit it.
+# -------------------------------------------------------------------------------------------------
+Locale: en
+
+# -------------------------------------------------------------------------------------------------
+# The prefix used in front of most chat or console messages. You can manually use it with
+# {plugin_prefix} variable anywhere.
+# -------------------------------------------------------------------------------------------------
+Prefix: "&8[&c${project.name}&8]&7 "
+
+# -------------------------------------------------------------------------------------------------
+# Time of some plugin's operations is measured. You can also use the LagCatcher class to invoke
+# this feature. We log a console message if an operation takes over the time below (milliseconds). 
+# Set to -1 to disable.
+# -------------------------------------------------------------------------------------------------
+Log_Lag_Over_Milis: 100
+
+# -------------------------------------------------------------------------------------------------
+# List of section names that will print informative messages about their features.
+# The Debugger class utilizes this key and will only print messages for sections enabled below.
+# -------------------------------------------------------------------------------------------------
+Debug: [ ]
+
+# -------------------------------------------------------------------------------------------------
+# Do not change this value, otherwise it will corrupt your plugin installation!
+# NB: Don't forget to keep this up-to-date with the getConfigVersion method in your Settings class. 
+# -------------------------------------------------------------------------------------------------
+Version: 1
