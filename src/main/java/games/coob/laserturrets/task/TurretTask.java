@@ -25,13 +25,14 @@ public class TurretTask extends BukkitRunnable {
 
 		for (final Location location : turretRegistry.getLocations()) {
 			final Block block = location.getBlock();
-			final Player closestPlayer = EntityUtil.findNearestEntity(location, turretRegistry.getTurretRange(block), Player.class);
+			final int level = turretRegistry.getCurrentTurretLevel(block);
+			final Player closestPlayer = EntityUtil.findNearestEntity(location, turretRegistry.getTurretRange(block, level), Player.class);
 
 			if (closestPlayer == null)
 				continue;
 
-			if (turretRegistry.isLaserEnabled(block) && turretRegistry.getLaserDamage(block) > 0) {
-				final double damage = turretRegistry.getLaserDamage(block);
+			if (turretRegistry.isLaserEnabled(block, turretRegistry.getCurrentTurretLevel(block)) && turretRegistry.getLaserDamage(block, level) > 0) {
+				final double damage = turretRegistry.getLaserDamage(block, level);
 				closestPlayer.damage(damage);
 				Common.runLater(10, () -> closestPlayer.damage(damage));
 			}

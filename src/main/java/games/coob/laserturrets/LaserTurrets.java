@@ -3,15 +3,11 @@ package games.coob.laserturrets;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.task.LaserTask;
 import games.coob.laserturrets.task.TurretTask;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.plugin.SimplePlugin;
 
@@ -65,24 +61,6 @@ public final class LaserTurrets extends SimplePlugin {
 	/* ------------------------------------------------------------------------------- */
 	/* Events */
 	/* ------------------------------------------------------------------------------- */
-
-	@EventHandler
-	public void onPlayerInteract(final PlayerInteractEvent event) {
-		final Action action = event.getAction();
-		final Player player = event.getPlayer();
-		final Block block = event.getClickedBlock();
-		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
-
-		if (player.getItemInHand().getType() == Material.DIAMOND) {
-			if (action == Action.RIGHT_CLICK_BLOCK) {
-				System.out.println("isRegistered: " + turretRegistry.isRegistered(block));
-				if (turretRegistry.isRegistered(block)) {
-					turretRegistry.increaseLevel(block);
-					Common.tell(player, "&bIncreased the &a" + block.getType() + " &bblock's level to lvl &a" + turretRegistry.getLevel(block) + ".");
-				}
-			}
-		}
-	}
 
 	@EventHandler
 	public void onBlockBreak(final BlockBreakEvent event) {

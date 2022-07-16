@@ -3,30 +3,19 @@ package games.coob.laserturrets.menu;
 import games.coob.laserturrets.model.PlayerBlacklistPrompt;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.mineacademy.fo.MathUtil;
 import org.mineacademy.fo.Messenger;
-import org.mineacademy.fo.collection.StrictMap;
 import org.mineacademy.fo.menu.Menu;
-import org.mineacademy.fo.menu.MenuContainerChances;
 import org.mineacademy.fo.menu.MenuPagged;
-import org.mineacademy.fo.menu.MenuQuantitable;
 import org.mineacademy.fo.menu.button.Button;
 import org.mineacademy.fo.menu.button.ButtonConversation;
 import org.mineacademy.fo.menu.button.ButtonMenu;
-import org.mineacademy.fo.menu.button.StartPosition;
 import org.mineacademy.fo.menu.button.annotation.Position;
 import org.mineacademy.fo.menu.model.ItemCreator;
-import org.mineacademy.fo.menu.model.MenuClickLocation;
-import org.mineacademy.fo.menu.model.MenuQuantity;
-import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
 
 import java.util.ArrayList;
@@ -89,7 +78,7 @@ public class TurretSelectionMenu extends Menu {
 		return new TurretSelectionMenu(this.getViewer());
 	}
 
-	private class TurretTypeMenu extends MenuPagged<TurretData> { // TODO Edit laser enabled, laser damage, turret range
+	private class TurretTypeMenu extends MenuPagged<TurretData> {
 
 		private TurretData turretData;
 
@@ -101,20 +90,17 @@ public class TurretSelectionMenu extends Menu {
 		@Position(4)
 		private final Button playerBlacklistButton;
 
-		@Position(6)
-		private final Button lootButton;
-
 		@Position(8)
 		private final Button teleportButton;
 
 		TurretTypeMenu(final ViewMode viewMode, final Player player) {
-			super(9 * 4, TurretSelectionMenu.this, new ArrayList<>(viewMode.turretTypeList));
+			super(9 * 4, new ArrayList<>(viewMode.turretTypeList));
 
 			this.viewMode = viewMode;
 
 			this.setTitle(viewMode.typeName + " Turrets");
 
-			this.levelEditButton = new ButtonMenu(new TurretLevelMenu(player), CompMaterial.EXPERIENCE_BOTTLE,
+			this.levelEditButton = new ButtonMenu(new LevelMenu(player, turretData, 1), CompMaterial.EXPERIENCE_BOTTLE,
 					"Level Menu",
 					"",
 					"Open this menu to upgrade",
@@ -127,15 +113,6 @@ public class TurretSelectionMenu extends Menu {
 					"players from the blacklist",
 					"to prevent the turret from",
 					"targeting specific players.");
-
-			this.lootButton = new ButtonMenu(new TurretLootChancesMenu(player), CompMaterial.CHEST,
-					"Turret Loot",
-					"",
-					"Open this menu to edit",
-					"the loot players get when",
-					"they destroy a turret.",
-					"You can also edit the drop",
-					"chance.");
 
 			this.teleportButton = Button.makeSimple(CompMaterial.ENDER_EYE, "Teleport", "Teleport to the turret/nto visit it.", player1 -> {
 				player1.teleport(this.turretData.getLocation());
@@ -169,7 +146,7 @@ public class TurretSelectionMenu extends Menu {
 			};
 		}
 
-		private class TurretLevelMenu extends Menu implements MenuQuantitable {
+		/*private class TurretLevelMenu extends Menu implements MenuQuantitable {
 
 			@Getter
 			@Setter
@@ -197,64 +174,7 @@ public class TurretSelectionMenu extends Menu {
 					turretData.setLevel(nextLevel);
 				}
 			}
-		}
-
-		private class TurretLootChancesMenu extends MenuContainerChances {
-
-			TurretLootChancesMenu(final Player player) {
-				super(TurretTypeMenu.getMenu(player));
-
-				this.setTitle("Place turret loot here");
-			}
-
-			@Override
-			protected boolean canEditItem(final MenuClickLocation location, final int slot, final ItemStack clicked, final ItemStack cursor, final InventoryAction action) {
-				final ItemStack placedItem = clicked != null && !CompMaterial.isAir(clicked) ? clicked : cursor;
-
-				if (placedItem != null && !CompMaterial.isAir(placedItem)) {
-					if (placedItem.getAmount() > 1 && action != InventoryAction.PLACE_ONE) {
-						this.animateTitle("&4Amount must be 1!");
-
-						return false;
-					}
-				}
-
-				return true;
-			}
-
-			@Override
-			protected ItemStack getDropAt(final int slot) {
-				final Tuple<ItemStack, Double> tuple = this.getTuple(slot);
-
-				return tuple != null ? tuple.getKey() : NO_ITEM;
-			}
-
-			@Override
-			protected double getDropChance(final int slot) {
-				final Tuple<ItemStack, Double> tuple = this.getTuple(slot);
-
-				return tuple != null ? tuple.getValue() : 0;
-			}
-
-			private Tuple<ItemStack, Double> getTuple(final int slot) {
-				final TurretRegistry registry = TurretRegistry.getInstance();
-				final List<Tuple<ItemStack, Double>> items = registry.getTurretLootChances(this.getViewer());
-
-				return slot < items.size() ? items.get(slot) : null;
-			}
-
-			@Override
-			protected void onMenuClose(final StrictMap<Integer, Tuple<ItemStack, Double>> items) {
-				final TurretRegistry registry = TurretRegistry.getInstance();
-
-				registry.setTurretLootChances(turretData, new ArrayList<>(items.values()));
-			}
-
-			@Override
-			public boolean allowDecimalQuantities() {
-				return true;
-			}
-		}
+		}*/
 	}
 
 	@RequiredArgsConstructor

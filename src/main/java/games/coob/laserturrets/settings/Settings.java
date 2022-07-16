@@ -34,7 +34,8 @@ public final class Settings extends SimpleSettings {
 				"Example.Uncommented_Section");
 	}
 
-	public static class DefaultTurretSection {
+	public static class DefaultLevel1TurretSection {
+		public static Double PRICE;
 		public static Boolean ENABLE_LASERS;
 		public static Double LASER_DAMAGE;
 		public static Integer TURRET_RANGE;
@@ -46,8 +47,53 @@ public final class Settings extends SimpleSettings {
 
 			// A convenience method to instruct the loader to prepend all paths with Example so you
 			// do not have to call "Example.Key1", "Example.Key2" all the time, only "Key1" and "Key2".
-			setPathPrefix("Default_Turret_Settings");
+			setPathPrefix("Default_Level_1_Turret_Settings");
 
+			PRICE = getDouble("Price");
+			ENABLE_LASERS = getBoolean("Enable_Lasers");
+			LASER_DAMAGE = getDouble("Laser_Damage");
+			TURRET_RANGE = getInteger("Turret_Range");
+		}
+	}
+
+	public static class DefaultLevel2TurretSection {
+		public static Double PRICE;
+		public static Boolean ENABLE_LASERS;
+		public static Double LASER_DAMAGE;
+		public static Integer TURRET_RANGE;
+
+		/*
+		 * Automatically called method when we load settings.yml to load values in this subclass
+		 */
+		private static void init() {
+
+			// A convenience method to instruct the loader to prepend all paths with Example so you
+			// do not have to call "Example.Key1", "Example.Key2" all the time, only "Key1" and "Key2".
+			setPathPrefix("Default_Level_2_Turret_Settings");
+
+			PRICE = getDouble("Price");
+			ENABLE_LASERS = getBoolean("Enable_Lasers");
+			LASER_DAMAGE = getDouble("Laser_Damage");
+			TURRET_RANGE = getInteger("Turret_Range");
+		}
+	}
+
+	public static class DefaultLevel3TurretSection {
+		public static Double PRICE;
+		public static Boolean ENABLE_LASERS;
+		public static Double LASER_DAMAGE;
+		public static Integer TURRET_RANGE;
+
+		/*
+		 * Automatically called method when we load settings.yml to load values in this subclass
+		 */
+		private static void init() {
+
+			// A convenience method to instruct the loader to prepend all paths with Example so you
+			// do not have to call "Example.Key1", "Example.Key2" all the time, only "Key1" and "Key2".
+			setPathPrefix("Default_Level_3_Turret_Settings");
+
+			PRICE = getDouble("Price");
 			ENABLE_LASERS = getBoolean("Enable_Lasers");
 			LASER_DAMAGE = getDouble("Laser_Damage");
 			TURRET_RANGE = getInteger("Turret_Range");

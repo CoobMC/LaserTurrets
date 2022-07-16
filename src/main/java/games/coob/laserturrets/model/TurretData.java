@@ -12,6 +12,7 @@ import org.mineacademy.fo.model.ConfigSerializable;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -27,7 +28,9 @@ public class TurretData implements ConfigSerializable {
 
 	private List<String> playerBlacklist;
 
-	private List<TurretLevel> turretLevels;
+	private List<TurretLevel> turretLevels = new ArrayList<>(10);
+
+	private int currentLevel;
 
 	public void setLocation(final Location location) {
 		this.location = location;
@@ -43,6 +46,10 @@ public class TurretData implements ConfigSerializable {
 
 	public void setId(final String id) {
 		this.id = id;
+	}
+
+	public void setCurrentLevel(final int level) {
+		this.currentLevel = level;
 	}
 
 	public void addPlayerToBlacklist(final String playerName) {
@@ -100,7 +107,8 @@ public class TurretData implements ConfigSerializable {
 				"Id", this.id,
 				"Type", this.type,
 				"Player_Blacklist", this.playerBlacklist,
-				"Levels", TurretLevel.class, this);
+				"Levels", this.turretLevels,
+				"Current_Level", this.currentLevel);
 	}
 
 	public static TurretData deserialize(final SerializedMap map) {
@@ -109,6 +117,7 @@ public class TurretData implements ConfigSerializable {
 		final String type = map.getString("Type");
 		final List<String> blacklist = map.getStringList("Player_Blacklist");
 		final List<TurretLevel> levels = map.getList("Levels", TurretLevel.class);
+		final Integer level = map.getInteger("Current_Level");
 
 		final String[] split = hash.split(" \\| ");
 		final Location location = SerializeUtil.deserializeLocation(split[0]);
@@ -122,11 +131,13 @@ public class TurretData implements ConfigSerializable {
 		turretData.setId(id);
 		turretData.setType(type);
 		turretData.setPlayerBlacklist(blacklist);
+		turretData.setCurrentLevel(level);
 
 		return turretData;
 	}
 
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+	@Getter
 	public final static class TurretLevel implements ConfigSerializable {
 
 		private final TurretData turretData;
@@ -141,7 +152,7 @@ public class TurretData implements ConfigSerializable {
 
 		private double laserDamage;
 
-		public void setPrice(final int price) {
+		public void setPrice(final double price) {
 			this.price = price;
 		}
 
@@ -173,6 +184,7 @@ public class TurretData implements ConfigSerializable {
 	}
 
 	public static TurretLevel deserialize(final SerializedMap map, final TurretData turretData) {
+		final double price = map.getDouble("Price");
 		final List<Tuple<ItemStack, Double>> lootChances = map.getTupleList("Loot_Chances", ItemStack.class, Double.class);
 		final int range = map.getInteger("Range");
 		final boolean laserEnabled = map.getBoolean("Laser_Enabled");
@@ -180,6 +192,7 @@ public class TurretData implements ConfigSerializable {
 
 		final TurretLevel level = new TurretLevel(turretData);
 
+		level.setPrice(price);
 		level.setLootChances(lootChances);
 		level.setRange(range);
 		level.setLaserEnabled(laserEnabled);

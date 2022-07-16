@@ -27,12 +27,14 @@ public class LaserTask extends BukkitRunnable {
 			if (turretRegistry.getType(block).equals("flame"))
 				continue;
 
-			if (turretRegistry.getLevel(block) == 1) {
-				final Entity closestPlayer = findNearestEntityNonBlacklisted(location, turretRegistry.getTurretRange(block), LivingEntity.class, block);
+			final int level = turretRegistry.getCurrentTurretLevel(block);
+
+			if (turretRegistry.getCurrentTurretLevel(block) == 1) {
+				final Entity closestPlayer = findNearestEntityNonBlacklisted(location, turretRegistry.getTurretRange(block, level), LivingEntity.class, block);
 
 				if (closestPlayer != null && closestPlayer.getType().equals(EntityType.PLAYER)) {
 					final Player player = (Player) closestPlayer;
-					player.damage(turretRegistry.getLaserDamage(block));
+					player.damage(turretRegistry.getLaserDamage(block, level));
 
 					final int length = 50; // show twenty blocks ahead
 					final Location laserLocation = location.clone();
@@ -78,7 +80,6 @@ public class LaserTask extends BukkitRunnable {
 				if (!registry.isPlayerBlacklisted(turret, nearby.getName()))
 					found.add(nearby);
 			}
-			System.out.println(nearby);
 		}
 
 		found.sort(Comparator.comparingDouble(entity -> entity.getLocation().distance(center)));
