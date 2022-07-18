@@ -63,11 +63,6 @@ public final class PlayerCache extends YamlConfig {
 		this.loadConfiguration(NO_DEFAULT, FoConstants.File.DATA);
 	}
 
-	/**
-	 * Automatically called when loading data from disk.
-	 *
-	 * @see org.mineacademy.fo.settings.YamlConfig#onLoadFinish()
-	 */
 	@Override
 	protected void onLoad() {
 		//
@@ -81,7 +76,6 @@ public final class PlayerCache extends YamlConfig {
 	 */
 	@Override
 	public void onSave() {
-
 		//
 		// Save any custom fields here, example:
 		// this.set("Chat_Color", this.chatColor);

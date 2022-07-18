@@ -2,7 +2,6 @@ package games.coob.laserturrets.model;
 
 import games.coob.laserturrets.settings.Settings;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
@@ -19,16 +18,17 @@ public class TurretRegistry extends YamlConfig {
 	@Getter
 	private static final TurretRegistry instance = new TurretRegistry();
 
+	@Getter
 	private Set<TurretData> registeredTurrets = new HashSet<>();
 
 	@Getter
-	private final List<TurretData> arrowTurrets = new ArrayList<>();
+	private final Set<TurretData> arrowTurrets = new HashSet<>();
 
 	@Getter
-	private final List<TurretData> flameTurrets = new ArrayList<>();
+	private final Set<TurretData> flameTurrets = new HashSet<>();
 
 	@Getter
-	private final List<TurretData> laserTurrets = new ArrayList<>();
+	private final Set<TurretData> laserTurrets = new HashSet<>();
 
 	private TurretRegistry() {
 		this.loadConfiguration(NO_DEFAULT, FoConstants.File.DATA);
@@ -44,9 +44,8 @@ public class TurretRegistry extends YamlConfig {
 		this.set("Turrets", this.registeredTurrets);
 	}
 
-	public void register(final Block block, final String type) { // TODO create default settings for level 1, 2 and 3
+	public void register(final Block block, final String type) {
 		final TurretData turretData = new TurretData();
-		//final TurretData.TurretLevel turretLevel = turretData.addLevel();
 		final String uniqueID = UUID.randomUUID().toString().substring(0, 4);
 
 		Valid.checkBoolean(!this.registeredTurrets.contains(turretData), block + " has already been registered");
@@ -73,7 +72,7 @@ public class TurretRegistry extends YamlConfig {
 				turretData.getLevel(level).setLaserEnabled(Settings.DefaultLevel2TurretSection.ENABLE_LASERS);
 				turretData.getLevel(level).setLaserDamage(Settings.DefaultLevel2TurretSection.LASER_DAMAGE);
 				turretData.getLevel(level).setPrice(Settings.DefaultLevel2TurretSection.PRICE);
-			} else {
+			} else if (level == 3) {
 				turretData.getLevel(level).setRange(Settings.DefaultLevel3TurretSection.TURRET_RANGE);
 				turretData.getLevel(level).setLaserEnabled(Settings.DefaultLevel3TurretSection.ENABLE_LASERS);
 				turretData.getLevel(level).setLaserDamage(Settings.DefaultLevel3TurretSection.LASER_DAMAGE);
@@ -243,18 +242,5 @@ public class TurretRegistry extends YamlConfig {
 			locations.add(turretData.getLocation());
 
 		return locations;
-	}
-
-	@RequiredArgsConstructor
-	private enum TurretSettingsValueByLevel {
-		LEVEL1(1, Settings.DefaultLevel1TurretSection.PRICE, Settings.DefaultLevel1TurretSection.TURRET_RANGE, Settings.DefaultLevel1TurretSection.ENABLE_LASERS, Settings.DefaultLevel1TurretSection.LASER_DAMAGE),
-		LEVEL2(2, Settings.DefaultLevel2TurretSection.PRICE, Settings.DefaultLevel2TurretSection.TURRET_RANGE, Settings.DefaultLevel2TurretSection.ENABLE_LASERS, Settings.DefaultLevel2TurretSection.LASER_DAMAGE),
-		LEVEL3(3, Settings.DefaultLevel3TurretSection.PRICE, Settings.DefaultLevel3TurretSection.TURRET_RANGE, Settings.DefaultLevel3TurretSection.ENABLE_LASERS, Settings.DefaultLevel3TurretSection.LASER_DAMAGE);
-
-		private final double level;
-		private final double price;
-		private final int range;
-		private final boolean laserEnabled;
-		private final double laserDamage;
 	}
 }

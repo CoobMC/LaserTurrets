@@ -12,6 +12,7 @@ import org.mineacademy.fo.model.ConfigSerializable;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,9 +27,10 @@ public class TurretData implements ConfigSerializable {
 
 	private String type;
 
-	private List<String> playerBlacklist;
+	@Nullable
+	private List<String> playerBlacklist = new ArrayList<>();
 
-	private List<TurretLevel> turretLevels = new ArrayList<>(10);
+	private List<TurretData.TurretLevel> turretLevels = new ArrayList<>(10);
 
 	private int currentLevel;
 
@@ -53,11 +55,12 @@ public class TurretData implements ConfigSerializable {
 	}
 
 	public void addPlayerToBlacklist(final String playerName) {
-		this.playerBlacklist.add(playerName);
+		playerBlacklist.add(playerName);
 	}
 
 	public void removePlayerFromBlacklist(final String playerName) {
-		this.playerBlacklist.remove(playerName);
+		if (this.playerBlacklist != null)
+			this.playerBlacklist.remove(playerName);
 	}
 
 	public boolean isPlayerBlacklisted(final String playerName) {
@@ -66,7 +69,7 @@ public class TurretData implements ConfigSerializable {
 		else return false;
 	}
 
-	public void setPlayerBlacklist(final List<String> playerBlacklist) {
+	public void setPlayerBlacklist(final @org.jetbrains.annotations.Nullable List<String> playerBlacklist) {
 		this.playerBlacklist = playerBlacklist;
 	}
 
@@ -75,7 +78,7 @@ public class TurretData implements ConfigSerializable {
 	}
 
 	public TurretLevel addLevel() {
-		final TurretLevel level = new TurretLevel(this);
+		final TurretData.TurretLevel level = new TurretData.TurretLevel(this);
 
 		turretLevels.add(level);
 
@@ -88,7 +91,7 @@ public class TurretData implements ConfigSerializable {
 		turretLevels.remove(level - 1);
 	}
 
-	public void setTurretLevels(final List<TurretLevel> levels) {
+	public void setTurretLevels(final List<TurretData.TurretLevel> levels) {
 		this.turretLevels = levels;
 	}
 
@@ -102,17 +105,20 @@ public class TurretData implements ConfigSerializable {
 
 	@Override
 	public SerializedMap serialize() {
-		return SerializedMap.ofArray(
-				"hash", toHash(this.location, this.material),
-				"Id", this.id,
-				"Type", this.type,
-				"Player_Blacklist", this.playerBlacklist,
-				"Levels", this.turretLevels,
-				"Current_Level", this.currentLevel);
+		final SerializedMap map = new SerializedMap();
+
+		map.put("Block", toHash(this.location, this.material));
+		map.put("Id", this.id);
+		map.put("Type", this.type);
+		map.putIf("Player_Blacklist", this.playerBlacklist);
+		map.put("Levels", this.turretLevels);
+		map.put("Current_Level", this.currentLevel);
+
+		return map;
 	}
 
 	public static TurretData deserialize(final SerializedMap map) {
-		final String hash = map.getString("hash");
+		final String hash = map.getString("Block");
 		final String id = map.getString("Id");
 		final String type = map.getString("Type");
 		final List<String> blacklist = map.getStringList("Player_Blacklist");
@@ -137,19 +143,24 @@ public class TurretData implements ConfigSerializable {
 	}
 
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-	@Getter
 	public final static class TurretLevel implements ConfigSerializable {
 
 		private final TurretData turretData;
 
+		@Getter
 		private double price;
 
-		private List<Tuple<ItemStack, Double>> lootChances;
+		@Getter
+		@Nullable
+		private List<Tuple<ItemStack, Double>> lootChances; // TODO Make this an array instead
 
+		@Getter
 		private int range;
 
+		@Getter
 		private boolean laserEnabled;
 
+		@Getter
 		private double laserDamage;
 
 		public void setPrice(final double price) {
@@ -168,36 +179,39 @@ public class TurretData implements ConfigSerializable {
 			this.laserDamage = laserDamage;
 		}
 
-		public void setLootChances(final List<Tuple<ItemStack, Double>> lootChances) {
+		public void setLootChances(final @org.jetbrains.annotations.Nullable List<Tuple<ItemStack, Double>> lootChances) {
 			this.lootChances = lootChances;
 		}
 
 		@Override
 		public SerializedMap serialize() {
-			return SerializedMap.ofArray(
-					"Price", this.price,
-					"Loot_Chances", this.lootChances,
-					"Range", this.range,
-					"Laser_Enabled", this.laserEnabled,
-					"Laser_Damage", this.laserDamage);
+			final SerializedMap map = new SerializedMap();
+
+			map.put("Price", this.price);
+			map.put("Range", this.range);
+			map.put("Laser_Enabled", this.laserEnabled);
+			map.put("Laser_Damage", this.laserDamage);
+			map.putIf("Loot_Chances", this.lootChances);
+
+			return map;
 		}
-	}
 
-	public static TurretLevel deserialize(final SerializedMap map, final TurretData turretData) {
-		final double price = map.getDouble("Price");
-		final List<Tuple<ItemStack, Double>> lootChances = map.getTupleList("Loot_Chances", ItemStack.class, Double.class);
-		final int range = map.getInteger("Range");
-		final boolean laserEnabled = map.getBoolean("Laser_Enabled");
-		final double laserDamage = map.getDouble("Laser_Damage");
+		public static TurretLevel deserialize(final SerializedMap map, final TurretData turretData) {
+			final double price = map.getDouble("Price");
+			final List<Tuple<ItemStack, Double>> lootChances = map.getTupleList("Loot_Chances", ItemStack.class, Double.class);
+			final int range = map.getInteger("Range");
+			final boolean laserEnabled = map.getBoolean("Laser_Enabled");
+			final double laserDamage = map.getDouble("Laser_Damage");
 
-		final TurretLevel level = new TurretLevel(turretData);
+			final TurretLevel level = new TurretLevel(turretData);
 
-		level.setPrice(price);
-		level.setLootChances(lootChances);
-		level.setRange(range);
-		level.setLaserEnabled(laserEnabled);
-		level.setLaserDamage(laserDamage);
+			level.setPrice(price);
+			level.setLootChances(lootChances);
+			level.setRange(range);
+			level.setLaserEnabled(laserEnabled);
+			level.setLaserDamage(laserDamage);
 
-		return level;
+			return level;
+		}
 	}
 }

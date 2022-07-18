@@ -18,21 +18,30 @@ public final class MenuCommand extends SimpleSubCommand {
 		checkConsole();
 
 		final Player player = getPlayer();
-		// final String param = args[0].toLowerCase();
 
-		new TurretSelectionMenu(player).displayTo(player);
+		if (args.length == 0) {
+			TurretSelectionMenu.openAllTurretsSelectionMenu(player);
+		} else {
+			final String param = args[0].toLowerCase();
+			
+			switch (param) {
+				case "arrow":
+					TurretSelectionMenu.openArrowTurretsSelectionMenu(player);
+					break;
+				case "flame":
+					TurretSelectionMenu.openFlameTurretsSelectionMenu(player);
+					break;
+				case "laser":
+					TurretSelectionMenu.openLaserTurretsSelectionMenu(player);
+					break;
+			}
+		}
 	}
 
 	@Override
 	protected List<String> tabComplete() {
-
-		/*switch (this.args.length) {
-			case 1:
-				return completeLastWord("merch", "book", "rules", "sign", "workbench", "inventory", "fo", "file");
-
-			case 2:
-				return "file".equalsIgnoreCase(args[0]) ? completeLastWord(MenuData.getMenuNames()) : NO_COMPLETE;
-		}*/
+		if (this.args.length == 1)
+			return completeLastWord("arrow", "flame", "laser");
 
 		return NO_COMPLETE;
 	}
