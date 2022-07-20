@@ -3,7 +3,6 @@ package games.coob.laserturrets.menu;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.EntityType;
@@ -38,7 +37,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class TurretSelectionMenu extends MenuPagged<TurretData> {
+public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrade turret menu
 
 	private ViewMode viewMode;
 
@@ -89,11 +88,16 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> {
 		lore.add("Click to edit this turret");
 
 		if (this.viewMode.typeName.equals("All"))
-			return ItemCreator.of(turretData.getMaterial()).name("&b" + StringUtils.capitalize(type) + " Turret &8" + id).lore(lore).makeMenuTool();
+			return ItemCreator.of(turretData.getMaterial()).name("&b" + capitalize(type) + " Turret &8" + id).lore(lore).makeMenuTool();
 		else if (type.equalsIgnoreCase(this.viewMode.typeName))
-			return ItemCreator.of(turretData.getMaterial()).name("&f" + StringUtils.capitalize(type) + " Turret &7" + id).lore(lore).makeMenuTool();
+			return ItemCreator.of(turretData.getMaterial()).name("&f" + capitalize(type) + " Turret &7" + id).lore(lore).makeMenuTool();
 
 		return NO_ITEM;
+	}
+
+	public String capitalize(final String string) {
+		if (string == null || string.length() <= 1) return string;
+		return string.substring(0, 1).toUpperCase() + string.substring(1);
 	}
 
 	@Override

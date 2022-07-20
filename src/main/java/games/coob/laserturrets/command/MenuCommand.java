@@ -23,7 +23,7 @@ public final class MenuCommand extends SimpleSubCommand {
 			TurretSelectionMenu.openAllTurretsSelectionMenu(player);
 		} else {
 			final String param = args[0].toLowerCase();
-			
+
 			switch (param) {
 				case "arrow":
 					TurretSelectionMenu.openArrowTurretsSelectionMenu(player);

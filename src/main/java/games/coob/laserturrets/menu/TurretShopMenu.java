@@ -1,7 +1,6 @@
 package games.coob.laserturrets.menu;
 
 import games.coob.laserturrets.PlayerCache;
-import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.tools.ArrowTurretTool;
 import games.coob.laserturrets.tools.FlameTurretTool;
@@ -15,79 +14,76 @@ import org.mineacademy.fo.menu.button.annotation.Position;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.remain.CompMaterial;
 
-public class TurretShopMenu extends Menu { // TODO destroy tool after a certain amount of uses
+public class TurretShopMenu extends Menu { // TODO create config file for the price of each level
 
-	private final TurretData turretData;
 
 	private final PlayerCache cache;
 
 	@Position(10)
-	private final Button purchaserArrowButton;
+	private final Button arrowTurretButton;
 
 	@Position(12)
-	private final Button purchaserFlameButton;
+	private final Button flameTurretButton;
 
 	@Position(14)
-	private final Button purchaserLaserButton;
+	private final Button laserTurretButton;
 
-	public TurretShopMenu(final TurretData turretData, final Player player) {
-		this.turretData = turretData;
+	public TurretShopMenu(final Player player) {
 		this.cache = PlayerCache.from(player);
 
 		this.setTitle("Turret Shop");
 		this.setSize(27);
 		this.setViewer(player);
 
-		this.purchaserArrowButton = new Button() {
+		this.arrowTurretButton = new Button() {
 			@Override
 			public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
 				ArrowTurretTool.giveOneUse(player);
-				cache.takeCurrency(turretData.getLevel(1).getPrice(), false);
+				cache.takeCurrency(Settings.DefaultLevel1TurretSection.PRICE, false);
 				animateTitle("&aPurchased an Arrow Turret tool");
 			}
 
 			@Override
 			public ItemStack getItem() {
 				return ItemCreator.of(CompMaterial.ARROW, "&aArrow Turret",
-						"Click to purchase this tool", "that will allow you to", "create an arrow turret.", "", "Price: " + turretData.getLevel(1).getPrice()).make();
+						"Click to purchase this tool", "that will allow you to", "create an arrow turret.", "", "Price: " + Settings.DefaultLevel1TurretSection.PRICE).make();
 			}
 		};
 
-		this.purchaserFlameButton = new Button() {
+		this.flameTurretButton = new Button() {
 			@Override
 			public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
 				FlameTurretTool.giveOneUse(player);
-				cache.takeCurrency(turretData.getLevel(1).getPrice(), false);
+				cache.takeCurrency(Settings.DefaultLevel1TurretSection.PRICE, false);
 				animateTitle("&aPurchased a Flame Turret tool");
 			}
 
 			@Override
 			public ItemStack getItem() {
 				return ItemCreator.of(CompMaterial.ARROW, "&aFlame Turret",
-						"Click to purchase this tool", "that will allow you to", "create a flame turret.", "", "Price: " + turretData.getLevel(1).getPrice()).make();
+						"Click to purchase this tool", "that will allow you to", "create a flame turret.", "", "Price: " + Settings.DefaultLevel1TurretSection.PRICE).make();
 			}
 		};
 
-		this.purchaserLaserButton = new Button() {
+		this.laserTurretButton = new Button() {
 			@Override
 			public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
 				LaserTurretTool.giveOneUse(player);
-				cache.takeCurrency(turretData.getLevel(1).getPrice(), false);
+				cache.takeCurrency(Settings.DefaultLevel1TurretSection.PRICE, false);
 				animateTitle("&aPurchased a Laser Turret tool");
 			}
 
 			@Override
 			public ItemStack getItem() {
 				return ItemCreator.of(CompMaterial.ARROW, "&aLaser Turret",
-						"Click to purchase this tool", "that will allow you to", "create a laser turret.", "", "Price: " + turretData.getLevel(1).getPrice()).make();
+						"Click to purchase this tool", "that will allow you to", "create a laser turret.", "", "Price: " + Settings.DefaultLevel1TurretSection.PRICE).make();
 			}
 		};
 	}
 
 	@Override
 	protected String[] getInfo() {
-		return new String[]{
-				"In this menu you can purchase",
+		return new String[]{"In this menu you can purchase",
 				"a turret tool that will allow",
 				"you to create a turret. You may",
 				"only create one turret with a tool,",
@@ -97,3 +93,4 @@ public class TurretShopMenu extends Menu { // TODO destroy tool after a certain 
 		};
 	}
 }
+

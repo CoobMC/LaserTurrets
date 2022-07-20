@@ -23,7 +23,7 @@ import java.util.List;
  */
 @AutoRegister
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class TurretCommandGroup extends SimpleCommandGroup {
+public final class TurretCommandGroup extends SimpleCommandGroup { // TODO add permission for each command
 
 	/**
 	 * The instance of this class, hidden because the only call to this class is from
@@ -68,9 +68,10 @@ public final class TurretCommandGroup extends SimpleCommandGroup {
 	protected void registerSubcommands() {
 
 		// Register a sample command for this group
+		registerSubcommand(new ShopCommand());
 		registerSubcommand(new ToolsCommand());
-		registerSubcommand(new BlacklistCommand());
 		registerSubcommand(new MenuCommand());
+		registerSubcommand(new BlacklistCommand());
 		registerSubcommand(new CurrencyCommand());
 
 		// Register the premade commands from Foundation
