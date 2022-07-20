@@ -1,5 +1,6 @@
 package games.coob.laserturrets.command;
 
+import games.coob.laserturrets.menu.ToolsMenu;
 import games.coob.laserturrets.tools.ArrowTurretTool;
 import games.coob.laserturrets.tools.FlameTurretTool;
 import games.coob.laserturrets.tools.LaserTurretTool;
@@ -29,14 +30,19 @@ final class ToolsCommand extends SimpleSubCommand {
 		checkConsole();
 
 		final Player player = getPlayer();
-		final String param = args[0];
 
-		if ("arrow_turret".equals(param))
-			ArrowTurretTool.getInstance().give(player);
-		else if ("laser_turret".equals(param))
-			LaserTurretTool.getInstance().give(player);
-		else if ("flame_turret".equals(param))
-			FlameTurretTool.getInstance().give(player);
+		if (args.length == 0) {
+			new ToolsMenu().displayTo(player);
+		} else {
+			final String param = args[0];
+
+			if ("arrow_turret".equals(param))
+				ArrowTurretTool.getInstance().give(player);
+			else if ("laser_turret".equals(param))
+				LaserTurretTool.getInstance().give(player);
+			else if ("flame_turret".equals(param))
+				FlameTurretTool.getInstance().give(player);
+		}
 	}
 
 	@Override

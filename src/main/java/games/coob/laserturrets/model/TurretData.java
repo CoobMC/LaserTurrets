@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Location;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.SerializeUtil;
 import org.mineacademy.fo.Valid;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class TurretData implements ConfigSerializable {
+public class TurretData implements ConfigSerializable { // TODO create ammo
 
 	private Location location;
 
@@ -29,6 +30,9 @@ public class TurretData implements ConfigSerializable {
 
 	@Nullable
 	private List<String> playerBlacklist = new ArrayList<>();
+
+	@Nullable
+	private List<EntityType> mobBlackList = new ArrayList<>();
 
 	private List<TurretData.TurretLevel> turretLevels = new ArrayList<>(10);
 
@@ -73,6 +77,26 @@ public class TurretData implements ConfigSerializable {
 		this.playerBlacklist = playerBlacklist;
 	}
 
+
+	public void addMobToBlacklist(final EntityType entityType) {
+		mobBlackList.add(entityType);
+	}
+
+	public void removeMobFromBlacklist(final EntityType entityType) {
+		if (this.mobBlackList != null)
+			this.mobBlackList.remove(entityType);
+	}
+
+	public boolean isMobBlacklisted(final EntityType entityType) {
+		if (this.mobBlackList != null)
+			return this.mobBlackList.contains(entityType);
+		else return false;
+	}
+
+	public void setMobBlacklist(final @org.jetbrains.annotations.Nullable List<EntityType> entityTypes) {
+		this.mobBlackList = entityTypes;
+	}
+
 	public TurretLevel getLevel(final int level) {
 		return this.turretLevels.get(level - 1);
 	}
@@ -111,6 +135,7 @@ public class TurretData implements ConfigSerializable {
 		map.put("Id", this.id);
 		map.put("Type", this.type);
 		map.putIf("Player_Blacklist", this.playerBlacklist);
+		map.putIf("Mob_Blacklist", this.mobBlackList);
 		map.put("Levels", this.turretLevels);
 		map.put("Current_Level", this.currentLevel);
 
@@ -122,6 +147,7 @@ public class TurretData implements ConfigSerializable {
 		final String id = map.getString("Id");
 		final String type = map.getString("Type");
 		final List<String> blacklist = map.getStringList("Player_Blacklist");
+		final List<EntityType> entityTypes = map.getList("Mob_Blacklist", EntityType.class);
 		final List<TurretLevel> levels = map.getList("Levels", TurretLevel.class);
 		final Integer level = map.getInteger("Current_Level");
 
@@ -137,13 +163,14 @@ public class TurretData implements ConfigSerializable {
 		turretData.setId(id);
 		turretData.setType(type);
 		turretData.setPlayerBlacklist(blacklist);
+		turretData.setMobBlacklist(entityTypes);
 		turretData.setCurrentLevel(level);
 
 		return turretData;
 	}
 
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-	public final static class TurretLevel implements ConfigSerializable {
+	public final static class TurretLevel implements ConfigSerializable { // TODO create damage effects
 
 		private final TurretData turretData;
 
@@ -152,7 +179,7 @@ public class TurretData implements ConfigSerializable {
 
 		@Getter
 		@Nullable
-		private List<Tuple<ItemStack, Double>> lootChances; // TODO Make this an array instead
+		private List<Tuple<ItemStack, Double>> lootChances;
 
 		@Getter
 		private int range;

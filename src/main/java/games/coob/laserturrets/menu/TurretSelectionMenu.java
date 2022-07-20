@@ -1,11 +1,12 @@
 package games.coob.laserturrets.menu;
 
-import games.coob.laserturrets.PlayerCache;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
@@ -13,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mineacademy.fo.Common;
+import org.mineacademy.fo.ItemUtil;
 import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.collection.StrictMap;
@@ -31,8 +33,10 @@ import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class TurretSelectionMenu extends MenuPagged<TurretData> {
 
@@ -40,7 +44,7 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> {
 
 	private final Button changeTypeButton;
 
-	public TurretSelectionMenu(final Player player, final ViewMode viewMode) {
+	private TurretSelectionMenu(final Player player, final ViewMode viewMode) {
 		super(9 * 4, compileTurrets(viewMode));
 
 		this.viewMode = viewMode;
@@ -73,7 +77,7 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> {
 	}
 
 	@Override
-	protected ItemStack convertToItemStack(final TurretData turretData) { // TODO convert turrets depending on the type button
+	protected ItemStack convertToItemStack(final TurretData turretData) {
 		final int level = turretData.getCurrentLevel();
 		final String id = turretData.getId();
 		final String type = turretData.getType();
@@ -84,7 +88,12 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> {
 		lore.add("");
 		lore.add("Click to edit this turret");
 
-		return ItemCreator.of(turretData.getMaterial()).name("&0" + this.viewMode.typeName + " Turret &7" + id).lore(lore).make();
+		if (this.viewMode.typeName.equals("All"))
+			return ItemCreator.of(turretData.getMaterial()).name("&b" + StringUtils.capitalize(type) + " Turret &8" + id).lore(lore).makeMenuTool();
+		else if (type.equalsIgnoreCase(this.viewMode.typeName))
+			return ItemCreator.of(turretData.getMaterial()).name("&f" + StringUtils.capitalize(type) + " Turret &7" + id).lore(lore).makeMenuTool();
+
+		return NO_ITEM;
 	}
 
 	@Override
@@ -97,12 +106,12 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> {
 		if (slot == getSize() - 1)
 			return changeTypeButton.getItem();
 
-		return NO_ITEM;
+		return super.getItemAt(slot);
 	}
 
 	@Override
 	public Menu newInstance() {
-		return new TurretSelectionMenu(this.getViewer(), viewMode);
+		return new TurretSelectionMenu(getViewer(), viewMode);
 	}
 
 	/**
@@ -137,7 +146,7 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> {
 		}
 	}
 
-	private class TurretEditMenu extends Menu { // TODO add option to change type for turrets
+	private final class TurretEditMenu extends Menu { // TODO make an upgrade menu
 
 		private final TurretData turretData;
 
@@ -146,6 +155,9 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> {
 
 		@Position(4)
 		private final Button playerBlacklistButton;
+
+		@Position(5)
+		private final Button mobBlacklistButton;
 
 		@Position(6)
 		private final Button teleportButton;
@@ -158,7 +170,7 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> {
 			this.setSize(9 * 4);
 			this.setTitle(viewMode.typeName + " Turrets");
 
-			this.levelEditButton = new ButtonMenu(new LevelMenu(turretData, 1), CompMaterial.EXPERIENCE_BOTTLE,
+			this.levelEditButton = new ButtonMenu(new LevelMenu(turretData, turretData.getCurrentLevel()), CompMaterial.EXPERIENCE_BOTTLE,
 					"Level Menu",
 					"",
 					"Open this menu to upgrade",
@@ -171,6 +183,14 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> {
 					"players from the blacklist",
 					"to prevent the turret from",
 					"targeting specific players.");
+
+			this.mobBlacklistButton = new ButtonMenu(new MobBlackListMenu(), CompMaterial.CREEPER_HEAD,
+					"Mob Blacklist",
+					"",
+					"Open this menu to add or",
+					"remove mobs from the",
+					"blacklist to prevent the",
+					"turret from targeting them.");
 
 			this.teleportButton = Button.makeSimple(CompMaterial.ENDER_EYE, "Teleport", "Teleport to the turret/nto visit it.", player1 -> {
 				player1.teleport(this.turretData.getLocation());
@@ -186,7 +206,77 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> {
 			};
 		}
 
-		public class LevelMenu extends Menu {
+		private class MobBlackListMenu extends MenuPagged<EntityType> {
+
+			private final Button addButton;
+
+			private MobBlackListMenu() {
+				super(27, TurretSelectionMenu.this, turretData.getMobBlackList());
+
+				this.setTitle("Mob Blacklist");
+
+				this.addButton = new ButtonMenu(new MobSelectionMenu(), CompMaterial.CREEPER_HEAD,
+						"Add Mob",
+						"",
+						"Open this menu to add ",
+						"mobs from the blacklist",
+						"to prevent the turret",
+						"from targeting them.");
+			}
+
+			@Override
+			protected ItemStack convertToItemStack(final EntityType entityType) {
+				return ItemCreator.ofEgg(entityType, ItemUtil.bountifyCapitalized(entityType)).make();
+			}
+
+			@Override
+			protected void onPageClick(final Player player, final EntityType entityType, final ClickType clickType) {
+				TurretRegistry.getInstance().removeMobFromBlacklist(turretData, entityType);
+				this.animateTitle("&cRemoved " + entityType.name() + "from the mob blacklist.");
+			}
+
+			@Override
+			public ItemStack getItemAt(final int slot) {
+				if (slot == this.getBottomCenterSlot())
+					return addButton.getItem();
+
+				return NO_ITEM;
+			}
+
+			@Override
+			protected String[] getInfo() {
+				return new String[]{
+						"Edit your mob blacklist by",
+						"clicking the existing eggs",
+						"to remove them or clicking",
+						"the 'Add Mob' button to add",
+						"mobs to your blacklist."
+				};
+			}
+
+			private class MobSelectionMenu extends MenuPagged<EntityType> {
+				private MobSelectionMenu() {
+					super(9, MobBlackListMenu.this, Arrays.stream(EntityType.values())
+							.filter(EntityType::isAlive)
+							.collect(Collectors.toList()));
+
+					this.setTitle("Select a Mob");
+				}
+
+				@Override
+				protected ItemStack convertToItemStack(final EntityType entityType) {
+					return ItemCreator.ofEgg(entityType, ItemUtil.bountifyCapitalized(entityType)).make();
+				}
+
+				@Override
+				protected void onPageClick(final Player player, final EntityType entityType, final ClickType clickType) {
+					TurretRegistry.getInstance().addMobToBlacklist(turretData, entityType);
+					this.animateTitle("&aAdded " + entityType.name() + "to the mob blacklist.");
+				}
+			}
+		}
+
+		private class LevelMenu extends Menu {
 
 			private final TurretData turretData;
 
@@ -216,7 +306,7 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> {
 			private final Button priceButton;
 
 			public LevelMenu(final TurretData turretData, final int turretLevel) {
-				super(TurretSelectionMenu.this);
+				super(TurretEditMenu.this);
 
 				Valid.checkBoolean(turretLevel < 3 + 2, "Cannot jump more than 2 levels ahead in turret level menu.");
 
@@ -229,7 +319,6 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> {
 
 				this.setTitle("Turret Level");
 				this.setSize(9 * 4);
-				this.setViewer(this.getViewer());
 				this.setSlotNumbersVisible();
 
 				this.rangeButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.BOW).name("Turret Range")
@@ -393,24 +482,23 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> {
 				}
 			}
 		}
-	}
 
-	private final class PlayerBlacklistPrompt extends SimplePrompt {
+		private final class PlayerBlacklistPrompt extends SimplePrompt {
 
-		@Override
-		protected String getPrompt(final ConversationContext context) {
-			return "&6What player shouldn't be targeted by this turret? You can add more players to the blacklist by using the /turret blacklist add <player> command.";
-		}
+			@Override
+			protected String getPrompt(final ConversationContext context) {
+				return "&6What player shouldn't be targeted by this turret? You can add more players to the blacklist by using the /turret blacklist add <player> command.";
+			}
 
-		@Nullable
-		@Override
-		protected Prompt acceptValidatedInput(@NotNull final ConversationContext context, @NotNull final String input) {
-			final TurretRegistry registry = TurretRegistry.getInstance();
-			final PlayerCache cache = PlayerCache.from(this.getPlayer(context));
+			@Nullable
+			@Override
+			protected Prompt acceptValidatedInput(@NotNull final ConversationContext context, @NotNull final String input) {
+				final TurretRegistry registry = TurretRegistry.getInstance();
 
-			registry.addPlayerToBlacklist(cache.getTurretBlock(), input);
-			tellSuccess("You have added " + input + " to the blacklist!");
-			return END_OF_CONVERSATION;
+				registry.addPlayerToBlacklist(turretData, input);
+				tellSuccess("You have added " + input + " to the blacklist!");
+				return END_OF_CONVERSATION;
+			}
 		}
 	}
 

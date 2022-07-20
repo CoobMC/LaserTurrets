@@ -1,89 +1,44 @@
 package games.coob.laserturrets.task;
 
+import games.coob.laserturrets.model.Laser;
+import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.util.EntityUtil;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
-import org.mineacademy.fo.remain.CompParticle;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import org.mineacademy.fo.Common;
+import org.mineacademy.fo.plugin.SimplePlugin;
 
 public class LaserTask extends BukkitRunnable {
 
 	@Override
 	public void run() {
 		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
-
-		for (final Location location : turretRegistry.getLocations()) {
+		for (final TurretData turretData : turretRegistry.getLaserTurrets()) {
+			final Location location = turretData.getLocation();
 			final Block block = location.getBlock();
+			final int level = turretData.getCurrentLevel();
+			final int range = turretRegistry.getTurretRange(block, level);
+			final LivingEntity nearestEntity = EntityUtil.findNearestEntityNonBlacklisted(location, range, LivingEntity.class, block);
 
-			if (turretRegistry.getType(block).equals("flame"))
+			if (nearestEntity == null)
 				continue;
 
-			final int level = turretRegistry.getCurrentTurretLevel(block);
+			final Location turretLocation = location.clone().add(0.5, 1.2, 0.5);
 
-			if (turretRegistry.getCurrentTurretLevel(block) == 1) {
-				final Entity closestPlayer = findNearestEntityNonBlacklisted(location, turretRegistry.getTurretRange(block, level), LivingEntity.class, block);
-
-				if (closestPlayer != null && closestPlayer.getType().equals(EntityType.PLAYER)) {
-					final Player player = (Player) closestPlayer;
-					player.damage(turretRegistry.getLaserDamage(block, level));
-
-					final int length = 50; // show twenty blocks ahead
-					final Location laserLocation = location.clone();
-
-					laserLocation.setY(location.getY() + 1.2);
-					laserLocation.setX(location.getX() + 0.5);
-					laserLocation.setZ(location.getZ() + 0.5);
-
-					final double dX = laserLocation.getX() - closestPlayer.getLocation().getX();
-					final double dY = laserLocation.getY() - closestPlayer.getLocation().getY();
-					final double dZ = laserLocation.getZ() - closestPlayer.getLocation().getZ();
-
-					final double yaw = Math.atan2(dZ, dX);
-					final double pitch = Math.atan2(Math.sqrt(dZ * dZ + dX * dX), dY) + Math.PI;
-
-					final double X = Math.sin(pitch) * Math.cos(yaw);
-					final double Y = Math.sin(pitch) * Math.sin(yaw);
-					final double Z = Math.cos(pitch);
-
-					final Vector vector = new Vector(X, Z, Y);
-
-					for (double waypoint = 1; waypoint < length; waypoint += 0.5) {
-						laserLocation.add(vector);
-
-						if (!turretRegistry.getType(block).equals("laser"))
-							CompParticle.VILLAGER_HAPPY.spawn(laserLocation);
-						else CompParticle.REDSTONE.spawn(laserLocation);
-					}
-				}
+			try {
+				final Laser laser = new Laser.GuardianLaser(turretLocation, nearestEntity, 1, 40);
+				turretLocation.getWorld().playSound(turretLocation, Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.4F, 0.2F);
+				laser.start(SimplePlugin.getInstance());
+				nearestEntity.damage(1);
+				Common.runLater(10, () -> nearestEntity.damage(1));
+			} catch (final ReflectiveOperationException e) {
+				e.printStackTrace();
 			}
 		}
-	}
-
-	public <T> LivingEntity findNearestEntityNonBlacklisted(final Location center, final double range3D, final Class<T> entityClass, final Block turret) {
-		final List<Entity> found = new ArrayList<>();
-		final TurretRegistry registry = TurretRegistry.getInstance();
-
-		if (center.getWorld() == null)
-			return null;
-
-		for (final Entity nearby : center.getWorld().getNearbyEntities(center, range3D, range3D, range3D)) {
-			if (nearby instanceof LivingEntity && entityClass.isAssignableFrom(nearby.getClass())) {
-				if (!registry.isPlayerBlacklisted(turret, nearby.getName()))
-					found.add(nearby);
-			}
-		}
-
-		found.sort(Comparator.comparingDouble(entity -> entity.getLocation().distance(center)));
-		return found.isEmpty() ? null : (LivingEntity) found.get(0);
 	}
 }
 

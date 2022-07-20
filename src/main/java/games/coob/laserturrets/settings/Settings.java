@@ -34,6 +34,26 @@ public final class Settings extends SimpleSettings {
 				"Example.Uncommented_Section");
 	}
 
+	public static class CurrencySection { // TODO integrate vault economy
+		public static String CURRENCY_NAME;
+		public static Double DEFAULT_CURRENCY;
+		public static Boolean USE_VAULT;
+
+		/*
+		 * Automatically called method when we load settings.yml to load values in this subclass
+		 */
+		private static void init() {
+
+			// A convenience method to instruct the loader to prepend all paths with Example so you
+			// do not have to call "Example.Key1", "Example.Key2" all the time, only "Key1" and "Key2".
+			setPathPrefix("Currency_Settings");
+
+			USE_VAULT = getBoolean("Use_Vault");
+			CURRENCY_NAME = getString("Currency_Name");
+			DEFAULT_CURRENCY = getDouble("Default_Currency");
+		}
+	}
+
 	public static class DefaultLevel1TurretSection {
 		public static Double PRICE;
 		public static Boolean ENABLE_LASERS;

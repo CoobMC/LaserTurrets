@@ -5,6 +5,17 @@
 # If you'd like to edit a specific turret, use the "/lt menu" command in game.
 #
 # -------------------------------------------------------------------------------------------------
+# Edit your currency setting
+# -------------------------------------------------------------------------------------------------
+Currency_Settings:
+  # If set to false, we will use our own built in economy system that supports MySQL!
+  Use_Vault: false
+  # Name your currency
+  Currency_Name: "coins"
+  # How many coins should players get by default (this won't work if your using the Vault economy system)
+  Default_Currency: 500
+
+# -------------------------------------------------------------------------------------------------
 # Edit your default level 1 turret setting
 # -------------------------------------------------------------------------------------------------
 Default_Level_1_Turret_Settings:

@@ -1,13 +1,16 @@
 package games.coob.laserturrets;
 
 import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.task.ArrowTask;
+import games.coob.laserturrets.task.LaserPointerTask;
 import games.coob.laserturrets.task.LaserTask;
-import games.coob.laserturrets.task.TurretTask;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.plugin.SimplePlugin;
 
@@ -18,7 +21,25 @@ import org.mineacademy.fo.plugin.SimplePlugin;
  * <p>
  * It uses Foundation for fast and efficient development process.
  */
-public final class LaserTurrets extends SimplePlugin {
+public final class LaserTurrets extends SimplePlugin { // TODO create an animation when registering a turret (spiny head animation)
+
+	private static Economy econ = null;
+
+	private boolean setupEconomy() {
+		if (getServer().getPluginManager().getPlugin("Vault") == null) {
+			return false;
+		}
+		final RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+		if (rsp == null) {
+			return false;
+		}
+		econ = rsp.getProvider();
+		return true;
+	}
+
+	public static Economy getEconomy() {
+		return econ;
+	}
 
 	/**
 	 * Automatically perform login ONCE when the plugin starts.
@@ -26,6 +47,11 @@ public final class LaserTurrets extends SimplePlugin {
 	@Override
 	protected void onPluginStart() {
 		Common.runLater(TurretRegistry::getInstance);
+
+		if (!setupEconomy()) {
+			Common.log("[%s] - Disabled due to no Vault dependency found!", getDescription().getName());
+			getServer().getPluginManager().disablePlugin(this);
+		}
 	}
 
 	@Override
@@ -54,8 +80,9 @@ public final class LaserTurrets extends SimplePlugin {
 		// Add your own plugin parts to load automatically here
 		// Please see @AutoRegister for parts you do not have to register manually
 		//
-		Common.runTimer(20, new TurretTask());
-		Common.runTimer(2, new LaserTask());
+		Common.runTimer(20, new ArrowTask());
+		Common.runTimer(2, new LaserPointerTask());
+		Common.runTimer(30, new LaserTask());
 	}
 
 	/* ------------------------------------------------------------------------------- */

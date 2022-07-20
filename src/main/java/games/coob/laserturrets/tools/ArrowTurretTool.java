@@ -1,6 +1,5 @@
 package games.coob.laserturrets.tools;
 
-import games.coob.laserturrets.PlayerCache;
 import games.coob.laserturrets.model.TurretRegistry;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -16,6 +15,7 @@ import org.mineacademy.fo.annotation.AutoRegister;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.menu.tool.Tool;
 import org.mineacademy.fo.remain.CompMaterial;
+import org.mineacademy.fo.remain.CompMetadata;
 import org.mineacademy.fo.visual.VisualTool;
 
 import java.util.List;
@@ -70,35 +70,48 @@ public final class ArrowTurretTool extends VisualTool {
 	@Override
 	protected void handleBlockClick(final Player player, final ClickType click, final Block block) {
 		final TurretRegistry registry = TurretRegistry.getInstance();
-		final boolean isRegistered = registry.isRegistered(block);
 		final String type = "arrow";
-		final PlayerCache cache = PlayerCache.from(player);
+		final boolean isRegisteredExclude = registry.isRegisteredExclude(block, type);
+		final boolean isArrowTurret = registry.isArrowTurret(block);
 
-		if (isRegistered) {
-			registry.unregister(block, type);
-			cache.setTurretBlock(null);
-			cache.setTurretType(null);
-		} else {
-			registry.register(block, type);
-			cache.setTurretBlock(block);
-			cache.setTurretType(type);
-		}
-
-		Messenger.success(player, "Successfully " + (isRegistered ? "&cun" : "&a") + "registered &7the arrow turret at " + Common.shortLocation(block.getLocation()) + ".");
+		if (!isRegisteredExclude) {
+			if (isArrowTurret && !CompMetadata.hasMetadata(this.item, "Destroy")) {
+				registry.unregister(block, type);
+				Messenger.success(player, "Successfully &cunregistered &7the laser turret at " + Common.shortLocation(block.getLocation()) + ".");
+			} else {
+				if (CompMetadata.hasMetadata(this.item, "Destroy"))
+					player.getInventory().remove(this.item);
+				registry.register(block, type);
+				Messenger.success(player, "Successfully &aregistered &7the laser turret at " + Common.shortLocation(block.getLocation()) + ".");
+			}
+		} else
+			Messenger.error(player, "This block is already a turret, you can only have 1 type of turret per a block.");
 	}
 
 	@Override
 	protected List<Location> getVisualizedPoints(final Player player) {
-		return TurretRegistry.getInstance().getLocations();
+		if (!CompMetadata.hasMetadata(this.item, "Destroy"))
+			return TurretRegistry.getInstance().getArrowLocations();
+
+		return null;
 	}
 
 	@Override
 	protected String getBlockName(final Block block, final Player player) {
-		return "&aRegistered Arrow Turret";
+		if (!CompMetadata.hasMetadata(this.item, "Destroy"))
+			return "&aRegistered Arrow Turret";
+
+		return null;
 	}
 
 	@Override
 	protected CompMaterial getBlockMask(final Block block, final Player player) {
 		return CompMaterial.EMERALD_BLOCK;
+	}
+
+	public static void giveOneUse(final Player player) {
+		final ItemStack item = getInstance().getItem();
+		CompMetadata.setMetadata(item, "Destroy", "");
+		player.getInventory().addItem(item);
 	}
 }

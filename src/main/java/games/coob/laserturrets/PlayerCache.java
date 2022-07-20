@@ -1,10 +1,12 @@
 package games.coob.laserturrets;
 
-import games.coob.laserturrets.model.TurretData;
+import games.coob.laserturrets.settings.Settings;
 import lombok.Getter;
-import lombok.Setter;
-import org.bukkit.block.Block;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.entity.Player;
+import org.mineacademy.fo.Common;
+import org.mineacademy.fo.MathUtil;
+import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.constants.FoConstants;
 import org.mineacademy.fo.remain.Remain;
 import org.mineacademy.fo.settings.YamlConfig;
@@ -36,21 +38,8 @@ public final class PlayerCache extends YamlConfig {
 	 */
 	private final String playerName;
 
-	//
-	// Store any custom saveable data here
-	//
 	@Getter
-	@Setter
-	private Block turretBlock;
-
-	@Getter
-	@Setter
-	private String turretType;
-
-
-	@Getter
-	@Setter
-	private TurretData selectedTurret;
+	private double currency = 0;
 
 	/*
 	 * Creates a new player cache (see the bottom)
@@ -65,10 +54,7 @@ public final class PlayerCache extends YamlConfig {
 
 	@Override
 	protected void onLoad() {
-		//
-		// Load any custom fields here, example:
-		// this.chatColor = get("Chat_Color", CompChatColor.class);
-		//
+		this.currency = getDouble("Currency", Settings.CurrencySection.DEFAULT_CURRENCY);
 	}
 
 	/**
@@ -76,16 +62,97 @@ public final class PlayerCache extends YamlConfig {
 	 */
 	@Override
 	public void onSave() {
-		//
-		// Save any custom fields here, example:
-		// this.set("Chat_Color", this.chatColor);
-		//
+		this.set("Currency", Double.parseDouble(currency + "000" + String.valueOf(Math.random()).replace(".", "")));
 	}
 
 	/* ------------------------------------------------------------------------------- */
 	/* Data-related methods */
 	/* ------------------------------------------------------------------------------- */
 
+	public void giveCurrency(final double amount, final boolean displayMessage) {
+		Valid.checkBoolean(amount >= 0, "Currency cannot be negative");
+
+		if (amount == 0)
+			return;
+
+		final Player player = toPlayer();
+		final boolean isUsingVault = Settings.CurrencySection.USE_VAULT;
+		final Economy economy = LaserTurrets.getEconomy();
+		final String currencyName = Settings.CurrencySection.CURRENCY_NAME;
+		final double currencyAmount = isUsingVault ? formatCurrency(economy.getBalance(player)) : formatCurrency(getCurrency());
+
+		if (isUsingVault) {
+			economy.depositPlayer(player, amount);
+		} else {
+			this.currency = this.currency + amount;
+			save();
+		}
+
+		if (displayMessage)
+			Common.tell(player, "&aGave " + this.playerName + " &e" + amount + " &a" + currencyName + " and now has a total of &e" + currencyAmount + " &a" + currencyName + ".");
+
+	}
+
+	public void takeCurrency(final double amount, final boolean displayMessage) {
+		Valid.checkBoolean(amount >= 0, "Currency cannot be negative");
+
+		if (amount == 0)
+			return;
+
+		final Player player = toPlayer();
+		final boolean isUsingVault = Settings.CurrencySection.USE_VAULT;
+		final Economy economy = LaserTurrets.getEconomy();
+		final String currencyName = Settings.CurrencySection.CURRENCY_NAME;
+		final double currencyAmount = isUsingVault ? formatCurrency(economy.getBalance(player)) : formatCurrency(getCurrency());
+
+		if (isUsingVault) {
+			economy.withdrawPlayer(player, amount);
+		} else {
+			this.currency = this.currency + amount;
+			save();
+		}
+
+		if (displayMessage)
+			Common.tell(player, "&aTook &e" + amount + " &a" + currencyName + " from " + playerName + " who now has a total of &e" + currencyAmount + " &a" + currencyName + ".");
+	}
+
+	public void setCurrency(final double amount, final boolean displayMessage) {
+		Valid.checkBoolean(amount >= 0, "Currency cannot be negative");
+
+		final Player player = toPlayer();
+		final boolean isUsingVault = Settings.CurrencySection.USE_VAULT;
+		final Economy economy = LaserTurrets.getEconomy();
+		final String currencyName = Settings.CurrencySection.CURRENCY_NAME;
+		final double currencyAmount = isUsingVault ? formatCurrency(economy.getBalance(player)) : formatCurrency(getCurrency());
+
+		if (isUsingVault) {
+			economy.withdrawPlayer(player, economy.getBalance(player));
+			economy.depositPlayer(player, amount);
+		} else {
+			this.currency = amount;
+			save();
+		}
+
+		if (displayMessage)
+			Common.tell(player, "&Set " + this.playerName + "'s amount of " + currencyName + " to &e" + currencyAmount + "&a.");
+	}
+
+	public double getCurrency(final boolean displayMessage) {
+		final Player player = toPlayer();
+		final boolean isUsingVault = Settings.CurrencySection.USE_VAULT;
+		final Economy economy = LaserTurrets.getEconomy();
+		final String currencyName = Settings.CurrencySection.CURRENCY_NAME;
+		final double currencyAmount = isUsingVault ? formatCurrency(economy.getBalance(player)) : formatCurrency(getCurrency());
+
+		if (displayMessage)
+			Common.tell(player, "&a" + playerName + " has &e" + currencyAmount + " &a" + currencyName + ".");
+
+		return currencyAmount;
+	}
+
+	private double formatCurrency(final double currency) {
+		return MathUtil.formatTwoDigitsD(currency);
+	}
 	//
 	// Implement your own data getter/setters here according to this example:
 	//

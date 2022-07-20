@@ -71,6 +71,7 @@ public final class TurretCommandGroup extends SimpleCommandGroup {
 		registerSubcommand(new ToolsCommand());
 		registerSubcommand(new BlacklistCommand());
 		registerSubcommand(new MenuCommand());
+		registerSubcommand(new CurrencyCommand());
 
 		// Register the premade commands from Foundation
 		registerSubcommand(new DebugCommand("laserturrets.command.debug"));
