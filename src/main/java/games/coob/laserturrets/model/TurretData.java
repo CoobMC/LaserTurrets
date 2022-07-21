@@ -19,7 +19,7 @@ import java.util.List;
 
 @Getter
 public class TurretData implements ConfigSerializable { // TODO create ammo
-
+	
 	private Location location;
 
 	private CompMaterial material;

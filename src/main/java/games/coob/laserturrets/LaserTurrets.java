@@ -1,6 +1,7 @@
 package games.coob.laserturrets;
 
 import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.task.ArrowTask;
 import games.coob.laserturrets.task.LaserPointerTask;
 import games.coob.laserturrets.task.LaserTask;
@@ -10,8 +11,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.mineacademy.fo.Common;
+import org.mineacademy.fo.model.HookManager;
 import org.mineacademy.fo.plugin.SimplePlugin;
 
 /**
@@ -25,18 +26,6 @@ public final class LaserTurrets extends SimplePlugin { // TODO create an animati
 
 	private static Economy econ = null;
 
-	private boolean setupEconomy() {
-		if (getServer().getPluginManager().getPlugin("Vault") == null) {
-			return false;
-		}
-		final RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-		if (rsp == null) {
-			return false;
-		}
-		econ = rsp.getProvider();
-		return true;
-	}
-
 	public static Economy getEconomy() {
 		return econ;
 	}
@@ -48,8 +37,8 @@ public final class LaserTurrets extends SimplePlugin { // TODO create an animati
 	protected void onPluginStart() {
 		Common.runLater(TurretRegistry::getInstance);
 
-		if (!setupEconomy()) {
-			Common.log("[%s] - Disabled due to no Vault dependency found!", getDescription().getName());
+		if (!HookManager.isVaultLoaded() && Settings.CurrencySection.USE_VAULT) {
+			Common.log("[LaserTurrets] - Disabled due to no Vault dependency found!", getDescription().getName());
 			getServer().getPluginManager().disablePlugin(this);
 		}
 	}
