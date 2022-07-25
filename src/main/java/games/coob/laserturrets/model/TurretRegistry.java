@@ -38,6 +38,15 @@ public class TurretRegistry extends YamlConfig {
 	@Override
 	protected void onLoad() {
 		this.registeredTurrets = this.getSet("Turrets", TurretData.class);
+
+		for (final TurretData turretData : this.registeredTurrets) {
+			if (turretData.getType().equalsIgnoreCase("arrow"))
+				this.arrowTurrets.add(turretData);
+			if (turretData.getType().equalsIgnoreCase("flame"))
+				this.flameTurrets.add(turretData);
+			if (turretData.getType().equalsIgnoreCase("laser"))
+				this.laserTurrets.add(turretData);
+		}
 	}
 
 	@Override
@@ -228,6 +237,12 @@ public class TurretRegistry extends YamlConfig {
 				return turretData.getCurrentLevel();
 
 		return 0;
+	}
+
+	public void setCurrentTurretLevel(final TurretData turretData, final int level) {
+		turretData.setCurrentLevel(level);
+
+		save();
 	}
 
 	public String getType(final Block block) {

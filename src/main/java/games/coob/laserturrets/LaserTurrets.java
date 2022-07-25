@@ -1,5 +1,7 @@
 package games.coob.laserturrets;
 
+import games.coob.laserturrets.menu.TurretShopMenu;
+import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.task.ArrowTask;
@@ -7,10 +9,12 @@ import games.coob.laserturrets.task.LaserPointerTask;
 import games.coob.laserturrets.task.LaserTask;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.model.HookManager;
 import org.mineacademy.fo.plugin.SimplePlugin;
@@ -103,6 +107,20 @@ public final class LaserTurrets extends SimplePlugin { // TODO create an animati
 
 		if (turretRegistry.isRegistered(block))
 			event.setCancelled(true);
+	}
+
+	@EventHandler
+	public void onPlayerInteractAtBlock(final PlayerInteractEvent event) {
+		final Block block = event.getClickedBlock();
+		final TurretRegistry registry = TurretRegistry.getInstance();
+
+		if (registry.isRegistered(block)) {
+			final TurretData turretData = registry.getTurretByBlock(block);
+			final Player player = event.getPlayer();
+
+			if (turretData.getPlayerBlacklist() != null && turretData.getPlayerBlacklist().contains(player.getName()))
+				new TurretShopMenu.UpgradeMenu(turretData, turretData.getCurrentLevel()).displayTo(player);
+		}
 	}
 
 	/* ------------------------------------------------------------------------------- */

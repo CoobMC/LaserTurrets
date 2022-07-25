@@ -19,7 +19,7 @@ import java.util.List;
 
 @Getter
 public class TurretData implements ConfigSerializable { // TODO create ammo
-	
+
 	private Location location;
 
 	private CompMaterial material;
@@ -136,41 +136,41 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		map.put("Type", this.type);
 		map.putIf("Player_Blacklist", this.playerBlacklist);
 		map.putIf("Mob_Blacklist", this.mobBlackList);
-		map.put("Levels", this.turretLevels);
 		map.put("Current_Level", this.currentLevel);
+		map.put("Levels", this.turretLevels);
 
 		return map;
 	}
 
 	public static TurretData deserialize(final SerializedMap map) {
+		final TurretData turretData = new TurretData();
+
 		final String hash = map.getString("Block");
 		final String id = map.getString("Id");
 		final String type = map.getString("Type");
 		final List<String> blacklist = map.getStringList("Player_Blacklist");
 		final List<EntityType> entityTypes = map.getList("Mob_Blacklist", EntityType.class);
-		final List<TurretLevel> levels = map.getList("Levels", TurretLevel.class);
 		final Integer level = map.getInteger("Current_Level");
+		final List<TurretLevel> levels = map.getList("Levels", TurretLevel.class, turretData);
 
 		final String[] split = hash.split(" \\| ");
 		final Location location = SerializeUtil.deserializeLocation(split[0]);
 		final CompMaterial material = CompMaterial.valueOf(split[1]);
 
-		final TurretData turretData = new TurretData();
-
 		turretData.setMaterial(material);
 		turretData.setLocation(location);
-		turretData.setTurretLevels(levels);
 		turretData.setId(id);
 		turretData.setType(type);
 		turretData.setPlayerBlacklist(blacklist);
 		turretData.setMobBlacklist(entityTypes);
 		turretData.setCurrentLevel(level);
+		turretData.setTurretLevels(levels);
 
 		return turretData;
 	}
 
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-	public final static class TurretLevel implements ConfigSerializable { // TODO create damage effects
+	public final static class TurretLevel implements ConfigSerializable { // TODO create damage effects (on fire, suffocation, freeze)
 
 		private final TurretData turretData;
 
@@ -210,19 +210,6 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 			this.lootChances = lootChances;
 		}
 
-		@Override
-		public SerializedMap serialize() {
-			final SerializedMap map = new SerializedMap();
-
-			map.put("Price", this.price);
-			map.put("Range", this.range);
-			map.put("Laser_Enabled", this.laserEnabled);
-			map.put("Laser_Damage", this.laserDamage);
-			map.putIf("Loot_Chances", this.lootChances);
-
-			return map;
-		}
-
 		public static TurretLevel deserialize(final SerializedMap map, final TurretData turretData) {
 			final double price = map.getDouble("Price");
 			final List<Tuple<ItemStack, Double>> lootChances = map.getTupleList("Loot_Chances", ItemStack.class, Double.class);
@@ -239,6 +226,19 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 			level.setLaserDamage(laserDamage);
 
 			return level;
+		}
+
+		@Override
+		public SerializedMap serialize() {
+			final SerializedMap map = new SerializedMap();
+
+			map.put("Price", this.price);
+			map.put("Range", this.range);
+			map.put("Laser_Enabled", this.laserEnabled);
+			map.put("Laser_Damage", this.laserDamage);
+			map.putIf("Loot_Chances", this.lootChances);
+
+			return map;
 		}
 	}
 }

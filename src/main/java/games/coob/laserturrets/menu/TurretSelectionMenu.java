@@ -15,7 +15,6 @@ import org.jetbrains.annotations.Nullable;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.ItemUtil;
 import org.mineacademy.fo.Messenger;
-import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.collection.StrictMap;
 import org.mineacademy.fo.conversation.SimplePrompt;
 import org.mineacademy.fo.menu.Menu;
@@ -39,14 +38,14 @@ import java.util.stream.Collectors;
 
 public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrade turret menu
 
-	private ViewMode viewMode;
+	private TurretType turretType;
 
 	private final Button changeTypeButton;
 
-	private TurretSelectionMenu(final Player player, final ViewMode viewMode) {
+	private TurretSelectionMenu(final Player player, final TurretType viewMode) {
 		super(9 * 4, compileTurrets(viewMode));
 
-		this.viewMode = viewMode;
+		this.turretType = viewMode;
 
 		this.setTitle(viewMode.typeName + " Turrets");
 		this.setSize(9 * 3);
@@ -71,7 +70,7 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 		};
 	}
 
-	private static List<TurretData> compileTurrets(final ViewMode viewMode) {
+	private static List<TurretData> compileTurrets(final TurretType viewMode) {
 		return new ArrayList<>(viewMode.turretTypeList);
 	}
 
@@ -87,9 +86,9 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 		lore.add("");
 		lore.add("Click to edit this turret");
 
-		if (this.viewMode.typeName.equals("All"))
+		if (this.turretType.typeName.equals("All"))
 			return ItemCreator.of(turretData.getMaterial()).name("&b" + capitalize(type) + " Turret &8" + id).lore(lore).makeMenuTool();
-		else if (type.equalsIgnoreCase(this.viewMode.typeName))
+		else if (type.equalsIgnoreCase(this.turretType.typeName))
 			return ItemCreator.of(turretData.getMaterial()).name("&f" + capitalize(type) + " Turret &7" + id).lore(lore).makeMenuTool();
 
 		return NO_ITEM;
@@ -102,7 +101,7 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 
 	@Override
 	protected void onPageClick(final Player player, final TurretData turretData, final ClickType clickType) {
-		new TurretEditMenu(turretData);
+		new TurretEditMenu(turretData, ViewMode.EDIT);
 	}
 
 	@Override
@@ -115,7 +114,7 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 
 	@Override
 	public Menu newInstance() {
-		return new TurretSelectionMenu(getViewer(), viewMode);
+		return new TurretSelectionMenu(getViewer(), turretType);
 	}
 
 	/**
@@ -144,7 +143,7 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 
 		@Override
 		protected Prompt acceptValidatedInput(@NotNull final ConversationContext context, @NotNull final String input) {
-			viewMode = ViewMode.valueOf(input.toUpperCase());
+			turretType = TurretType.valueOf(input.toUpperCase());
 
 			return Prompt.END_OF_CONVERSATION;
 		}
@@ -154,25 +153,24 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 
 		private final TurretData turretData;
 
-		@Position(2)
-		private final Button levelEditButton;
+		private final ViewMode viewMode;
 
-		@Position(4)
+		private final Button levelEditButton; // TODO either open menu or upgrade level
+
 		private final Button playerBlacklistButton;
 
-		@Position(5)
 		private final Button mobBlacklistButton;
 
-		@Position(6)
 		private final Button teleportButton;
 
-		TurretEditMenu(final TurretData turretData) {
+		TurretEditMenu(final TurretData turretData, final ViewMode viewMode) {
 			super(TurretSelectionMenu.this);
 
 			this.turretData = turretData;
+			this.viewMode = viewMode;
 
 			this.setSize(9 * 4);
-			this.setTitle(viewMode.typeName + " Turrets");
+			this.setTitle(turretType.typeName + " Turrets");
 
 			this.levelEditButton = new ButtonMenu(new LevelMenu(turretData, turretData.getCurrentLevel()), CompMaterial.EXPERIENCE_BOTTLE,
 					"Level Menu",
@@ -208,6 +206,23 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 			return new String[]{
 					"Edit this turrets settings."
 			};
+		}
+
+		@Override
+		public ItemStack getItemAt(final int slot) {
+			if (viewMode == ViewMode.EDIT) {
+				if (slot == 2)
+					return this.teleportButton.getItem();
+			}
+
+			if (slot == 4)
+				return this.levelEditButton.getItem();
+			if (slot == 6)
+				return this.playerBlacklistButton.getItem();
+			if (slot == 8)
+				return this.mobBlacklistButton.getItem();
+
+			return NO_ITEM;
 		}
 
 		private class MobBlackListMenu extends MenuPagged<EntityType> {
@@ -303,16 +318,16 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 			@Position(9 + 8)
 			private final Button previousLevelButton;
 
-			@Position(9 + 8)
+			@Position(9 + 9)
 			private final Button nextLevelButton;
 
-			@Position(9 + 8)
+			@Position(9 + 10)
 			private final Button priceButton;
 
 			public LevelMenu(final TurretData turretData, final int turretLevel) {
 				super(TurretEditMenu.this);
 
-				Valid.checkBoolean(turretLevel < 3 + 2, "Cannot jump more than 2 levels ahead in turret level menu.");
+				org.mineacademy.fo.Valid.checkBoolean(turretLevel < 3 + 2, "Cannot jump more than 2 levels ahead in turret level menu.");
 
 				final boolean nextLevelExists = turretLevel <= turretData.getLevels() || turretData.getLevels() == 0;
 				final TurretRegistry registry = TurretRegistry.getInstance();
@@ -420,6 +435,31 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 						RangedValue.parse("0-100000"), (Double input) -> registry.setLevelPrice(turretData, turretLevel, input));
 			}
 
+			/*@Override
+			public ItemStack getItemAt(final int slot) { // TODO
+				if (viewMode == ViewMode.EDIT) {
+					if (slot == 1)
+						return rangeButton.getItem();
+					if (slot == 2)
+						return rangeButton.getItem();
+					if (slot == 3)
+						return laserEnabledButton.getItem();
+					if (slot == 4)
+						return laserDamageButton.getItem();
+				}
+
+				if (slot == getSize() - 6)
+					return previousTier.getItem();
+
+				if (slot == getSize() - 5)
+					return viewMode == ViewMode.UPGRADE ? upgradeTier.getItem() : priceButton.getItem();
+
+				if (slot == getSize() - 4)
+					return nextTier.getItem();
+
+				return NO_ITEM;
+			}*/
+
 			private TurretData.TurretLevel getOrMakeLevel(final int turretLevel) {
 				TurretData.TurretLevel level = this.turretData.getLevel(turretLevel);
 
@@ -506,8 +546,12 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 		}
 	}
 
+	/*private final class ValidateMenu extends Menu {
+
+	}*/ // TODO
+
 	@RequiredArgsConstructor
-	private enum ViewMode {
+	private enum TurretType {
 		ALL("All", TurretRegistry.getInstance().getRegisteredTurrets()),
 		ARROW("Arrow", TurretRegistry.getInstance().getArrowTurrets()),
 		FLAME("Flame", TurretRegistry.getInstance().getFlameTurrets()),
@@ -517,19 +561,25 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 		private final Set<TurretData> turretTypeList;
 	}
 
+	@RequiredArgsConstructor
+	private enum ViewMode {
+		EDIT(),
+		PURCHASE()
+	}
+
 	public static void openAllTurretsSelectionMenu(final Player player) {
-		new TurretSelectionMenu(player, ViewMode.ALL).displayTo(player);
+		new TurretSelectionMenu(player, TurretType.ALL).displayTo(player);
 	}
 
 	public static void openArrowTurretsSelectionMenu(final Player player) {
-		new TurretSelectionMenu(player, ViewMode.ARROW).displayTo(player);
+		new TurretSelectionMenu(player, TurretType.ARROW).displayTo(player);
 	}
 
 	public static void openFlameTurretsSelectionMenu(final Player player) {
-		new TurretSelectionMenu(player, ViewMode.FLAME).displayTo(player);
+		new TurretSelectionMenu(player, TurretType.FLAME).displayTo(player);
 	}
 
 	public static void openLaserTurretsSelectionMenu(final Player player) {
-		new TurretSelectionMenu(player, ViewMode.LASER).displayTo(player);
+		new TurretSelectionMenu(player, TurretType.LASER).displayTo(player);
 	}
 }
