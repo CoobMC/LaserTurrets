@@ -14,7 +14,7 @@ import org.mineacademy.fo.Common;
 import org.mineacademy.fo.MathUtil;
 import org.mineacademy.fo.menu.Menu;
 import org.mineacademy.fo.menu.button.Button;
-import org.mineacademy.fo.menu.button.StartPosition;
+import org.mineacademy.fo.menu.button.ButtonMenu;
 import org.mineacademy.fo.menu.button.annotation.Position;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.remain.CompMaterial;
@@ -23,7 +23,7 @@ import org.mineacademy.fo.remain.CompSound;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TurretShopMenu extends Menu { // TODO create config file for the price of each level
+public class ShopMenu extends Menu { // TODO create config file for the price of each level
 
 
 	private final PlayerCache cache;
@@ -37,7 +37,7 @@ public class TurretShopMenu extends Menu { // TODO create config file for the pr
 	@Position(14)
 	private final Button laserTurretButton;
 
-	public TurretShopMenu(final Player player) {
+	public ShopMenu(final Player player) {
 		this.cache = PlayerCache.from(player);
 
 		this.setTitle("Turret Shop");
@@ -104,20 +104,16 @@ public class TurretShopMenu extends Menu { // TODO create config file for the pr
 
 	public static class UpgradeMenu extends Menu {
 
-		private final TurretData turretData;
-
-		private final int turretLevel;
-
-		@Position(start = StartPosition.CENTER)
+		@Position(15)
 		private final Button upgradeButton;
 
-		public UpgradeMenu(final TurretData turretData, final int turretLevel) { // TODO allow owner to upgrade, set blacklist
+		@Position(17)
+		private final Button blacklistButton;
 
-			this.turretData = turretData;
-			this.turretLevel = turretLevel;
-
+		public UpgradeMenu(final TurretData turretData, final int turretLevel, final Player player) { // TODO allow owner to upgrade, set blacklist
 			this.setSize(27);
 			this.setTitle("Upgrade Turret");
+			this.setViewer(player);
 
 			final int currentLevel = turretData.getCurrentLevel();
 			final boolean mayBeUpgraded = currentLevel + 1 == turretLevel;
@@ -169,7 +165,15 @@ public class TurretShopMenu extends Menu { // TODO create config file for the pr
 							.make();
 				}
 			};
+
+			this.blacklistButton = new ButtonMenu(new BlacklistMenu(UpgradeMenu.this, turretData), CompMaterial.KNOWLEDGE_BOOK,
+					"Turret Blacklist",
+					"",
+					"Click this button to edit",
+					"your turrets blacklist.");
 		}
 	}
 }
+
+
 

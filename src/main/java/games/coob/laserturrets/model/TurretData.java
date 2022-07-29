@@ -16,9 +16,10 @@ import org.mineacademy.fo.remain.CompMaterial;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
-public class TurretData implements ConfigSerializable { // TODO create ammo
+public class TurretData implements ConfigSerializable { // TODO create ammo & health system
 
 	private Location location;
 
@@ -28,13 +29,12 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 
 	private String type;
 
-	@Nullable
-	private List<String> playerBlacklist = new ArrayList<>();
+	private List<UUID> playerBlacklist = new ArrayList<>();
 
 	@Nullable
 	private List<EntityType> mobBlackList = new ArrayList<>();
 
-	private List<TurretData.TurretLevel> turretLevels = new ArrayList<>(10);
+	private List<TurretData.TurretLevel> turretLevels = new ArrayList<>();
 
 	private int currentLevel;
 
@@ -58,22 +58,22 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		this.currentLevel = level;
 	}
 
-	public void addPlayerToBlacklist(final String playerName) {
-		playerBlacklist.add(playerName);
+	public void addPlayerToBlacklist(final UUID uuid) {
+		playerBlacklist.add(uuid);
 	}
 
-	public void removePlayerFromBlacklist(final String playerName) {
+	public void removePlayerFromBlacklist(final UUID uuid) {
 		if (this.playerBlacklist != null)
-			this.playerBlacklist.remove(playerName);
+			this.playerBlacklist.remove(uuid);
 	}
 
-	public boolean isPlayerBlacklisted(final String playerName) {
+	public boolean isPlayerBlacklisted(final UUID uuid) {
 		if (this.playerBlacklist != null)
-			return this.playerBlacklist.contains(playerName);
+			return this.playerBlacklist.contains(uuid);
 		else return false;
 	}
 
-	public void setPlayerBlacklist(final @org.jetbrains.annotations.Nullable List<String> playerBlacklist) {
+	public void setPlayerBlacklist(final List<UUID> playerBlacklist) {
 		this.playerBlacklist = playerBlacklist;
 	}
 
@@ -148,7 +148,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		final String hash = map.getString("Block");
 		final String id = map.getString("Id");
 		final String type = map.getString("Type");
-		final List<String> blacklist = map.getStringList("Player_Blacklist");
+		final List<UUID> blacklist = map.getList("Player_Blacklist", UUID.class);
 		final List<EntityType> entityTypes = map.getList("Mob_Blacklist", EntityType.class);
 		final Integer level = map.getInteger("Current_Level");
 		final List<TurretLevel> levels = map.getList("Levels", TurretLevel.class, turretData);
@@ -190,6 +190,9 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		@Getter
 		private double laserDamage;
 
+		@Getter
+		private int health;
+
 		public void setPrice(final double price) {
 			this.price = price;
 		}
@@ -210,12 +213,17 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 			this.lootChances = lootChances;
 		}
 
+		public void setHealth(final int health) {
+			this.health = health;
+		}
+
 		public static TurretLevel deserialize(final SerializedMap map, final TurretData turretData) {
 			final double price = map.getDouble("Price");
 			final List<Tuple<ItemStack, Double>> lootChances = map.getTupleList("Loot_Chances", ItemStack.class, Double.class);
 			final int range = map.getInteger("Range");
 			final boolean laserEnabled = map.getBoolean("Laser_Enabled");
 			final double laserDamage = map.getDouble("Laser_Damage");
+			final int health = map.getInteger("Health");
 
 			final TurretLevel level = new TurretLevel(turretData);
 
@@ -224,6 +232,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 			level.setRange(range);
 			level.setLaserEnabled(laserEnabled);
 			level.setLaserDamage(laserDamage);
+			level.setHealth(health);
 
 			return level;
 		}
@@ -234,6 +243,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 
 			map.put("Price", this.price);
 			map.put("Range", this.range);
+			map.put("Health", this.health);
 			map.put("Laser_Enabled", this.laserEnabled);
 			map.put("Laser_Damage", this.laserDamage);
 			map.putIf("Loot_Chances", this.lootChances);

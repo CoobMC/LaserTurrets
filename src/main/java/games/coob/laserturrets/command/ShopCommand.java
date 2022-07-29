@@ -1,6 +1,6 @@
 package games.coob.laserturrets.command;
 
-import games.coob.laserturrets.menu.TurretShopMenu;
+import games.coob.laserturrets.menu.ShopMenu;
 import org.bukkit.entity.Player;
 import org.mineacademy.fo.command.SimpleSubCommand;
 
@@ -17,6 +17,6 @@ public final class ShopCommand extends SimpleSubCommand {
 
 		final Player player = getPlayer();
 
-		new TurretShopMenu(player).displayTo(player);
+		new ShopMenu(player).displayTo(player);
 	}
 }

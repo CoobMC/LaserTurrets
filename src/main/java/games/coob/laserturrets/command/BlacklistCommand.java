@@ -1,6 +1,7 @@
 package games.coob.laserturrets.command;
 
 import games.coob.laserturrets.model.TurretRegistry;
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.mineacademy.fo.command.SimpleSubCommand;
@@ -35,11 +36,16 @@ final class BlacklistCommand extends SimpleSubCommand {
 		final Block block = Remain.getTargetBlock(player, 3);
 
 		if (registry.isRegistered(block)) {
+			final Player target = Bukkit.getPlayer(playerName);
+
+			if (target == null)
+				return;
+
 			if ("add".equals(param)) {
-				registry.addPlayerToBlacklist(block, playerName);
+				registry.addPlayerToBlacklist(block, target.getUniqueId());
 				tell("&aAdded &3" + playerName + " &ato the turrets player blacklist.");
 			} else if ("remove".equals(param)) {
-				registry.removePlayerFromBlacklist(block, playerName);
+				registry.removePlayerFromBlacklist(block, target.getUniqueId());
 				tell("&cRemoved &e" + playerName + " &cfrom the turrets player blacklist.");
 			}
 		} else tell("&cYou must look at a turret to perform this command.");

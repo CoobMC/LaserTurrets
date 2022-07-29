@@ -2,10 +2,10 @@ package games.coob.laserturrets.menu;
 
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
@@ -13,7 +13,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mineacademy.fo.Common;
-import org.mineacademy.fo.ItemUtil;
 import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.collection.StrictMap;
 import org.mineacademy.fo.conversation.SimplePrompt;
@@ -31,10 +30,8 @@ import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrade turret menu
 
@@ -78,7 +75,7 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 	protected ItemStack convertToItemStack(final TurretData turretData) {
 		final int level = turretData.getCurrentLevel();
 		final String id = turretData.getId();
-		final String type = turretData.getType();
+		final String type = StringUtil.capitalize(turretData.getType());
 		final List<String> lore = new ArrayList<>();
 
 		lore.add("Level: " + level);
@@ -87,21 +84,16 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 		lore.add("Click to edit this turret");
 
 		if (this.turretType.typeName.equals("All"))
-			return ItemCreator.of(turretData.getMaterial()).name("&b" + capitalize(type) + " Turret &8" + id).lore(lore).makeMenuTool();
+			return ItemCreator.of(turretData.getMaterial()).name("&b" + type + " Turret &8" + id).lore(lore).makeMenuTool();
 		else if (type.equalsIgnoreCase(this.turretType.typeName))
-			return ItemCreator.of(turretData.getMaterial()).name("&f" + capitalize(type) + " Turret &7" + id).lore(lore).makeMenuTool();
+			return ItemCreator.of(turretData.getMaterial()).name("&f" + type + " Turret &7" + id).lore(lore).makeMenuTool();
 
 		return NO_ITEM;
 	}
 
-	public String capitalize(final String string) {
-		if (string == null || string.length() <= 1) return string;
-		return string.substring(0, 1).toUpperCase() + string.substring(1);
-	}
-
 	@Override
 	protected void onPageClick(final Player player, final TurretData turretData, final ClickType clickType) {
-		new TurretEditMenu(turretData, ViewMode.EDIT);
+		new TurretEditMenu(turretData);
 	}
 
 	@Override
@@ -149,25 +141,23 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 		}
 	}
 
-	private final class TurretEditMenu extends Menu { // TODO make an upgrade menu
+	private final class TurretEditMenu extends Menu {
 
 		private final TurretData turretData;
 
-		private final ViewMode viewMode;
+		@Position(11)
+		private final Button levelEditButton;
 
-		private final Button levelEditButton; // TODO either open menu or upgrade level
+		@Position(13)
+		private final Button blacklistButton;
 
-		private final Button playerBlacklistButton;
-
-		private final Button mobBlacklistButton;
-
+		@Position(15)
 		private final Button teleportButton;
 
-		TurretEditMenu(final TurretData turretData, final ViewMode viewMode) {
+		TurretEditMenu(final TurretData turretData) {
 			super(TurretSelectionMenu.this);
 
 			this.turretData = turretData;
-			this.viewMode = viewMode;
 
 			this.setSize(9 * 4);
 			this.setTitle(turretType.typeName + " Turrets");
@@ -178,21 +168,11 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 					"Open this menu to upgrade",
 					"or downgrade the turret.");
 
-			this.playerBlacklistButton = new ButtonConversation(new PlayerBlacklistPrompt(), CompMaterial.KNOWLEDGE_BOOK,
-					"Player Blacklist",
+			this.blacklistButton = new ButtonMenu(new BlacklistMenu(TurretEditMenu.this, turretData), CompMaterial.KNOWLEDGE_BOOK,
+					"Turret Blacklist",
 					"",
-					"Click to add or remove",
-					"players from the blacklist",
-					"to prevent the turret from",
-					"targeting specific players.");
-
-			this.mobBlacklistButton = new ButtonMenu(new MobBlackListMenu(), CompMaterial.CREEPER_HEAD,
-					"Mob Blacklist",
-					"",
-					"Open this menu to add or",
-					"remove mobs from the",
-					"blacklist to prevent the",
-					"turret from targeting them.");
+					"Click this button to edit",
+					"your turrets blacklist.");
 
 			this.teleportButton = Button.makeSimple(CompMaterial.ENDER_EYE, "Teleport", "Teleport to the turret/nto visit it.", player1 -> {
 				player1.teleport(this.turretData.getLocation());
@@ -206,93 +186,6 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 			return new String[]{
 					"Edit this turrets settings."
 			};
-		}
-
-		@Override
-		public ItemStack getItemAt(final int slot) {
-			if (viewMode == ViewMode.EDIT) {
-				if (slot == 2)
-					return this.teleportButton.getItem();
-			}
-
-			if (slot == 4)
-				return this.levelEditButton.getItem();
-			if (slot == 6)
-				return this.playerBlacklistButton.getItem();
-			if (slot == 8)
-				return this.mobBlacklistButton.getItem();
-
-			return NO_ITEM;
-		}
-
-		private class MobBlackListMenu extends MenuPagged<EntityType> {
-
-			private final Button addButton;
-
-			private MobBlackListMenu() {
-				super(27, TurretSelectionMenu.this, turretData.getMobBlackList());
-
-				this.setTitle("Mob Blacklist");
-
-				this.addButton = new ButtonMenu(new MobSelectionMenu(), CompMaterial.CREEPER_HEAD,
-						"Add Mob",
-						"",
-						"Open this menu to add ",
-						"mobs from the blacklist",
-						"to prevent the turret",
-						"from targeting them.");
-			}
-
-			@Override
-			protected ItemStack convertToItemStack(final EntityType entityType) {
-				return ItemCreator.ofEgg(entityType, ItemUtil.bountifyCapitalized(entityType)).make();
-			}
-
-			@Override
-			protected void onPageClick(final Player player, final EntityType entityType, final ClickType clickType) {
-				TurretRegistry.getInstance().removeMobFromBlacklist(turretData, entityType);
-				this.animateTitle("&cRemoved " + entityType.name() + "from the mob blacklist.");
-			}
-
-			@Override
-			public ItemStack getItemAt(final int slot) {
-				if (slot == this.getBottomCenterSlot())
-					return addButton.getItem();
-
-				return NO_ITEM;
-			}
-
-			@Override
-			protected String[] getInfo() {
-				return new String[]{
-						"Edit your mob blacklist by",
-						"clicking the existing eggs",
-						"to remove them or clicking",
-						"the 'Add Mob' button to add",
-						"mobs to your blacklist."
-				};
-			}
-
-			private class MobSelectionMenu extends MenuPagged<EntityType> {
-				private MobSelectionMenu() {
-					super(9, MobBlackListMenu.this, Arrays.stream(EntityType.values())
-							.filter(EntityType::isAlive)
-							.collect(Collectors.toList()));
-
-					this.setTitle("Select a Mob");
-				}
-
-				@Override
-				protected ItemStack convertToItemStack(final EntityType entityType) {
-					return ItemCreator.ofEgg(entityType, ItemUtil.bountifyCapitalized(entityType)).make();
-				}
-
-				@Override
-				protected void onPageClick(final Player player, final EntityType entityType, final ClickType clickType) {
-					TurretRegistry.getInstance().addMobToBlacklist(turretData, entityType);
-					this.animateTitle("&aAdded " + entityType.name() + "to the mob blacklist.");
-				}
-			}
 		}
 
 		private class LevelMenu extends Menu {
@@ -435,31 +328,6 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 						RangedValue.parse("0-100000"), (Double input) -> registry.setLevelPrice(turretData, turretLevel, input));
 			}
 
-			/*@Override
-			public ItemStack getItemAt(final int slot) { // TODO
-				if (viewMode == ViewMode.EDIT) {
-					if (slot == 1)
-						return rangeButton.getItem();
-					if (slot == 2)
-						return rangeButton.getItem();
-					if (slot == 3)
-						return laserEnabledButton.getItem();
-					if (slot == 4)
-						return laserDamageButton.getItem();
-				}
-
-				if (slot == getSize() - 6)
-					return previousTier.getItem();
-
-				if (slot == getSize() - 5)
-					return viewMode == ViewMode.UPGRADE ? upgradeTier.getItem() : priceButton.getItem();
-
-				if (slot == getSize() - 4)
-					return nextTier.getItem();
-
-				return NO_ITEM;
-			}*/
-
 			private TurretData.TurretLevel getOrMakeLevel(final int turretLevel) {
 				TurretData.TurretLevel level = this.turretData.getLevel(turretLevel);
 
@@ -559,12 +427,6 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 
 		private final String typeName;
 		private final Set<TurretData> turretTypeList;
-	}
-
-	@RequiredArgsConstructor
-	private enum ViewMode {
-		EDIT(),
-		PURCHASE()
 	}
 
 	public static void openAllTurretsSelectionMenu(final Player player) {

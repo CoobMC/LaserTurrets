@@ -1,6 +1,6 @@
 package games.coob.laserturrets;
 
-import games.coob.laserturrets.menu.TurretShopMenu;
+import games.coob.laserturrets.menu.ShopMenu;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.Settings;
@@ -28,10 +28,18 @@ import org.mineacademy.fo.plugin.SimplePlugin;
  */
 public final class LaserTurrets extends SimplePlugin { // TODO create an animation when registering a turret (spiny head animation)
 
+	// TODO allow players to buy already placed turrets
+
 	private static Economy econ = null;
 
 	public static Economy getEconomy() {
 		return econ;
+	}
+
+	public String[] getTypes() {
+		return new String[]{
+				"arrow", "laser", "flame"
+		};
 	}
 
 	/**
@@ -118,8 +126,8 @@ public final class LaserTurrets extends SimplePlugin { // TODO create an animati
 			final TurretData turretData = registry.getTurretByBlock(block);
 			final Player player = event.getPlayer();
 
-			if (turretData.getPlayerBlacklist() != null && turretData.getPlayerBlacklist().contains(player.getName()))
-				new TurretShopMenu.UpgradeMenu(turretData, turretData.getCurrentLevel()).displayTo(player);
+			if (turretData.getPlayerBlacklist() != null && turretData.getPlayerBlacklist().contains(player))
+				new ShopMenu.UpgradeMenu(turretData, turretData.getCurrentLevel(), player).displayTo(player);
 		}
 	}
 
