@@ -11,8 +11,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.mineacademy.fo.Common;
 import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.collection.StrictMap;
 import org.mineacademy.fo.conversation.SimplePrompt;
@@ -93,7 +91,7 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 
 	@Override
 	protected void onPageClick(final Player player, final TurretData turretData, final ClickType clickType) {
-		new TurretEditMenu(turretData);
+		new TurretEditMenu(turretData, player).displayTo(player);
 	}
 
 	@Override
@@ -154,7 +152,7 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 		@Position(15)
 		private final Button teleportButton;
 
-		TurretEditMenu(final TurretData turretData) {
+		TurretEditMenu(final TurretData turretData, final Player player) {
 			super(TurretSelectionMenu.this);
 
 			this.turretData = turretData;
@@ -168,7 +166,7 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 					"Open this menu to upgrade",
 					"or downgrade the turret.");
 
-			this.blacklistButton = new ButtonMenu(new BlacklistMenu(TurretEditMenu.this, turretData), CompMaterial.KNOWLEDGE_BOOK,
+			this.blacklistButton = new ButtonMenu(new BlacklistMenu(TurretEditMenu.this, turretData, player), CompMaterial.KNOWLEDGE_BOOK,
 					"Turret Blacklist",
 					"",
 					"Click this button to edit",
@@ -177,7 +175,7 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 			this.teleportButton = Button.makeSimple(CompMaterial.ENDER_EYE, "Teleport", "Teleport to the turret/nto visit it.", player1 -> {
 				player1.teleport(this.turretData.getLocation());
 
-				Messenger.success(player1, "You have successfully teleported to the " + this.turretData.getType() + " turret with the id of &2" + this.turretData.getId());
+				Messenger.success(player1, "&aYou have successfully teleported to the " + this.turretData.getType() + " turret with the id of &2" + this.turretData.getId() + "&a.");
 			});
 		}
 
@@ -196,42 +194,39 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 
 			private final TurretData.TurretLevel level;
 
-			@Position(9 + 2)
+			@Position(10)
 			private final Button rangeButton;
 
-			@Position(9 + 4)
+			@Position(12)
 			private final Button laserEnabledButton;
 
-			@Position(9 + 6)
+			@Position(14)
 			private final Button laserDamageButton;
 
-			@Position(9 + 7)
+			@Position(16)
 			private final Button lootButton;
 
-			@Position(9 + 8)
+			@Position(30)
 			private final Button previousLevelButton;
 
-			@Position(9 + 9)
+			@Position(32)
 			private final Button nextLevelButton;
 
-			@Position(9 + 10)
+			@Position(31)
 			private final Button priceButton;
 
 			public LevelMenu(final TurretData turretData, final int turretLevel) {
 				super(TurretEditMenu.this);
 
-				org.mineacademy.fo.Valid.checkBoolean(turretLevel < 3 + 2, "Cannot jump more than 2 levels ahead in turret level menu.");
-
-				final boolean nextLevelExists = turretLevel <= turretData.getLevels() || turretData.getLevels() == 0;
+				final boolean nextLevelExists = turretLevel < turretData.getLevels() || turretData.getLevels() == 0;
 				final TurretRegistry registry = TurretRegistry.getInstance();
 
 				this.turretData = turretData;
 				this.turretLevel = turretLevel;
 				this.level = getOrMakeLevel(turretLevel);
 
-				this.setTitle("Turret Level");
+				this.setTitle("Turret Level " + turretLevel);
 				this.setSize(9 * 4);
-				this.setSlotNumbersVisible();
 
 				this.rangeButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.BOW).name("Turret Range")
 								.lore("Set the turrets range", "by clicking this button.", "", "Current: &9" + turretData.getLevel(turretLevel).getRange()),
@@ -246,7 +241,7 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 						final boolean isEnabled = turretData.getLevel(turretLevel).isLaserEnabled();
 
 						registry.setLaserEnabled(turretData, turretLevel, !isEnabled);
-						restartMenu((isEnabled ? "&cDisabled" : "&aEnabled") + "lasers");
+						restartMenu((isEnabled ? "&cDisabled" : "&aEnabled") + " laser pointer");
 					}
 
 					@Override
@@ -298,21 +293,25 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 
 					@Override
 					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
+						final Menu nextLevelMenu;
+
 						if (nextLevelExists) {
-							final Menu nextLevelMenu = new LevelMenu(turretData, turretLevel + 1);
-
-							nextLevelMenu.displayTo(player);
-
-							if (turretLevel > 1)
-								Common.runLater(() -> nextLevelMenu.animateTitle("&4Removed level " + turretLevel));
+							nextLevelMenu = new LevelMenu(turretData, turretLevel + 1); // TODO add level
+							System.out.println("Exists");
+						} else {
+							TurretRegistry.getInstance().createLevel(turretData);
+							nextLevelMenu = new LevelMenu(turretData, turretLevel + 1);
+							System.out.println("Doesn't exist");
 						}
+
+						nextLevelMenu.displayTo(player);
 					}
 
 					@Override
 					public ItemStack getItem() {
 						return ItemCreator
-								.of(nextLevelExists ? CompMaterial.LIME_DYE : CompMaterial.GRAY_DYE,
-										nextLevelExists ? "Edit next level" : "Finish this level first").make();
+								.of(nextLevelExists ? CompMaterial.LIME_DYE : CompMaterial.PURPLE_DYE,
+										nextLevelExists ? "Edit next level" : "Create a new level").make();
 					}
 				};
 
@@ -328,13 +327,22 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 						RangedValue.parse("0-100000"), (Double input) -> registry.setLevelPrice(turretData, turretLevel, input));
 			}
 
-			private TurretData.TurretLevel getOrMakeLevel(final int turretLevel) {
+			private TurretData.TurretLevel getOrMakeLevel(final int turretLevel) { // TODO get level 3 too
 				TurretData.TurretLevel level = this.turretData.getLevel(turretLevel);
 
 				if (level == null)
 					level = this.turretData.addLevel();
 
 				return level;
+			}
+
+			@Override
+			protected String[] getInfo() {
+				return new String[]{
+						"You can edit each individual",
+						"level in this menu and set its",
+						"price."
+				};
 			}
 
 			private class TurretLootChancesMenu extends MenuContainerChances {
@@ -347,23 +355,12 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 
 				@Override
 				protected boolean canEditItem(final MenuClickLocation location, final int slot, final ItemStack clicked, final ItemStack cursor, final InventoryAction action) {
-					final ItemStack placedItem = clicked != null && !CompMaterial.isAir(clicked) ? clicked : cursor;
-
-					if (placedItem != null && !CompMaterial.isAir(placedItem)) {
-						if (placedItem.getAmount() > 1 && action != InventoryAction.PLACE_ONE) {
-							this.animateTitle("&4Amount must be 1!");
-
-							return false;
-						}
-					}
-
 					return true;
 				}
 
 				@Override
 				protected ItemStack getDropAt(final int slot) {
 					final Tuple<ItemStack, Double> tuple = this.getTuple(slot);
-
 					return tuple != null ? tuple.getKey() : NO_ITEM;
 				}
 
@@ -392,24 +389,6 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 				public boolean allowDecimalQuantities() {
 					return true;
 				}
-			}
-		}
-
-		private final class PlayerBlacklistPrompt extends SimplePrompt {
-
-			@Override
-			protected String getPrompt(final ConversationContext context) {
-				return "&6What player shouldn't be targeted by this turret? You can add more players to the blacklist by using the /turret blacklist add <player> command.";
-			}
-
-			@Nullable
-			@Override
-			protected Prompt acceptValidatedInput(@NotNull final ConversationContext context, @NotNull final String input) {
-				final TurretRegistry registry = TurretRegistry.getInstance();
-
-				registry.addPlayerToBlacklist(turretData, input);
-				tellSuccess("You have added " + input + " to the blacklist!");
-				return END_OF_CONVERSATION;
 			}
 		}
 	}

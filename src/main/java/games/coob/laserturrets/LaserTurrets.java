@@ -4,6 +4,7 @@ import games.coob.laserturrets.menu.ShopMenu;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.Settings;
+import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.task.ArrowTask;
 import games.coob.laserturrets.task.LaserPointerTask;
 import games.coob.laserturrets.task.LaserTask;
@@ -16,6 +17,7 @@ import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.mineacademy.fo.Common;
+import org.mineacademy.fo.debug.LagCatcher;
 import org.mineacademy.fo.model.HookManager;
 import org.mineacademy.fo.plugin.SimplePlugin;
 
@@ -34,12 +36,6 @@ public final class LaserTurrets extends SimplePlugin { // TODO create an animati
 
 	public static Economy getEconomy() {
 		return econ;
-	}
-
-	public String[] getTypes() {
-		return new String[]{
-				"arrow", "laser", "flame"
-		};
 	}
 
 	/**
@@ -70,12 +66,9 @@ public final class LaserTurrets extends SimplePlugin { // TODO create an animati
 	 */
 	@Override
 	protected void onReloadablesStart() {
-
-		// You can check for necessary plugins and disable loading if they are missing
-		// Valid.checkBoolean(HookManager.isVaultLoaded(), "You need to install Vault so that we can work with packets, offline player data, prefixes and groups.");
-
-		// Uncomment to load variables
-		// Variable.loadVariables();
+		LagCatcher.start("onStart");
+		TurretSettings.loadTurretSettings();
+		LagCatcher.end("onStart", true);
 
 		//
 		// Add your own plugin parts to load automatically here

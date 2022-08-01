@@ -2,6 +2,7 @@ package games.coob.laserturrets.menu;
 
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
+import org.bukkit.World;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.EntityType;
@@ -38,12 +39,13 @@ public class BlacklistMenu extends Menu {
 	@Position(17)
 	private final Button playerBlacklistButton;
 
-	public BlacklistMenu(final Menu parent, final TurretData turretData) {
+	public BlacklistMenu(final Menu parent, final TurretData turretData, final Player player) {
 		super(parent);
 
 		this.turretData = turretData;
 
-		this.setSize(3 * 27);
+		this.setViewer(player);
+		this.setSize(27);
 		this.setTitle("Turret Blacklist");
 
 		this.mobBlacklistButton = new ButtonMenu(new BlacklistMenu.MobBlacklistMenu(turretData), CompMaterial.CREEPER_HEAD.toItem());
@@ -132,7 +134,7 @@ public class BlacklistMenu extends Menu {
 
 			this.setTitle("Player Blacklist");
 
-			this.addButton = new ButtonMenu(new BlacklistMenu.PlayerBlacklistMenu.PlayerSelectionMenu(this.getViewer()), CompMaterial.CREEPER_HEAD,
+			this.addButton = new ButtonMenu(new PlayerSelectionMenu(), CompMaterial.CREEPER_HEAD,
 					"Add Players",
 					"",
 					"Open this menu to add ",
@@ -171,8 +173,10 @@ public class BlacklistMenu extends Menu {
 
 		@Override
 		public ItemStack getItemAt(final int slot) {
-			if (slot == this.getBottomCenterSlot())
+			if (slot == this.getBottomCenterSlot() - 1)
 				return addButton.getItem();
+			if (slot == this.getBottomCenterSlot() + 1)
+				return addPromptButton.getItem();
 
 			return NO_ITEM;
 		}
@@ -189,8 +193,8 @@ public class BlacklistMenu extends Menu {
 		}
 
 		private class PlayerSelectionMenu extends MenuPagged<Player> {
-			private PlayerSelectionMenu(final Player player) {
-				super(9, BlacklistMenu.PlayerBlacklistMenu.this, player.getWorld().getPlayers());
+			private PlayerSelectionMenu() {
+				super(9, BlacklistMenu.PlayerBlacklistMenu.this, compileWorldPlayers(turretData));
 
 				this.setTitle("Select a player");
 			}
@@ -232,13 +236,22 @@ public class BlacklistMenu extends Menu {
 		}
 	}
 
-	private static List<Player> compileBlacklistedPlayers(final List<UUID> uuidList) {
+	public static List<Player> compileBlacklistedPlayers(final List<UUID> uuidList) {
 		final List<Player> blacklistedPlayers = new ArrayList<>();
 
 		for (final UUID uuid : uuidList)
 			blacklistedPlayers.add(Remain.getPlayerByUUID(uuid));
 
 		return blacklistedPlayers;
+	}
+
+	private static List<Player> compileWorldPlayers(final TurretData turretData) {
+		final World world = turretData.getLocation().getWorld();
+
+		if (world != null)
+			return world.getPlayers();
+
+		return null;
 	}
 }
 

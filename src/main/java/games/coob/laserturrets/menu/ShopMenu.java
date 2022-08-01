@@ -166,7 +166,7 @@ public class ShopMenu extends Menu { // TODO create config file for the price of
 				}
 			};
 
-			this.blacklistButton = new ButtonMenu(new BlacklistMenu(UpgradeMenu.this, turretData), CompMaterial.KNOWLEDGE_BOOK,
+			this.blacklistButton = new ButtonMenu(new BlacklistMenu(UpgradeMenu.this, turretData, player), CompMaterial.KNOWLEDGE_BOOK,
 					"Turret Blacklist",
 					"",
 					"Click this button to edit",

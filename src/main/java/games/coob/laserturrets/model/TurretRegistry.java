@@ -1,6 +1,5 @@
 package games.coob.laserturrets.model;
 
-import games.coob.laserturrets.LaserTurrets;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
 import lombok.Getter;
@@ -74,23 +73,16 @@ public class TurretRegistry extends YamlConfig {
 		//final long now = System.currentTimeMillis();
 		LagCatcher.start("Setting turret data");
 
-		LagCatcher.start("Get settings");
-		for (final String turretType : LaserTurrets.getInstance().getTypes()) {
-			if (turretType.equals(type)) {
-				final TurretSettings turretSettings = TurretSettings.getInstance(type);
-				LagCatcher.end("Get settings");
+		final TurretSettings turretSettings = TurretSettings.findTurretSettings(type);
 
-				turretData.setMobBlacklist(turretSettings.getMobBlacklist());
-				turretData.setPlayerBlacklist(turretSettings.getPlayerBlacklist());
+		turretData.setMobBlacklist(turretSettings.getMobBlacklist());
+		turretData.setPlayerBlacklist(turretSettings.getPlayerBlacklist());
 
-				for (final TurretSettings.LevelData levelData : turretSettings.getLevels()) {
-					turretData.addLevel();
-					levelData.setLevelData(turretData.getLevel(levelData.getLevel()));
-				}
-			}
+		for (final TurretSettings.LevelData levelData : turretSettings.getLevels()) {
+			turretData.addLevel();
+			levelData.setLevelData(turretData.getLevel(levelData.getLevel()));
 		}
 
-		//System.out.println("Took: " + (System.currentTimeMillis() - now) + "ms");
 		LagCatcher.end("Setting turret data", true);
 
 		this.registeredTurrets.add(turretData);
@@ -107,7 +99,10 @@ public class TurretRegistry extends YamlConfig {
 				break;
 		}
 
-		this.save();
+		this.
+
+				save();
+
 	}
 
 	public void unregister(final Block block, final String type) {
@@ -245,6 +240,12 @@ public class TurretRegistry extends YamlConfig {
 
 	public void setLevelPrice(final TurretData turretData, final int level, final double price) {
 		turretData.getLevel(level).setPrice(price);
+
+		this.save();
+	}
+
+	public void createLevel(final TurretData turretData) {
+		turretData.createLevel(turretData.getType());
 
 		this.save();
 	}

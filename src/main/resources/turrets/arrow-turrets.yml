@@ -1,4 +1,4 @@
-Laser_Turret_Default_Settings:
+Arrow_Turret_Default_Settings:
   # Add players to the blacklist so turrets don't target them
   Player_Blacklist:
     - Notch
@@ -24,7 +24,7 @@ Laser_Turret_Default_Settings:
         # Item 1 - Set the item to drop (percentage)
         - Key:
             type: DIAMOND
-            amount: 1
+            damage: 120
           # Set the drop chance for the item (percentage)
           Value: 50.0
     2:
@@ -38,39 +38,20 @@ Laser_Turret_Default_Settings:
       Enable_Laser_Pointers: true
       # How much damage should a laser deal per a second (set the value to 0 if you would like to disable this feature) (this features is disabled if 'Laser_Pointers' has been set to false)
       Laser_Pointer_Damage: 0.5
-      # View this link to learn how to create items and drop them when a turret is destroyed: https://www.spigotmc.org/wiki/bbcode.11717/archive
-      # Materials: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
+      # What loot should drop when the turret is destroyed (Materials: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html)
       Loot_Drops:
         # Item 1 - Set the item to drop
         - Key:
-            ==: org.bukkit.inventory.ItemStack
-            v: 2975
-            type: GOLD_INGOT
-            amount: 3
-          # Set the drop chance for the item (percentage)
-          Value: 0.8
-        # Item 2
-        - Key:
-            ==: org.bukkit.inventory.ItemStack
-            v: 2975
             type: DIAMOND
-            amount: 2
+            damage: 120
           # Set the drop chance for the item (percentage)
-          Value: 0.4
-          # Item 3
+          Value: 50.0
+        # Item 2 - Set the item to drop
         - Key:
-            ==: org.bukkit.inventory.ItemStack
-            v: 2975
             type: EMERALD
+            damage: 120
           # Set the drop chance for the item (percentage)
-          Value: 0.2
-        # Item 4
-        - Key:
-            ==: org.bukkit.inventory.ItemStack
-            v: 2975
-            type: DIAMOND_HELMET
-          # Set the drop chance for the item (percentage)
-          Value: 0.25
+          Value: 100.0
     3:
       # How far should the turrets shoot from
       Range: 18
@@ -87,17 +68,18 @@ Laser_Turret_Default_Settings:
         # Item 1 - Set the item to drop
         - Key:
             type: DIAMOND
-            amount: 3
+            damage: 120
           # Set the drop chance for the item (percentage)
           Value: 50.0
         # Item 2 - Set the item to drop
         - Key:
             type: EMERALD
-            amount: 2
+            damage: 120
           # Set the drop chance for the item (percentage)
           Value: 100.0
         # Item 2 - Set the item to drop
         - Key:
             type: DIAMOND_SWORD
+            damage: 120
           # Set the drop chance for the item (percentage)
           Value: 100.0

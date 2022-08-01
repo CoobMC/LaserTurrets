@@ -1,5 +1,6 @@
 package games.coob.laserturrets.model;
 
+import games.coob.laserturrets.settings.TurretSettings;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -98,7 +99,12 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 	}
 
 	public TurretLevel getLevel(final int level) {
-		return this.turretLevels.get(level - 1);
+		final boolean outOfBounds = level < 0 || level >= this.turretLevels.toString().length();
+
+		if (!outOfBounds)
+			return this.turretLevels.get(level - 1);
+
+		return null;
 	}
 
 	public TurretLevel addLevel() {
@@ -107,6 +113,13 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 		turretLevels.add(level);
 
 		return turretLevels.get(turretLevels.size() - 1);
+	}
+
+	public void createLevel(final String turretType) {
+		final TurretData.TurretLevel level = addLevel();
+		final List<TurretSettings.LevelData> levels = TurretSettings.findTurretSettings(turretType).getLevels();
+
+		levels.get(levels.size() - 1).setLevelData(level);
 	}
 
 	public void removeLevel(final int level) {
@@ -209,7 +222,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 			this.laserDamage = laserDamage;
 		}
 
-		public void setLootChances(final @org.jetbrains.annotations.Nullable List<Tuple<ItemStack, Double>> lootChances) {
+		public void setLootChances(final @Nullable List<Tuple<ItemStack, Double>> lootChances) {
 			this.lootChances = lootChances;
 		}
 
