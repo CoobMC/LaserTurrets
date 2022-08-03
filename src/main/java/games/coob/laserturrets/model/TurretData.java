@@ -30,7 +30,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 
 	private Set<UUID> playerBlacklist = new HashSet<>();
 
-	private Set<EntityType> mobBlackList = new HashSet<>();
+	private Set<EntityType> mobBlacklist = new HashSet<>();
 
 	private List<TurretData.TurretLevel> turretLevels = new ArrayList<>();
 
@@ -77,19 +77,19 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 
 
 	public void addMobToBlacklist(final EntityType entityType) {
-		this.mobBlackList.add(entityType);
+		this.mobBlacklist.add(entityType);
 	}
 
 	public void removeMobFromBlacklist(final EntityType entityType) {
-		this.mobBlackList.remove(entityType);
+		this.mobBlacklist.remove(entityType);
 	}
 
 	public boolean isMobBlacklisted(final EntityType entityType) {
-		return this.mobBlackList.contains(entityType);
+		return this.mobBlacklist.contains(entityType);
 	}
 
 	public void setMobBlacklist(final @org.jetbrains.annotations.Nullable Set<EntityType> entityTypes) {
-		this.mobBlackList = entityTypes;
+		this.mobBlacklist = entityTypes;
 	}
 
 	public TurretLevel getLevel(final int level) {
@@ -142,7 +142,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 		map.put("Id", this.id);
 		map.put("Type", this.type);
 		map.putIf("Player_Blacklist", this.playerBlacklist);
-		map.putIf("Mob_Blacklist", this.mobBlackList);
+		map.putIf("Mob_Blacklist", this.mobBlacklist);
 		map.put("Current_Level", this.currentLevel);
 		map.put("Levels", this.turretLevels);
 

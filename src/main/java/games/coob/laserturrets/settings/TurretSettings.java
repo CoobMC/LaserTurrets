@@ -19,7 +19,7 @@ public class TurretSettings extends YamlConfig {
 
 	private static final ConfigItems<TurretSettings> loadedTurretSettings = ConfigItems.fromFolder("turrets", TurretSettings.class);
 
-	/*public static TurretSettings getInstance(final String turretType) { // TODO may not be needed
+	/*public static TurretSettings getInstance(final String turretType) {
 		TurretSettings settings = loadedTurretSettings.findItem(turretType);
 
 		if (settings == null) {
@@ -31,27 +31,27 @@ public class TurretSettings extends YamlConfig {
 		return settings;
 	}*/
 
-	private List<LevelData> levels;
+	private List<LevelData> levels = new ArrayList<>();
 
-	private Set<UUID> playerBlacklist;
+	private Set<UUID> playerBlacklist = new HashSet<>();
 
-	private Set<EntityType> mobBlacklist;
+	private Set<EntityType> mobBlacklist = new HashSet<>();
 
 	private TurretSettings(final String turretType) {
 		final String type = StringUtil.getStringBeforeSymbol(turretType, "-");
 
 		setPathPrefix(StringUtil.capitalize(type) + "_Turret_Default_Settings");
-		this.loadConfiguration("turrets/" + turretType + ".yml"); // TODO
+
+		this.loadConfiguration(NO_DEFAULT, "turrets/" + turretType + ".yml");
 	}
 
 	@Override
 	protected void onLoad() {
-		if (this.levels != null && this.playerBlacklist != null && this.mobBlacklist != null) {
+		/*if (this.levels != null && this.playerBlacklist != null && this.mobBlacklist != null) {
 			this.save();
 
 			return;
-		}
-
+		}*/
 		this.playerBlacklist = this.getSet("Player_Blacklist", UUID.class);
 		this.mobBlacklist = this.getSet("Mob_Blacklist", EntityType.class);
 		this.levels = this.loadLevels();
@@ -59,9 +59,9 @@ public class TurretSettings extends YamlConfig {
 
 	@Override
 	protected void onSave() {
-		this.set("Player_Blacklist", UUID.class);
-		this.set("Mob_Blacklist", EntityType.class);
-		this.set("Levels", LevelData.class);
+		this.set("Player_Blacklist", this.playerBlacklist);
+		this.set("Mob_Blacklist", this.mobBlacklist);
+		this.set("Levels", this.levels);
 	}
 
 	private List<LevelData> loadLevels() {
@@ -80,14 +80,18 @@ public class TurretSettings extends YamlConfig {
 	public void setSettingsRange(final LevelData levelData, final int range) {
 		levelData.setRange(range);
 
-		save();
+		this.save();
+	}
+
+	public int getLevelsSize() {
+		return this.levels.size();
 	}
 
 	public LevelData addLevel() {
 		final LevelData level = new LevelData(this.levels.size());
 
 		this.levels.add(level);
-		save();
+		this.save();
 
 		return this.levels.get(this.levels.size() - 1);
 	}
@@ -97,31 +101,40 @@ public class TurretSettings extends YamlConfig {
 		final List<TurretSettings.LevelData> levels = this.levels;
 
 		levels.get(levels.size() - 1).setLevelSettings(level);
-		save();
+		this.save();
 	}
 
 	public void setLevelPrice(final LevelData levelData, final double price) {
 		levelData.setPrice(price);
 
-		save();
+		this.save();
+	}
+
+	public LevelData getLevel(final int level) {
+		final boolean outOfBounds = level < 0 || level >= this.levels.toArray().length;
+
+		if (!outOfBounds)
+			return this.levels.get(level - 1);
+
+		return null;
 	}
 
 	public void setLaserEnabled(final LevelData levelData, final boolean laserEnabled) {
 		levelData.setLaserEnabled(laserEnabled);
 
-		save();
+		this.save();
 	}
 
 	public void setLaserDamage(final LevelData levelData, final double damage) {
 		levelData.setLaserDamage(damage);
 
-		save();
+		this.save();
 	}
 
 	public void setLootChances(final LevelData levelData, final List<Tuple<ItemStack, Double>> lootChances) {
 		levelData.setLootChances(lootChances);
 
-		save();
+		this.save();
 	}
 
 	public void addPlayerToBlacklist(final UUID uuid) {
@@ -190,7 +203,16 @@ public class TurretSettings extends YamlConfig {
 
 		@Override
 		public SerializedMap serialize() {
-			return null;
+			final SerializedMap map = new SerializedMap();
+
+			map.put("Range", this.range);
+			map.put("Price", this.price);
+			map.put("Laser_Enabled", this.laserEnabled);
+			map.put("Laser_Damage", this.laserDamage);
+			map.put("Health", this.health);
+			map.putIf("Loot_Drops", this.lootChances);
+
+			return map;
 		}
 
 		public static LevelData deserialize(final SerializedMap map, final int level) {

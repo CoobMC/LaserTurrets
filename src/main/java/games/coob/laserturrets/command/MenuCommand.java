@@ -1,6 +1,6 @@
 package games.coob.laserturrets.command;
 
-import games.coob.laserturrets.menu.TurretSelectionMenu;
+import games.coob.laserturrets.menu.TurretsMenu;
 import org.bukkit.entity.Player;
 import org.mineacademy.fo.command.SimpleSubCommand;
 
@@ -20,19 +20,19 @@ public final class MenuCommand extends SimpleSubCommand {
 		final Player player = getPlayer();
 
 		if (args.length == 0) {
-			TurretSelectionMenu.openAllTurretsSelectionMenu(player);
+			TurretsMenu.openAllTurretsSelectionMenu(player);
 		} else {
 			final String param = args[0].toLowerCase();
 
 			switch (param) {
 				case "arrow":
-					TurretSelectionMenu.openArrowTurretsSelectionMenu(player);
+					TurretsMenu.openArrowTurretsSelectionMenu(player);
 					break;
 				case "flame":
-					TurretSelectionMenu.openFlameTurretsSelectionMenu(player);
+					TurretsMenu.openFlameTurretsSelectionMenu(player);
 					break;
 				case "laser":
-					TurretSelectionMenu.openLaserTurretsSelectionMenu(player);
+					TurretsMenu.openLaserTurretsSelectionMenu(player);
 					break;
 			}
 		}

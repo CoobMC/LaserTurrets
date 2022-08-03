@@ -3,13 +3,14 @@ package games.coob.laserturrets.menu;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.StringUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.mineacademy.fo.ItemUtil;
@@ -27,14 +28,18 @@ import org.mineacademy.fo.menu.model.MenuClickLocation;
 import org.mineacademy.fo.model.RangedValue;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
+import org.mineacademy.fo.remain.Remain;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public final class SettingsMenu extends Menu {
+
+	private Player viewer;
 
 	@Position(11)
 	private final Button arrowSettingsButton;
@@ -45,12 +50,13 @@ public final class SettingsMenu extends Menu {
 	@Position(15)
 	private final Button flameSettingsButton;
 
-	SettingsMenu(final @Nullable Menu parent, final Player player) {
+	public SettingsMenu(final @Nullable Menu parent, final Player player) {
 		super(parent);
 
+		this.viewer = player;
+
 		this.setSize(27);
-		this.setTitle("DefaultSettings");
-		this.setViewer(player);
+		this.setTitle("Turret Settings");
 
 		this.arrowSettingsButton = new ButtonMenu(new SettingsEditMenu("arrow"), CompMaterial.ARROW,
 				"Arrow Turret Settings",
@@ -58,13 +64,13 @@ public final class SettingsMenu extends Menu {
 				"Edit the default settings",
 				"for arrow turrets.");
 
-		this.flameSettingsButton = new ButtonMenu(new SettingsEditMenu("flame"), CompMaterial.ARROW,
+		this.flameSettingsButton = new ButtonMenu(new SettingsEditMenu("flame"), CompMaterial.LAVA_BUCKET,
 				"Flame Turret Settings",
 				"",
 				"Edit the default settings",
 				"for flame turrets.");
 
-		this.laserSettingsButton = new ButtonMenu(new SettingsEditMenu("laser"), CompMaterial.ARROW,
+		this.laserSettingsButton = new ButtonMenu(new SettingsEditMenu("laser"), CompMaterial.BLAZE_ROD,
 				"Laser Turret Settings",
 				"",
 				"Edit the default settings",
@@ -83,8 +89,7 @@ public final class SettingsMenu extends Menu {
 
 		private SettingsEditMenu(final String typeName) {
 			super(SettingsMenu.this);
-
-			this.settings = TurretSettings.findTurretSettings(typeName);
+			this.settings = TurretSettings.findTurretSettings(typeName + "-turrets");
 
 			this.setSize(9 * 4);
 			this.setTitle(StringUtil.capitalize(typeName) + " Turrets");
@@ -95,7 +100,7 @@ public final class SettingsMenu extends Menu {
 					"Open this menu to upgrade",
 					"or downgrade the turret.");
 
-			this.blacklistButton = new ButtonMenu(new BlacklistMenu(SettingsEditMenu.this, this.getViewer()), CompMaterial.KNOWLEDGE_BOOK,
+			this.blacklistButton = new ButtonMenu(new SettingsBlacklistMenu(SettingsEditMenu.this, viewer), CompMaterial.KNOWLEDGE_BOOK,
 					"Turret Blacklist",
 					"",
 					"Click this button to edit",
@@ -137,7 +142,10 @@ public final class SettingsMenu extends Menu {
 			public LevelMenu(final int turretLevel) {
 				super(SettingsEditMenu.this);
 
-				final boolean nextLevelExists = turretLevel < settings.getLevels().size() || settings.getLevels().size() == 0;
+				System.out.println("Settings: " + settings);
+				System.out.println("Levels: " + settings.getLevels());
+				System.out.println("Levels size: " + settings.getLevelsSize());
+				final boolean nextLevelExists = turretLevel < settings.getLevelsSize() || settings.getLevelsSize() == 0;
 
 				this.level = getOrMakeLevel(turretLevel);
 
@@ -243,7 +251,7 @@ public final class SettingsMenu extends Menu {
 			}
 
 			private TurretSettings.LevelData getOrMakeLevel(final int turretLevel) { // TODO get level 3 too
-				TurretSettings.LevelData level = settings.getLevels().get(turretLevel - 1);
+				TurretSettings.LevelData level = settings.getLevel(turretLevel);
 
 				if (level == null)
 					level = settings.addLevel();
@@ -305,24 +313,26 @@ public final class SettingsMenu extends Menu {
 			}
 		}
 
-		public class BlacklistMenu extends Menu {
+		public class SettingsBlacklistMenu extends Menu {
 
-			@Position(13)
+			@Position(14)
 			private final Button mobBlacklistButton;
 
-			@Position(17)
+			@Position(12)
 			private final Button playerBlacklistButton;
 
-			public BlacklistMenu(final Menu parent, final Player player) {
+			public SettingsBlacklistMenu(final Menu parent, final Player player) {
 				super(parent);
 
 				this.setViewer(player);
 				this.setSize(27);
 				this.setTitle("Turret Blacklist");
 
-				this.mobBlacklistButton = new ButtonMenu(new MobBlacklistMenu(), CompMaterial.CREEPER_HEAD.toItem());
+				this.mobBlacklistButton = new ButtonMenu(new MobBlacklistMenu(), CompMaterial.CREEPER_HEAD,
+						"Mob Blacklist", "", "Edit your mob blacklist");
 
-				this.playerBlacklistButton = new ButtonMenu(new PlayerBlacklistMenu(), CompMaterial.PLAYER_HEAD.toItem());
+				this.playerBlacklistButton = new ButtonMenu(new PlayerBlacklistMenu(), CompMaterial.PLAYER_HEAD,
+						"Player Blacklist", "", "Edit your player blacklist");
 			}
 
 			private class MobBlacklistMenu extends MenuPagged<EntityType> {
@@ -330,11 +340,11 @@ public final class SettingsMenu extends Menu {
 				private final Button addButton;
 
 				private MobBlacklistMenu() {
-					super(27, BlacklistMenu.this, settings.getMobBlacklist());
+					super(27, SettingsBlacklistMenu.this, settings.getMobBlacklist());
 
 					this.setTitle("Mob Blacklist");
 
-					this.addButton = new ButtonMenu(new MobBlacklistMenu.MobSelectionMenu(), CompMaterial.CREEPER_HEAD,
+					this.addButton = new ButtonMenu(new MobBlacklistMenu.MobSelectionMenu(), CompMaterial.ENDER_CHEST,
 							"Add Mob",
 							"",
 							"Open this menu to add ",
@@ -345,13 +355,15 @@ public final class SettingsMenu extends Menu {
 
 				@Override
 				protected ItemStack convertToItemStack(final EntityType entityType) {
-					return ItemCreator.ofEgg(entityType, ItemUtil.bountifyCapitalized(entityType)).make();
+					return ItemCreator.ofEgg(entityType, ItemUtil.bountifyCapitalized(entityType))
+							.lore("Click to remove").make();
 				}
 
 				@Override
 				protected void onPageClick(final Player player, final EntityType entityType, final ClickType clickType) {
 					settings.removeMobFromBlacklist(entityType);
-					this.animateTitle("&cRemoved " + entityType.name() + "from the mob blacklist.");
+					this.restartMenu("&cRemoved " + entityType.name());
+					MobBlacklistMenu.this.newInstance().displayTo(player);
 				}
 
 				@Override
@@ -359,7 +371,7 @@ public final class SettingsMenu extends Menu {
 					if (slot == this.getBottomCenterSlot())
 						return addButton.getItem();
 
-					return NO_ITEM;
+					return super.getItemAt(slot);
 				}
 
 				@Override
@@ -373,9 +385,14 @@ public final class SettingsMenu extends Menu {
 					};
 				}
 
+				@Override
+				public Menu newInstance() {
+					return new MobBlacklistMenu();
+				}
+
 				private class MobSelectionMenu extends MenuPagged<EntityType> {
 					private MobSelectionMenu() {
-						super(18, MobBlacklistMenu.this, Arrays.stream(EntityType.values())
+						super(27, MobBlacklistMenu.this, Arrays.stream(EntityType.values())
 								.filter(EntityType::isAlive)
 								.collect(Collectors.toList()));
 
@@ -384,7 +401,10 @@ public final class SettingsMenu extends Menu {
 
 					@Override
 					protected ItemStack convertToItemStack(final EntityType entityType) {
-						return ItemCreator.ofEgg(entityType, ItemUtil.bountifyCapitalized(entityType)).make();
+						return ItemCreator.ofEgg(entityType, ItemUtil.bountifyCapitalized(entityType))
+								.glow(settings.getMobBlacklist().contains(entityType))
+								.lore(settings.getMobBlacklist().contains(entityType) ? "&aAlready blacklisted" : "Click to add")
+								.make();
 					}
 
 					@Override
@@ -392,32 +412,35 @@ public final class SettingsMenu extends Menu {
 						settings.addMobToBlacklist(entityType);
 						this.restartMenu("&aAdded " + entityType.name());
 					}
+
+					@Override
+					protected void onMenuClose(final Player player, final Inventory inventory) {
+						MobBlacklistMenu.this.newInstance().displayTo(player);
+					}
 				}
 			}
 
-			private class PlayerBlacklistMenu extends MenuPagged<Player> {
+			private class PlayerBlacklistMenu extends MenuPagged<UUID> {
 
 				private final Button addButton;
 
 				private final Button addPromptButton;
 
 				private PlayerBlacklistMenu() {
-					super(27, BlacklistMenu.this, games.coob.laserturrets.menu.BlacklistMenu.compileBlacklistedPlayers(settings.getPlayerBlacklist()));
+					super(27, SettingsBlacklistMenu.this, settings.getPlayerBlacklist());
 
 					this.setTitle("Player Blacklist");
 
-					this.addButton = new ButtonMenu(new PlayerBlacklistMenu.PlayerSelectionMenu(this.getViewer()), CompMaterial.CREEPER_HEAD,
+					this.addButton = new ButtonMenu(new PlayerBlacklistMenu.PlayerSelectionMenu(), CompMaterial.ENDER_CHEST,
 							"Add Players",
 							"",
 							"Open this menu to add ",
 							"players to the blacklist",
 							"to prevent the turret",
-							"from targeting them.",
-							"These players would be",
-							"considered as allies.");
+							"from targeting them.");
 
 					this.addPromptButton = new ButtonConversation(new PlayerBlacklistPrompt(),
-							ItemCreator.of(CompMaterial.BEACON, "Type a name",
+							ItemCreator.of(CompMaterial.WRITABLE_BOOK, "Type a name",
 									"",
 									"Click this button if you",
 									"would like to add a player",
@@ -427,19 +450,23 @@ public final class SettingsMenu extends Menu {
 				}
 
 				@Override
-				protected ItemStack convertToItemStack(final Player player) {
+				protected ItemStack convertToItemStack(final UUID uuid) {
+					final Player player = Remain.getPlayerByUUID(uuid);
+
 					return ItemCreator.of(
 									CompMaterial.PLAYER_HEAD,
 									player.getName(),
-									"Click to remove",
-									player.getName())
+									"Click to remove")
 							.skullOwner(player.getName()).make();
 				}
 
 				@Override
-				protected void onPageClick(final Player player, final Player item, final ClickType click) {
-					settings.removePlayerFromBlacklist(item.getUniqueId());
-					this.animateTitle("&cRemoved " + item.getName());
+				protected void onPageClick(final Player player, final UUID item, final ClickType click) {
+					final Player target = Remain.getPlayerByUUID(item);
+
+					settings.removePlayerFromBlacklist(target.getUniqueId());
+					this.restartMenu("&cRemoved " + target.getName());
+					PlayerBlacklistMenu.this.newInstance().displayTo(player);
 				}
 
 				@Override
@@ -449,7 +476,7 @@ public final class SettingsMenu extends Menu {
 					if (slot == this.getBottomCenterSlot() + 1)
 						return addPromptButton.getItem();
 
-					return NO_ITEM;
+					return super.getItemAt(slot);
 				}
 
 				@Override
@@ -459,13 +486,18 @@ public final class SettingsMenu extends Menu {
 							"clicking the existing heads",
 							"to remove them or clicking",
 							"the 'Add Mob' button to add",
-							"mobs to your blacklist."
+							"players to your blacklist."
 					};
 				}
 
+				@Override
+				public Menu newInstance() {
+					return new PlayerBlacklistMenu();
+				}
+
 				private class PlayerSelectionMenu extends MenuPagged<Player> {
-					private PlayerSelectionMenu(final Player player) {
-						super(9, PlayerBlacklistMenu.this, compileWorldPlayers(player));
+					private PlayerSelectionMenu() {
+						super(18, PlayerBlacklistMenu.this, viewer.getWorld().getPlayers());
 
 						this.setTitle("Select a player");
 					}
@@ -475,15 +507,19 @@ public final class SettingsMenu extends Menu {
 						return ItemCreator.of(
 										CompMaterial.PLAYER_HEAD,
 										player.getName(),
-										"Click to add",
-										player.getName())
+										(settings.getPlayerBlacklist().contains(player.getUniqueId()) ? "&aAlready blacklisted" : "Click to add"))
 								.skullOwner(player.getName()).make();
 					}
 
 					@Override
 					protected void onPageClick(final Player player, final Player item, final ClickType click) {
-						settings.addPlayerToBlacklist(player.getUniqueId());
+						settings.addPlayerToBlacklist(item.getUniqueId());
 						this.restartMenu("&aAdded " + player.getName());
+					}
+
+					@Override
+					protected void onMenuClose(final Player player, final Inventory inventory) {
+						PlayerBlacklistMenu.this.newInstance().displayTo(player);
 					}
 				}
 			}
@@ -495,23 +531,27 @@ public final class SettingsMenu extends Menu {
 					return "&6What player shouldn't be targeted by this turret? You can add more players to the blacklist by using the /turret blacklist add <player> command.";
 				}
 
+				@Override
+				protected boolean isInputValid(final ConversationContext context, final String input) {
+					for (final OfflinePlayer player : Bukkit.getOfflinePlayers())
+						return player.getName() != null && player.getName().equals(input);
+					return false;
+				}
+
+				@Override
+				protected String getFailedValidationText(final ConversationContext context, final String invalidInput) {
+					return "Player '" + invalidInput + "' doesn't exist.";
+				}
+
 				@org.jetbrains.annotations.Nullable
 				@Override
 				protected Prompt acceptValidatedInput(@NotNull final ConversationContext context, @NotNull final String input) {
-					final Player player = Bukkit.getPlayer(input);
+					settings.addPlayerToBlacklist(Bukkit.getOfflinePlayer(input).getUniqueId());
+					tellSuccess("You have added " + input + " to the blacklist!");
 
-					if (player != null) {
-						settings.addPlayerToBlacklist(player.getUniqueId());
-						tellSuccess("You have added " + input + " to the blacklist!");
-					} else tellError("Player " + input + " does not exist!");
 					return END_OF_CONVERSATION;
 				}
 			}
 		}
-	}
-
-	private static List<Player> compileWorldPlayers(final Player player) {
-		final World world = player.getWorld();
-		return world.getPlayers();
 	}
 }

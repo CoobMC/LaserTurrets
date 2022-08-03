@@ -60,7 +60,7 @@ public class BlacklistMenu extends Menu {
 		private final Button addButton;
 
 		private MobBlacklistMenu() {
-			super(27, BlacklistMenu.this, turretData.getMobBlackList());
+			super(27, BlacklistMenu.this, turretData.getMobBlacklist());
 
 			this.setTitle("Mob Blacklist");
 
@@ -122,8 +122,8 @@ public class BlacklistMenu extends Menu {
 			@Override
 			protected ItemStack convertToItemStack(final EntityType entityType) {
 				return ItemCreator.ofEgg(entityType, ItemUtil.bountifyCapitalized(entityType))
-						.glow(turretData.getMobBlackList().contains(entityType))
-						.lore(turretData.getMobBlackList().contains(entityType) ? "&aAlready blacklisted" : "Click to add")
+						.glow(turretData.getMobBlacklist().contains(entityType))
+						.lore(turretData.getMobBlacklist().contains(entityType) ? "&aAlready blacklisted" : "Click to add")
 						.make();
 			}
 

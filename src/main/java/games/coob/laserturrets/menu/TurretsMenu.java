@@ -31,27 +31,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrade turret menu
+public class TurretsMenu extends MenuPagged<TurretData> {
 
 	private TurretType turretType;
 
 	private final Button changeTypeButton;
 
-	private TurretSelectionMenu(final Player player, final TurretType viewMode) {
-		super(9 * 4, compileTurrets(viewMode));
+	private final Button settingsButton;
 
-		this.turretType = viewMode;
+	private TurretsMenu(final Player player, final TurretType turretType) {
+		super(9 * 4, compileTurrets(turretType));
 
-		this.setTitle(viewMode.typeName + " Turrets");
+		this.turretType = turretType;
+
+		this.setTitle(turretType.typeName + " Turrets");
 		this.setSize(9 * 3);
 		this.setViewer(player);
 
 		this.changeTypeButton = new ButtonConversation(new EditMenuTypePrompt(),
 				ItemCreator.of(CompMaterial.BEACON, "Change View Type",
 						"",
-						"Click this button if you",
-						"would like to view turrets",
-						"of a different type."));
+						"Click this button to view",
+						"turrets of a different type."));
+
+		this.settingsButton = new ButtonMenu(new SettingsMenu(this, player), CompMaterial.ANVIL, "Settings",
+				"",
+				"Click this button to edit",
+				"your turret settings for a",
+				"specific type.");
 	}
 
 	@Override
@@ -98,13 +105,15 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 	public ItemStack getItemAt(final int slot) {
 		if (slot == getSize() - 1)
 			return changeTypeButton.getItem();
+		if (slot == getBottomCenterSlot())
+			return settingsButton.getItem();
 
 		return super.getItemAt(slot);
 	}
 
 	@Override
 	public Menu newInstance() {
-		return new TurretSelectionMenu(getViewer(), turretType);
+		return new TurretsMenu(getViewer(), turretType);
 	}
 
 	/**
@@ -153,7 +162,7 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 		private final Button teleportButton;
 
 		TurretEditMenu(final TurretData turretData, final Player player) {
-			super(TurretSelectionMenu.this);
+			super(TurretsMenu.this);
 
 			this.turretData = turretData;
 
@@ -409,18 +418,18 @@ public class TurretSelectionMenu extends MenuPagged<TurretData> { // TODO Upgrad
 	}
 
 	public static void openAllTurretsSelectionMenu(final Player player) {
-		new TurretSelectionMenu(player, TurretType.ALL).displayTo(player);
+		new TurretsMenu(player, TurretType.ALL).displayTo(player);
 	}
 
 	public static void openArrowTurretsSelectionMenu(final Player player) {
-		new TurretSelectionMenu(player, TurretType.ARROW).displayTo(player);
+		new TurretsMenu(player, TurretType.ARROW).displayTo(player);
 	}
 
 	public static void openFlameTurretsSelectionMenu(final Player player) {
-		new TurretSelectionMenu(player, TurretType.FLAME).displayTo(player);
+		new TurretsMenu(player, TurretType.FLAME).displayTo(player);
 	}
 
 	public static void openLaserTurretsSelectionMenu(final Player player) {
-		new TurretSelectionMenu(player, TurretType.LASER).displayTo(player);
+		new TurretsMenu(player, TurretType.LASER).displayTo(player);
 	}
 }
