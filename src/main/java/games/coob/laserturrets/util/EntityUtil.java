@@ -20,7 +20,7 @@ public class EntityUtil {
 
 		for (final Entity nearby : center.getWorld().getNearbyEntities(center, range3D, range3D, range3D)) {
 			if (nearby instanceof LivingEntity && entityClass.isAssignableFrom(nearby.getClass())) {
-				if (!registry.isPlayerBlacklisted(turret, nearby.getName()) && !registry.isMobBlacklisted(turret, nearby.getType()))
+				if (!registry.isPlayerBlacklisted(turret, nearby.getUniqueId()) && !registry.isMobBlacklisted(turret, nearby.getType()))
 					found.add(nearby);
 			}
 		}

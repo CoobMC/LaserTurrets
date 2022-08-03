@@ -15,9 +15,7 @@ import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 public class TurretData implements ConfigSerializable { // TODO create ammo & health system
@@ -30,10 +28,9 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 
 	private String type;
 
-	private List<UUID> playerBlacklist = new ArrayList<>();
+	private Set<UUID> playerBlacklist = new HashSet<>();
 
-	@Nullable
-	private List<EntityType> mobBlackList = new ArrayList<>();
+	private Set<EntityType> mobBlackList = new HashSet<>();
 
 	private List<TurretData.TurretLevel> turretLevels = new ArrayList<>();
 
@@ -60,7 +57,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 	}
 
 	public void addPlayerToBlacklist(final UUID uuid) {
-		playerBlacklist.add(uuid);
+		this.playerBlacklist.add(uuid);
 	}
 
 	public void removePlayerFromBlacklist(final UUID uuid) {
@@ -74,27 +71,24 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 		else return false;
 	}
 
-	public void setPlayerBlacklist(final List<UUID> playerBlacklist) {
+	public void setPlayerBlacklist(final Set<UUID> playerBlacklist) {
 		this.playerBlacklist = playerBlacklist;
 	}
 
 
 	public void addMobToBlacklist(final EntityType entityType) {
-		mobBlackList.add(entityType);
+		this.mobBlackList.add(entityType);
 	}
 
 	public void removeMobFromBlacklist(final EntityType entityType) {
-		if (this.mobBlackList != null)
-			this.mobBlackList.remove(entityType);
+		this.mobBlackList.remove(entityType);
 	}
 
 	public boolean isMobBlacklisted(final EntityType entityType) {
-		if (this.mobBlackList != null)
-			return this.mobBlackList.contains(entityType);
-		else return false;
+		return this.mobBlackList.contains(entityType);
 	}
 
-	public void setMobBlacklist(final @org.jetbrains.annotations.Nullable List<EntityType> entityTypes) {
+	public void setMobBlacklist(final @org.jetbrains.annotations.Nullable Set<EntityType> entityTypes) {
 		this.mobBlackList = entityTypes;
 	}
 
@@ -112,7 +106,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 
 		turretLevels.add(level);
 
-		return turretLevels.get(turretLevels.size() - 1);
+		return this.turretLevels.get(this.turretLevels.size() - 1);
 	}
 
 	public void createLevel(final String turretType) {
@@ -161,8 +155,8 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 		final String hash = map.getString("Block");
 		final String id = map.getString("Id");
 		final String type = map.getString("Type");
-		final List<UUID> blacklist = map.getList("Player_Blacklist", UUID.class);
-		final List<EntityType> entityTypes = map.getList("Mob_Blacklist", EntityType.class);
+		final Set<UUID> blacklist = map.getSet("Player_Blacklist", UUID.class);
+		final Set<EntityType> entityTypes = map.getSet("Mob_Blacklist", EntityType.class);
 		final Integer level = map.getInteger("Current_Level");
 		final List<TurretLevel> levels = map.getList("Levels", TurretLevel.class, turretData);
 

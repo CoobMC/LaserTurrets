@@ -5,7 +5,6 @@ import games.coob.laserturrets.util.StringUtil;
 import lombok.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
-import org.mineacademy.fo.Common;
 import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.collection.SerializedMap;
 import org.mineacademy.fo.model.ConfigSerializable;
@@ -34,24 +33,14 @@ public class TurretSettings extends YamlConfig {
 
 	private List<LevelData> levels;
 
-	private List<UUID> playerBlacklist;
+	private Set<UUID> playerBlacklist;
 
-	private List<EntityType> mobBlacklist;
+	private Set<EntityType> mobBlacklist;
 
 	private TurretSettings(final String turretType) {
-		final String capitalizedType = StringUtil.capitalize(turretType);
 		final String type = StringUtil.getStringBeforeSymbol(turretType, "-");
 
-		setHeader(
-				Common.configLine(),
-				"You can edit settings for each turret type in game via a menu by using the '/lt settings' command (recommended).",
-				"",
-				"Edit your default " + capitalizedType + " Turret settings, everytime you create a turret these are the settings",
-				"the " + type + " turrets will have by default. Feel free to add extra levels in the 'Levels' section and make",
-				"sure to format the file properly. You can modify specific turrets in game by using the '/lt menu' command.",
-				Common.configLine() + "\n");
 		setPathPrefix(StringUtil.capitalize(type) + "_Turret_Default_Settings");
-
 		this.loadConfiguration("turrets/" + turretType + ".yml"); // TODO
 	}
 
@@ -63,8 +52,8 @@ public class TurretSettings extends YamlConfig {
 			return;
 		}
 
-		this.playerBlacklist = this.getList("Player_Blacklist", UUID.class);
-		this.mobBlacklist = this.getList("Mob_Blacklist", EntityType.class);
+		this.playerBlacklist = this.getSet("Player_Blacklist", UUID.class);
+		this.mobBlacklist = this.getSet("Mob_Blacklist", EntityType.class);
 		this.levels = this.loadLevels();
 	}
 

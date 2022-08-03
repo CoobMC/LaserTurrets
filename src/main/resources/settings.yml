@@ -16,45 +16,6 @@ Currency_Settings:
   Default_Currency: 500
 
 # -------------------------------------------------------------------------------------------------
-# Edit your default level 1 turret setting
-# -------------------------------------------------------------------------------------------------
-Default_Level_1_Turret_Settings:
-  # How expensive should it be to buy a turret
-  Price: 50
-  # Enable or disable lasers for level 1 turrets (this setting is ignored for laser turrets)
-  Enable_Lasers: false
-  # How much damage should a laser deal per a second (set the value to 0 if you would like to disable this feature)
-  Laser_Damage: 0
-  # How far should the turrets shoot from
-  Turret_Range: 12
-
-# -------------------------------------------------------------------------------------------------
-# Edit your default level 2 turret setting
-# -------------------------------------------------------------------------------------------------
-Default_Level_2_Turret_Settings:
-  # How expensive should it be to upgrade the turret to level 2
-  Price: 100
-  # Enable or disable lasers for level 2 turrets (this setting is ignored for laser turrets)
-  Enable_Lasers: true
-  # How much damage should a laser deal per a second (set the value to 0 if you would like to disable this feature)
-  Laser_Damage: 1
-  # How far should the turrets shoot from
-  Turret_Range: 16
-
-# -------------------------------------------------------------------------------------------------
-# Edit your default level 3 turret setting
-# -------------------------------------------------------------------------------------------------
-Default_Level_3_Turret_Settings:
-  # How expensive should it be to upgrade the turret to level 3
-  Price: 500
-  # Enable or disable lasers for level 3 turrets (this setting is ignored for laser turrets)
-  Enable_Lasers: true
-  # How much damage should a laser deal per a second (set the value to 0 if you would like to disable this feature)
-  Laser_Damage: 2.5
-  # How far should the turrets shoot from
-  Turret_Range: 20
-
-# -------------------------------------------------------------------------------------------------
 # What commands should trigger the main plugin command group?
 #
 # * THE FIRST ALIAS IS THE MAIN LABEL, PLEASE DO NOT REMOVE IT. *

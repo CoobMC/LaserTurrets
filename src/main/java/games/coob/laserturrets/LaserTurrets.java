@@ -1,6 +1,6 @@
 package games.coob.laserturrets;
 
-import games.coob.laserturrets.menu.ShopMenu;
+import games.coob.laserturrets.menu.UpgradeMenu;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.Settings;
@@ -120,7 +120,7 @@ public final class LaserTurrets extends SimplePlugin { // TODO create an animati
 			final Player player = event.getPlayer();
 
 			if (turretData.getPlayerBlacklist() != null && turretData.getPlayerBlacklist().contains(player))
-				new ShopMenu.UpgradeMenu(turretData, turretData.getCurrentLevel(), player).displayTo(player);
+				new UpgradeMenu(turretData, turretData.getCurrentLevel(), player).displayTo(player);
 		}
 	}
 

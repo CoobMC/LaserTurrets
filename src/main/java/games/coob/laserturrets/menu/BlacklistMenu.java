@@ -2,12 +2,15 @@ package games.coob.laserturrets.menu;
 
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,20 +26,17 @@ import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.Remain;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class BlacklistMenu extends Menu {
 
 	private final TurretData turretData;
 
-	@Position(13)
+	@Position(14)
 	private final Button mobBlacklistButton;
 
-	@Position(17)
+	@Position(12)
 	private final Button playerBlacklistButton;
 
 	public BlacklistMenu(final Menu parent, final TurretData turretData, final Player player) {
@@ -48,21 +48,23 @@ public class BlacklistMenu extends Menu {
 		this.setSize(27);
 		this.setTitle("Turret Blacklist");
 
-		this.mobBlacklistButton = new ButtonMenu(new BlacklistMenu.MobBlacklistMenu(turretData), CompMaterial.CREEPER_HEAD.toItem());
+		this.mobBlacklistButton = new ButtonMenu(new MobBlacklistMenu(), CompMaterial.CREEPER_HEAD,
+				"Mob Blacklist", "", "Edit your mob blacklist");
 
-		this.playerBlacklistButton = new ButtonMenu(new BlacklistMenu.PlayerBlacklistMenu(turretData), CompMaterial.PLAYER_HEAD.toItem());
+		this.playerBlacklistButton = new ButtonMenu(new PlayerBlacklistMenu(), CompMaterial.PLAYER_HEAD,
+				"Player Blacklist", "", "Edit your player blacklist");
 	}
 
 	private class MobBlacklistMenu extends MenuPagged<EntityType> {
 
 		private final Button addButton;
 
-		private MobBlacklistMenu(final TurretData turretData) {
+		private MobBlacklistMenu() {
 			super(27, BlacklistMenu.this, turretData.getMobBlackList());
 
 			this.setTitle("Mob Blacklist");
 
-			this.addButton = new ButtonMenu(new BlacklistMenu.MobBlacklistMenu.MobSelectionMenu(), CompMaterial.CREEPER_HEAD,
+			this.addButton = new ButtonMenu(new MobBlacklistMenu.MobSelectionMenu(), CompMaterial.ENDER_CHEST,
 					"Add Mob",
 					"",
 					"Open this menu to add ",
@@ -73,13 +75,15 @@ public class BlacklistMenu extends Menu {
 
 		@Override
 		protected ItemStack convertToItemStack(final EntityType entityType) {
-			return ItemCreator.ofEgg(entityType, ItemUtil.bountifyCapitalized(entityType)).make();
+			return ItemCreator.ofEgg(entityType, ItemUtil.bountifyCapitalized(entityType))
+					.lore("Click to remove").make();
 		}
 
 		@Override
 		protected void onPageClick(final Player player, final EntityType entityType, final ClickType clickType) {
 			TurretRegistry.getInstance().removeMobFromBlacklist(turretData, entityType);
-			this.animateTitle("&cRemoved " + entityType.name() + "from the mob blacklist.");
+			this.restartMenu("&cRemoved " + entityType.name());
+			newInstance().displayTo(player);
 		}
 
 		@Override
@@ -87,7 +91,7 @@ public class BlacklistMenu extends Menu {
 			if (slot == this.getBottomCenterSlot())
 				return addButton.getItem();
 
-			return NO_ITEM;
+			return super.getItemAt(slot);
 		}
 
 		@Override
@@ -101,9 +105,14 @@ public class BlacklistMenu extends Menu {
 			};
 		}
 
+		@Override
+		public Menu newInstance() {
+			return new MobBlacklistMenu();
+		}
+
 		private class MobSelectionMenu extends MenuPagged<EntityType> {
 			private MobSelectionMenu() {
-				super(9, BlacklistMenu.MobBlacklistMenu.this, Arrays.stream(EntityType.values())
+				super(27, BlacklistMenu.MobBlacklistMenu.this, Arrays.stream(EntityType.values())
 						.filter(EntityType::isAlive)
 						.collect(Collectors.toList()));
 
@@ -112,40 +121,46 @@ public class BlacklistMenu extends Menu {
 
 			@Override
 			protected ItemStack convertToItemStack(final EntityType entityType) {
-				return ItemCreator.ofEgg(entityType, ItemUtil.bountifyCapitalized(entityType)).make();
+				return ItemCreator.ofEgg(entityType, ItemUtil.bountifyCapitalized(entityType))
+						.glow(turretData.getMobBlackList().contains(entityType))
+						.lore(turretData.getMobBlackList().contains(entityType) ? "&aAlready blacklisted" : "Click to add")
+						.make();
 			}
 
 			@Override
 			protected void onPageClick(final org.bukkit.entity.Player player, final EntityType entityType, final ClickType clickType) {
 				TurretRegistry.getInstance().addMobToBlacklist(turretData, entityType);
-				this.animateTitle("&aAdded " + entityType.name() + "to the mob blacklist.");
+				this.restartMenu("&aAdded " + entityType.name());
+			}
+
+			@Override
+			protected void onMenuClose(final Player player, final Inventory inventory) {
+				MobBlacklistMenu.this.newInstance().displayTo(player);
 			}
 		}
 	}
 
-	private class PlayerBlacklistMenu extends MenuPagged<Player> {
+	private class PlayerBlacklistMenu extends MenuPagged<UUID> {
 
 		private final Button addButton;
 
 		private final Button addPromptButton;
 
-		private PlayerBlacklistMenu(final TurretData turretData) {
-			super(27, BlacklistMenu.this, compileBlacklistedPlayers(turretData.getPlayerBlacklist()));
+		private PlayerBlacklistMenu() {
+			super(27, BlacklistMenu.this, turretData.getPlayerBlacklist());
 
 			this.setTitle("Player Blacklist");
 
-			this.addButton = new ButtonMenu(new PlayerSelectionMenu(), CompMaterial.CREEPER_HEAD,
+			this.addButton = new ButtonMenu(new PlayerSelectionMenu(), CompMaterial.ENDER_CHEST,
 					"Add Players",
 					"",
 					"Open this menu to add ",
 					"players to the blacklist",
 					"to prevent the turret",
-					"from targeting them.",
-					"These players would be",
-					"considered as allies.");
+					"from targeting them.");
 
 			this.addPromptButton = new ButtonConversation(new PlayerBlacklistPrompt(),
-					ItemCreator.of(CompMaterial.BEACON, "Type a name",
+					ItemCreator.of(CompMaterial.WRITABLE_BOOK, "Type a name",
 							"",
 							"Click this button if you",
 							"would like to add a player",
@@ -155,20 +170,22 @@ public class BlacklistMenu extends Menu {
 		}
 
 		@Override
-		protected ItemStack convertToItemStack(final Player player) {
+		protected ItemStack convertToItemStack(final UUID uuid) {
+			final Player player = Remain.getPlayerByUUID(uuid);
+
 			return ItemCreator.of(
 							CompMaterial.PLAYER_HEAD,
 							player.getName(),
-							"",
-							"Click to remove",
-							player.getName())
+							"Click to remove")
 					.skullOwner(player.getName()).make();
 		}
 
 		@Override
-		protected void onPageClick(final Player player, final Player item, final ClickType click) {
-			TurretRegistry.getInstance().removePlayerFromBlacklist(turretData, player.getUniqueId());
-			this.animateTitle("&cRemoved " + player.getName() + "from the blacklist.");
+		protected void onPageClick(final Player player, final UUID item, final ClickType click) {
+			final Player target = Remain.getPlayerByUUID(item);
+
+			TurretRegistry.getInstance().removePlayerFromBlacklist(turretData, target.getUniqueId());
+			this.restartMenu("&cRemoved " + target.getName());
 		}
 
 		@Override
@@ -178,7 +195,7 @@ public class BlacklistMenu extends Menu {
 			if (slot == this.getBottomCenterSlot() + 1)
 				return addPromptButton.getItem();
 
-			return NO_ITEM;
+			return super.getItemAt(slot);
 		}
 
 		@Override
@@ -188,13 +205,18 @@ public class BlacklistMenu extends Menu {
 					"clicking the existing heads",
 					"to remove them or clicking",
 					"the 'Add Mob' button to add",
-					"mobs to your blacklist."
+					"players to your blacklist."
 			};
+		}
+
+		@Override
+		public Menu newInstance() {
+			return new PlayerBlacklistMenu();
 		}
 
 		private class PlayerSelectionMenu extends MenuPagged<Player> {
 			private PlayerSelectionMenu() {
-				super(9, BlacklistMenu.PlayerBlacklistMenu.this, compileWorldPlayers(turretData));
+				super(18, BlacklistMenu.PlayerBlacklistMenu.this, compileWorldPlayers(turretData));
 
 				this.setTitle("Select a player");
 			}
@@ -204,16 +226,19 @@ public class BlacklistMenu extends Menu {
 				return ItemCreator.of(
 								CompMaterial.PLAYER_HEAD,
 								player.getName(),
-								"",
-								"Click to add",
-								player.getName())
+								(turretData.getPlayerBlacklist().contains(player.getUniqueId()) ? "&aAlready blacklisted" : "Click to add"))
 						.skullOwner(player.getName()).make();
 			}
 
 			@Override
 			protected void onPageClick(final Player player, final Player item, final ClickType click) {
-				TurretRegistry.getInstance().addPlayerToBlacklist(turretData, player.getUniqueId());
-				this.animateTitle("&aAdded " + player.getName() + "to the blacklist.");
+				TurretRegistry.getInstance().addPlayerToBlacklist(turretData, item.getUniqueId());
+				this.restartMenu("&aAdded " + player.getName());
+			}
+
+			@Override
+			protected void onMenuClose(final Player player, final Inventory inventory) {
+				PlayerBlacklistMenu.this.newInstance().displayTo(player);
 			}
 		}
 	}
@@ -225,18 +250,31 @@ public class BlacklistMenu extends Menu {
 			return "&6What player shouldn't be targeted by this turret? You can add more players to the blacklist by using the /turret blacklist add <player> command.";
 		}
 
+		@Override
+		protected boolean isInputValid(final ConversationContext context, final String input) {
+			for (final OfflinePlayer player : Bukkit.getOfflinePlayers())
+				return player.getName() != null && player.getName().equals(input);
+			return false;
+		}
+
+		@Override
+		protected String getFailedValidationText(final ConversationContext context, final String invalidInput) {
+			return "Player '" + invalidInput + "' doesn't exist.";
+		}
+
 		@Nullable
 		@Override
 		protected Prompt acceptValidatedInput(@NotNull final ConversationContext context, @NotNull final String input) {
 			final TurretRegistry registry = TurretRegistry.getInstance();
 
-			registry.addPlayerToBlacklist(turretData, input);
+			registry.addPlayerToBlacklist(turretData, Bukkit.getOfflinePlayer(input).getUniqueId());
 			tellSuccess("You have added " + input + " to the blacklist!");
+
 			return END_OF_CONVERSATION;
 		}
 	}
 
-	public static List<Player> compileBlacklistedPlayers(final List<UUID> uuidList) {
+	public static List<Player> compileBlacklistedPlayers(final Set<UUID> uuidList) {
 		final List<Player> blacklistedPlayers = new ArrayList<>();
 
 		for (final UUID uuid : uuidList)
@@ -248,8 +286,9 @@ public class BlacklistMenu extends Menu {
 	private static List<Player> compileWorldPlayers(final TurretData turretData) {
 		final World world = turretData.getLocation().getWorld();
 
-		if (world != null)
+		if (world != null) {
 			return world.getPlayers();
+		}
 
 		return null;
 	}

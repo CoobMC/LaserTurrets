@@ -1,13 +1,10 @@
 package games.coob.laserturrets.model;
 
-import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.constants.FoConstants;
@@ -73,7 +70,7 @@ public class TurretRegistry extends YamlConfig {
 		//final long now = System.currentTimeMillis();
 		LagCatcher.start("Setting turret data");
 
-		final TurretSettings turretSettings = TurretSettings.findTurretSettings(type);
+		final TurretSettings turretSettings = TurretSettings.findTurretSettings(type + "-turrets");
 
 		turretData.setMobBlacklist(turretSettings.getMobBlacklist());
 		turretData.setPlayerBlacklist(turretSettings.getPlayerBlacklist());
@@ -160,15 +157,6 @@ public class TurretRegistry extends YamlConfig {
 		this.save();
 	}
 
-	public void addPlayerToBlacklist(final TurretData turretData, final String playerName) {
-		final Player player = Bukkit.getPlayer(playerName);
-
-		if (player != null) {
-			turretData.addPlayerToBlacklist(player.getUniqueId());
-			this.save();
-		}
-	}
-
 	public void removePlayerFromBlacklist(final Block block, final UUID uuid) {
 		for (final TurretData turretData : this.registeredTurrets)
 			if (turretData.getLocation().equals(block.getLocation()))
@@ -183,10 +171,10 @@ public class TurretRegistry extends YamlConfig {
 		this.save();
 	}
 
-	public boolean isPlayerBlacklisted(final Block block, final String playerName) {
+	public boolean isPlayerBlacklisted(final Block block, final UUID uuid) {
 		for (final TurretData turretData : this.registeredTurrets)
 			if (turretData.getLocation().equals(block.getLocation()))
-				return turretData.isPlayerBlacklisted(Bukkit.getPlayer(playerName).getUniqueId()); // TODO
+				return turretData.isPlayerBlacklisted(uuid);
 
 		return false;
 	}
@@ -217,7 +205,7 @@ public class TurretRegistry extends YamlConfig {
 			if (turretData.getLocation().equals(block.getLocation()))
 				return turretData.getLevel(level).isLaserEnabled();
 
-		return Settings.DefaultLevel1TurretSection.ENABLE_LASERS;
+		return false;
 	}
 
 	public void setRange(final TurretData turretData, final int level, final int range) {
@@ -277,7 +265,7 @@ public class TurretRegistry extends YamlConfig {
 			if (turretData.getLocation().equals(block.getLocation()))
 				return turretData.getLevel(level).getRange();
 
-		return Settings.DefaultLevel1TurretSection.TURRET_RANGE;
+		return 15;
 	}
 
 	public double getLaserDamage(final Block block, final int level) {
@@ -285,15 +273,7 @@ public class TurretRegistry extends YamlConfig {
 			if (turretData.getLocation().equals(block.getLocation()))
 				return turretData.getLevel(level).getLaserDamage();
 
-		return Settings.DefaultLevel1TurretSection.LASER_DAMAGE;
-	}
-
-	public TurretData getTurretByBlock(final Block block) {
-		for (final TurretData turretData : this.registeredTurrets)
-			if (turretData.getLocation().equals(block.getLocation()))
-				return turretData;
-
-		return null;
+		return 0.5;
 	}
 
 	public List<Tuple<ItemStack, Double>> getTurretLootChances(final TurretData turretData, final int level) {
@@ -313,6 +293,22 @@ public class TurretRegistry extends YamlConfig {
 			locations.add(turretData.getLocation());
 
 		return locations;
+	}
+
+	public TurretData getTurretByBlock(final Block block) {
+		for (final TurretData turretData : this.registeredTurrets)
+			if (turretData.getLocation().equals(block.getLocation()))
+				return turretData;
+
+		return null;
+	}
+
+	public TurretData getTurretByLocation(final Location location) {
+		for (final TurretData turretData : getRegisteredTurrets())
+			if (turretData.getLocation().equals(location))
+				return turretData;
+
+		return null;
 	}
 
 	public List<Location> getArrowLocations() {

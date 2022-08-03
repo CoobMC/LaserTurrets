@@ -375,7 +375,7 @@ public final class SettingsMenu extends Menu {
 
 				private class MobSelectionMenu extends MenuPagged<EntityType> {
 					private MobSelectionMenu() {
-						super(9, MobBlacklistMenu.this, Arrays.stream(EntityType.values())
+						super(18, MobBlacklistMenu.this, Arrays.stream(EntityType.values())
 								.filter(EntityType::isAlive)
 								.collect(Collectors.toList()));
 
@@ -390,7 +390,7 @@ public final class SettingsMenu extends Menu {
 					@Override
 					protected void onPageClick(final org.bukkit.entity.Player player, final EntityType entityType, final ClickType clickType) {
 						settings.addMobToBlacklist(entityType);
-						this.animateTitle("&aAdded " + entityType.name() + "to the mob blacklist.");
+						this.restartMenu("&aAdded " + entityType.name());
 					}
 				}
 			}
@@ -431,7 +431,6 @@ public final class SettingsMenu extends Menu {
 					return ItemCreator.of(
 									CompMaterial.PLAYER_HEAD,
 									player.getName(),
-									"",
 									"Click to remove",
 									player.getName())
 							.skullOwner(player.getName()).make();
@@ -440,7 +439,7 @@ public final class SettingsMenu extends Menu {
 				@Override
 				protected void onPageClick(final Player player, final Player item, final ClickType click) {
 					settings.removePlayerFromBlacklist(item.getUniqueId());
-					this.animateTitle("&cRemoved " + item.getName() + "from the blacklist.");
+					this.animateTitle("&cRemoved " + item.getName());
 				}
 
 				@Override
@@ -476,7 +475,6 @@ public final class SettingsMenu extends Menu {
 						return ItemCreator.of(
 										CompMaterial.PLAYER_HEAD,
 										player.getName(),
-										"",
 										"Click to add",
 										player.getName())
 								.skullOwner(player.getName()).make();
@@ -485,7 +483,7 @@ public final class SettingsMenu extends Menu {
 					@Override
 					protected void onPageClick(final Player player, final Player item, final ClickType click) {
 						settings.addPlayerToBlacklist(player.getUniqueId());
-						this.animateTitle("&aAdded " + player.getName() + "to the blacklist.");
+						this.restartMenu("&aAdded " + player.getName());
 					}
 				}
 			}
