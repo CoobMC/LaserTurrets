@@ -89,7 +89,7 @@ public final class SettingsMenu extends Menu {
 
 		private SettingsEditMenu(final String typeName) {
 			super(SettingsMenu.this);
-			this.settings = TurretSettings.findTurretSettings(typeName + "-turrets");
+			this.settings = TurretSettings.findTurretSettings(typeName);
 
 			this.setSize(9 * 4);
 			this.setTitle(StringUtil.capitalize(typeName) + " Turrets");
@@ -142,9 +142,6 @@ public final class SettingsMenu extends Menu {
 			public LevelMenu(final int turretLevel) {
 				super(SettingsEditMenu.this);
 
-				System.out.println("Settings: " + settings);
-				System.out.println("Levels: " + settings.getLevels());
-				System.out.println("Levels size: " + settings.getLevelsSize());
 				final boolean nextLevelExists = turretLevel < settings.getLevelsSize() || settings.getLevelsSize() == 0;
 
 				this.level = getOrMakeLevel(turretLevel);
@@ -218,15 +215,10 @@ public final class SettingsMenu extends Menu {
 					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
 						final Menu nextLevelMenu;
 
-						if (nextLevelExists) {
-							nextLevelMenu = new LevelMenu(turretLevel + 1); // TODO add level
-							System.out.println("Exists");
-						} else {
+						if (!nextLevelExists)
 							settings.createSettingsLevel();
-							nextLevelMenu = new LevelMenu(turretLevel + 1);
-							System.out.println("Doesn't exist");
-						}
 
+						nextLevelMenu = new LevelMenu(turretLevel + 1); // TODO add level
 						nextLevelMenu.displayTo(player);
 					}
 
@@ -514,6 +506,7 @@ public final class SettingsMenu extends Menu {
 					@Override
 					protected void onPageClick(final Player player, final Player item, final ClickType click) {
 						settings.addPlayerToBlacklist(item.getUniqueId());
+						System.out.println("Blacklist : " + settings.getPlayerBlacklist());
 						this.restartMenu("&aAdded " + player.getName());
 					}
 

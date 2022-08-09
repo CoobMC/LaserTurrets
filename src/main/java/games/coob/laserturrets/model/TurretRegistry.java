@@ -8,7 +8,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.constants.FoConstants;
-import org.mineacademy.fo.debug.LagCatcher;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.settings.YamlConfig;
@@ -67,9 +66,6 @@ public class TurretRegistry extends YamlConfig {
 		turretData.setId(uniqueID);
 		turretData.setCurrentLevel(1);
 
-		//final long now = System.currentTimeMillis();
-		LagCatcher.start("Setting turret data");
-
 		final TurretSettings turretSettings = TurretSettings.findTurretSettings(type + "-turrets");
 
 		turretData.setMobBlacklist(turretSettings.getMobBlacklist());
@@ -79,8 +75,6 @@ public class TurretRegistry extends YamlConfig {
 			turretData.addLevel();
 			levelData.setLevelData(turretData.getLevel(levelData.getLevel()));
 		}
-
-		LagCatcher.end("Setting turret data", true);
 
 		this.registeredTurrets.add(turretData);
 
@@ -96,10 +90,7 @@ public class TurretRegistry extends YamlConfig {
 				break;
 		}
 
-		this.
-
-				save();
-
+		this.save();
 	}
 
 	public void unregister(final Block block, final String type) {

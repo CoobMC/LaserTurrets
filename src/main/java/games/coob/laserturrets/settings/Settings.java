@@ -54,6 +54,32 @@ public final class Settings extends SimpleSettings {
 		}
 	}
 
+	public static class DatabaseSection { // TODO integrate vault economy
+		public static Boolean ENABLE_MYSQL;
+		public static String HOST;
+		public static Integer PORT;
+		public static String DATABASE;
+		public static String USER;
+		public static String PASSWORD;
+
+		/*
+		 * Automatically called method when we load settings.yml to load values in this subclass
+		 */
+		private static void init() {
+
+			// A convenience method to instruct the loader to prepend all paths with Example so you
+			// do not have to call "Example.Key1", "Example.Key2" all the time, only "Key1" and "Key2".
+			setPathPrefix("MySQL");
+
+			ENABLE_MYSQL = getBoolean("Enable_MySQL");
+			HOST = getString("Hostname");
+			PORT = getInteger("Port");
+			DATABASE = getString("Database");
+			USER = getString("Username");
+			PASSWORD = getString("Password");
+		}
+	}
+
 	/**
 	 * @see org.mineacademy.fo.settings.SimpleSettings#getConfigVersion()
 	 */

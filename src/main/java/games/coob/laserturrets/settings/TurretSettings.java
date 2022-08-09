@@ -1,7 +1,6 @@
 package games.coob.laserturrets.settings;
 
 import games.coob.laserturrets.model.TurretData;
-import games.coob.laserturrets.util.StringUtil;
 import lombok.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
@@ -20,13 +19,11 @@ public class TurretSettings extends YamlConfig {
 	private static final ConfigItems<TurretSettings> loadedTurretSettings = ConfigItems.fromFolder("turrets", TurretSettings.class);
 
 	/*public static TurretSettings getInstance(final String turretType) {
+		System.out.println(turretType);
 		TurretSettings settings = loadedTurretSettings.findItem(turretType);
 
-		if (settings == null) {
-			settings = new TurretSettings(turretType);
-
-			loadedTurretSettings.loadOrCreateItem(turretType);
-		}
+		if (settings == null)
+			settings = createSettings(turretType);
 
 		return settings;
 	}*/
@@ -38,20 +35,18 @@ public class TurretSettings extends YamlConfig {
 	private Set<EntityType> mobBlacklist = new HashSet<>();
 
 	private TurretSettings(final String turretType) {
-		final String type = StringUtil.getStringBeforeSymbol(turretType, "-");
-
-		setPathPrefix(StringUtil.capitalize(type) + "_Turret_Default_Settings");
-
-		this.loadConfiguration(NO_DEFAULT, "turrets/" + turretType + ".yml");
+		this.setPathPrefix("Turret_Settings");
+		this.loadConfiguration("turret-data.yml", "turrets/" + turretType + "-turrets.yml");
 	}
 
 	@Override
 	protected void onLoad() {
-		/*if (this.levels != null && this.playerBlacklist != null && this.mobBlacklist != null) {
+		if (this.levels != null && this.playerBlacklist != null && this.mobBlacklist != null) {
 			this.save();
 
 			return;
-		}*/
+		}
+
 		this.playerBlacklist = this.getSet("Player_Blacklist", UUID.class);
 		this.mobBlacklist = this.getSet("Mob_Blacklist", EntityType.class);
 		this.levels = this.loadLevels();
@@ -248,8 +243,8 @@ public class TurretSettings extends YamlConfig {
 	// Static
 	// -----------------------------------------------------------------
 
-	public static TurretSettings createSettings(@NonNull final String turretType) {
-		return loadedTurretSettings.loadOrCreateItem(turretType);
+	public static void createSettings(@NonNull final String turretType) {
+		loadedTurretSettings.loadOrCreateItem(turretType, () -> new TurretSettings(turretType));
 	}
 
 	public static void loadTurretSettings() {
@@ -262,6 +257,10 @@ public class TurretSettings extends YamlConfig {
 
 	public static Set<String> getTurretSettingTypes() {
 		return loadedTurretSettings.getItemNames();
+	}
+
+	public static boolean isTurretSettingLoaded(final String type) {
+		return loadedTurretSettings.isItemLoaded(type);
 	}
 
 	public static TurretSettings findTurretSettings(final String type) {

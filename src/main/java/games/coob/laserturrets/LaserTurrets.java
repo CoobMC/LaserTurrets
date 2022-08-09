@@ -1,5 +1,6 @@
 package games.coob.laserturrets;
 
+import games.coob.laserturrets.database.LaserTurretsDatabase;
 import games.coob.laserturrets.menu.UpgradeMenu;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
@@ -49,6 +50,9 @@ public final class LaserTurrets extends SimplePlugin { // TODO create an animati
 			Common.log("[LaserTurrets] - Disabled due to no Vault dependency found!", getDescription().getName());
 			getServer().getPluginManager().disablePlugin(this);
 		}
+
+		if (Settings.DatabaseSection.ENABLE_MYSQL)
+			LaserTurretsDatabase.getInstance().connect(Settings.DatabaseSection.HOST, Settings.DatabaseSection.PORT, Settings.DatabaseSection.DATABASE, Settings.DatabaseSection.USER, Settings.DatabaseSection.PASSWORD);
 	}
 
 	@Override
@@ -61,13 +65,21 @@ public final class LaserTurrets extends SimplePlugin { // TODO create an animati
 		TurretRegistry.getInstance().save();
 	}
 
+	public String[] getTypes() {
+		return new String[]{
+				"arrow", "laser", "flame"
+		};
+	}
+
 	/**
 	 * Automatically perform login when the plugin starts and each time it is reloaded.
 	 */
 	@Override
 	protected void onReloadablesStart() {
 		LagCatcher.start("onStart");
-		TurretSettings.loadTurretSettings();
+		for (final String type : getTypes()) {
+			TurretSettings.createSettings(type);
+		}
 		LagCatcher.end("onStart", true);
 
 		//

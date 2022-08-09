@@ -16,6 +16,18 @@ Currency_Settings:
   Default_Currency: 500
 
 # -------------------------------------------------------------------------------------------------
+# MySQL settings (a database system that synchronises data across all of your servers)
+# -------------------------------------------------------------------------------------------------
+MySQL:
+  # Enable or disable MySQL (if enabled, edit the values below to connect this plugin to your database)
+  Enable_MySQL: false
+  Hostname: "example.hostname"
+  Port: 3306
+  Database: "database-name"
+  Username: "user-name"
+  Password: ""
+
+# -------------------------------------------------------------------------------------------------
 # What commands should trigger the main plugin command group?
 #
 # * THE FIRST ALIAS IS THE MAIN LABEL, PLEASE DO NOT REMOVE IT. *

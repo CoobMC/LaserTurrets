@@ -16,7 +16,6 @@ import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.menu.tool.Tool;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompMetadata;
-import org.mineacademy.fo.visual.VisualTool;
 
 import java.util.List;
 
@@ -25,7 +24,7 @@ import java.util.List;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AutoRegister
-public final class ArrowTurretTool extends VisualTool {
+public final class ArrowTurretTool extends TurretTool {
 
 	/**
 	 * The singular tool instance
@@ -43,7 +42,6 @@ public final class ArrowTurretTool extends VisualTool {
 	 */
 	@Override
 	public ItemStack getItem() {
-
 		if (item == null)
 			item = ItemCreator.of(
 							CompMaterial.SPECTRAL_ARROW,
@@ -56,19 +54,10 @@ public final class ArrowTurretTool extends VisualTool {
 		return item;
 	}
 
-
-	/**
-	 * Cancel the event so that we don't destroy blocks when selecting them
-	 *
-	 * @see Tool#autoCancel()
-	 */
-	@Override
-	protected boolean autoCancel() {
-		return true;
-	}
-
 	@Override
 	protected void handleBlockClick(final Player player, final ClickType click, final Block block) {
+		super.handleBlockClick(player, click, block);
+		
 		final TurretRegistry registry = TurretRegistry.getInstance();
 		final String type = "arrow";
 		final boolean isRegisteredExclude = registry.isRegisteredExclude(block, type);
