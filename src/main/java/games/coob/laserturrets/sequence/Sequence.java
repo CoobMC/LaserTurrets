@@ -5,11 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.ItemUtil;
 import org.mineacademy.fo.plugin.SimplePlugin;
-import org.mineacademy.fo.remain.CompMaterial;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -102,40 +102,34 @@ public abstract class Sequence {
 
 	/**
 	 * Spawns a glowing hologram stand at the last location with the given material.
-	 *
-	 * @param material
 	 */
-	protected final void glowingStand(final CompMaterial material) {
-		this.stand(material, true, false);
+	protected final void glowingStand(final ItemStack itemStack) {
+		this.stand(itemStack, true, false);
 	}
 
 	/**
 	 * Spawns an animated hologram stand at the last location with the given material.
-	 *
-	 * @param material
 	 */
-	protected final void animatedStand(final CompMaterial material) {
-		this.stand(material, false, true);
+	protected final void animatedStand(final ItemStack itemStack) {
+		this.stand(itemStack, false, true);
 	}
 
 	/**
 	 * Spawns a glowing animated hologram stand at the last location with the given material.
-	 *
-	 * @param material
 	 */
-	protected final void animatedGlowingStand(final CompMaterial material) {
-		this.stand(material, true, true);
+	protected final void animatedGlowingStand(final ItemStack item) {
+		this.stand(item, true, true);
 	}
 
 	/*
 	 * A helper method to spawn an animated hologram stand.
 	 */
-	private void stand(final CompMaterial material, final boolean glow, final boolean animated) {
-		final AnimatedHologram stand = new AnimatedHologram(this.lastLocation, material);
+	private void stand(final ItemStack itemStack, final boolean glow, final boolean animated) {
+		final AnimatedHologram stand = new AnimatedHologram(this.lastLocation, itemStack);
 
 		stand.setGlowing(glow);
 		stand.setAnimated(animated);
-		stand.setLore(ItemUtil.bountifyCapitalized(material));
+		stand.setLore(ItemUtil.bountifyCapitalized(itemStack.getType()));
 
 		stand.spawn();
 

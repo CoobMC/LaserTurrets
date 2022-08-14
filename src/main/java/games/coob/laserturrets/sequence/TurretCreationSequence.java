@@ -6,8 +6,10 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.mineacademy.fo.Common;
+import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.menu.model.SkullCreator;
@@ -54,11 +56,11 @@ public final class TurretCreationSequence extends Sequence {
 	protected void onStart() {
 		this.getLastLocation().add(0.5, 0, 0.5);
 
-		final CompMaterial material = CompMaterial.fromItem(ItemCreator.of(SkullCreator.itemFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGNjNzI1NzhhNjBjMGViMWEzZmEzODFhYTYyMmEwYzkyNzZkYTdmOTU4YWU5YTBjNzFlZTQ4ZTc3MWZiMmNjNSJ9fX0=")).make());
+		final ItemStack item = ItemCreator.of(SkullCreator.itemFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGNjNzI1NzhhNjBjMGViMWEzZmEzODFhYTYyMmEwYzkyNzZkYTdmOTU4YWU5YTBjNzFlZTQ4ZTc3MWZiMmNjNSJ9fX0=")).make();
 
 		// Step 1
 		this.lightning();
-		this.glowingStand(material);
+		this.glowingStand(item);
 
 		this.nextSequence(this::rotate);
 	}
@@ -132,7 +134,7 @@ public final class TurretCreationSequence extends Sequence {
 				higherPosition.setY(itemY);
 
 				this.setLastLocation(chestLocation);
-				this.animatedStand(CompMaterial.CHEST);
+				this.animatedStand(CompMaterial.PLAYER_HEAD.toItem());
 
 				this.getLastStand().addParticleEffect(CompParticle.VILLAGER_HAPPY);
 
@@ -159,7 +161,7 @@ public final class TurretCreationSequence extends Sequence {
 				this.circleItems.add(this.getLastStand());
 
 				if (lastDegree)
-					TurretRegistry.getInstance().register(this.block, this.type);
+					this.nextSequence(this::cleanUp);
 			});
 		}
 	}
@@ -178,7 +180,7 @@ public final class TurretCreationSequence extends Sequence {
 					this.nextSequence(this::cleanUp);
 			});
 		}
-	}
+	}*/
 
 	private void cleanUp() {
 
@@ -193,14 +195,12 @@ public final class TurretCreationSequence extends Sequence {
 				circleItem.remove();
 
 				if (lastCircleItem) {
-					this.giant.remove();
-					this.giant.getWorld().playEffect(this.giant.getLocation().add(0, 1.7, 0), Effect.MOBSPAWNER_FLAMES, 0);
-
 					Common.broadcast(Messenger.getSuccessPrefix() + "Sequence finished.");
+					TurretRegistry.getInstance().register(this.block, this.type);
 				}
 			});
 		}
 
 		this.circleItems.clear();
-	}*/
+	}
 }
