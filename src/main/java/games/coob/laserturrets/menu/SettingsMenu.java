@@ -419,7 +419,7 @@ public final class SettingsMenu extends Menu {
 				private final Button addPromptButton;
 
 				private PlayerBlacklistMenu() {
-					super(27, SettingsBlacklistMenu.this, settings.getPlayerBlacklist());
+					super(27, SettingsBlacklistMenu.this, TurretSettings.findTurretSettings("laser").getPlayerBlacklist());
 
 					this.setTitle("Player Blacklist");
 
@@ -455,6 +455,7 @@ public final class SettingsMenu extends Menu {
 				@Override
 				protected void onPageClick(final Player player, final UUID item, final ClickType click) {
 					final Player target = Remain.getPlayerByUUID(item);
+					final TurretSettings settings = TurretSettings.findTurretSettings("laser");
 
 					settings.removePlayerFromBlacklist(target.getUniqueId());
 					this.restartMenu("&cRemoved " + target.getName());
@@ -499,12 +500,13 @@ public final class SettingsMenu extends Menu {
 						return ItemCreator.of(
 										CompMaterial.PLAYER_HEAD,
 										player.getName(),
-										(settings.getPlayerBlacklist().contains(player.getUniqueId()) ? "&aAlready blacklisted" : "Click to add"))
+										(TurretSettings.findTurretSettings("laser").getPlayerBlacklist().contains(player.getUniqueId()) ? "&aAlready blacklisted" : "Click to add"))
 								.skullOwner(player.getName()).make();
 					}
 
 					@Override
 					protected void onPageClick(final Player player, final Player item, final ClickType click) {
+						final TurretSettings settings = TurretSettings.findTurretSettings("laser");
 						settings.addPlayerToBlacklist(item.getUniqueId());
 						System.out.println("Blacklist : " + settings.getPlayerBlacklist());
 						this.restartMenu("&aAdded " + player.getName());

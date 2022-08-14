@@ -1,22 +1,19 @@
 package games.coob.laserturrets.sequence;
 
+import games.coob.laserturrets.model.TurretRegistry;
 import org.bukkit.Effect;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Giant;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.mineacademy.fo.Common;
-import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.menu.model.SkullCreator;
 import org.mineacademy.fo.model.SimpleHologram;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompParticle;
-import org.mineacademy.fo.remain.CompProperty;
-import org.mineacademy.fo.remain.Remain;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +28,11 @@ public final class TurretCreationSequence extends Sequence {
 	 * The giant entity we spawn throughout this sequence stored
 	 * here for convenient use.
 	 */
-	private Giant giant;
+	// private Giant giant;
+
+	private final Block block;
+
+	private final String type;
 
 	/**
 	 * The items in the circle around the giant we spawn during this
@@ -39,8 +40,11 @@ public final class TurretCreationSequence extends Sequence {
 	 */
 	private List<AnimatedHologram> circleItems = new ArrayList<>();
 
-	protected TurretCreationSequence() {
+	TurretCreationSequence(final Block block, final String type) {
 		super("turret-creation");
+
+		this.block = block;
+		this.type = type;
 	}
 
 	/*
@@ -61,9 +65,6 @@ public final class TurretCreationSequence extends Sequence {
 
 	@Override
 	public void disable() {
-		if (this.giant != null)
-			this.giant.remove();
-
 		for (final SimpleHologram stand : this.circleItems)
 			stand.remove();
 
@@ -78,10 +79,10 @@ public final class TurretCreationSequence extends Sequence {
 		this.getLastLocation().add(0, 0.4, 0);
 		this.getLastStand().setAnimated(true);
 
-		this.nextSequence(this::giant);
+		this.nextSequence(this::circleItems);
 	}
 
-	private void giant() {
+	/*private void giant() {
 
 		// Step 3
 		this.removeLast();
@@ -104,7 +105,7 @@ public final class TurretCreationSequence extends Sequence {
 		this.getLastLocation().add(0, 1.5, 0);
 
 		this.nextSequence(this::circleItems);
-	}
+	}*/
 
 	private void circleItems() {
 
@@ -158,12 +159,12 @@ public final class TurretCreationSequence extends Sequence {
 				this.circleItems.add(this.getLastStand());
 
 				if (lastDegree)
-					this.nextSequence(this::dropItems);
+					TurretRegistry.getInstance().register(this.block, this.type);
 			});
 		}
 	}
 
-	private void dropItems() {
+	/*private void dropItems() {
 
 		// Step 5
 		for (int i = 0; i < this.circleItems.size(); i++) {
@@ -201,5 +202,5 @@ public final class TurretCreationSequence extends Sequence {
 		}
 
 		this.circleItems.clear();
-	}
+	}*/
 }

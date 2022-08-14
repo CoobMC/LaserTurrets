@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.ItemUtil;
@@ -28,7 +29,9 @@ public abstract class Sequence {
 	/**
 	 * Pre-loaded crate drop sequence.
 	 */
-	public static final Sequence TURRET_CREATION = new TurretCreationSequence();
+	public static Sequence TURRET_CREATION(final Block block, final String type) {
+		return new TurretCreationSequence(block, type);
+	}
 
 	/**
 	 * How long to wait between each scene? Defaults to 20 ticks (1 second)

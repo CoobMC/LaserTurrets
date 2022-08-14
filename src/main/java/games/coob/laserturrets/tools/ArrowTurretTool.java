@@ -1,101 +1,23 @@
 package games.coob.laserturrets.tools;
 
-import games.coob.laserturrets.model.TurretRegistry;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
-import org.mineacademy.fo.Common;
-import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.annotation.AutoRegister;
-import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.menu.tool.Tool;
-import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompMetadata;
-
-import java.util.List;
 
 /**
  * An automatically registered tool you can use in the game
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AutoRegister
 public final class ArrowTurretTool extends TurretTool {
 
-	/**
-	 * The singular tool instance
-	 */
 	@Getter
 	private static final Tool instance = new ArrowTurretTool();
 
-	/**
-	 * The actual item stored here for maximum performance
-	 */
-	private ItemStack item;
-
-	/**
-	 * @see Tool#getItem()
-	 */
-	@Override
-	public ItemStack getItem() {
-		if (item == null)
-			item = ItemCreator.of(
-							CompMaterial.SPECTRAL_ARROW,
-							"&aArrow Turret Tool",
-							"",
-							"&7Click blocks to",
-							"&7un/register a turret.").glow(true)
-					.make();
-
-		return item;
-	}
-
-	@Override
-	protected void handleBlockClick(final Player player, final ClickType click, final Block block) {
-		super.handleBlockClick(player, click, block);
-		
-		final TurretRegistry registry = TurretRegistry.getInstance();
-		final String type = "arrow";
-		final boolean isRegisteredExclude = registry.isRegisteredExclude(block, type);
-		final boolean isArrowTurret = registry.isArrowTurret(block);
-
-		if (!isRegisteredExclude) {
-			if (isArrowTurret && !CompMetadata.hasMetadata(this.item, "Destroy")) {
-				registry.unregister(block, type);
-				Messenger.success(player, "Successfully &cunregistered &7the laser turret at " + Common.shortLocation(block.getLocation()) + ".");
-			} else {
-				if (CompMetadata.hasMetadata(this.item, "Destroy"))
-					player.getInventory().remove(this.item);
-				registry.register(block, type);
-				Messenger.success(player, "Successfully &aregistered &7the laser turret at " + Common.shortLocation(block.getLocation()) + ".");
-			}
-		} else
-			Messenger.error(player, "This block is already a turret, you can only have 1 type of turret per a block.");
-	}
-
-	@Override
-	protected List<Location> getVisualizedPoints(final Player player) {
-		if (!CompMetadata.hasMetadata(this.item, "Destroy"))
-			return TurretRegistry.getInstance().getArrowLocations();
-
-		return null;
-	}
-
-	@Override
-	protected String getBlockName(final Block block, final Player player) {
-		if (!CompMetadata.hasMetadata(this.item, "Destroy"))
-			return "&aRegistered Arrow Turret";
-
-		return null;
-	}
-
-	@Override
-	protected CompMaterial getBlockMask(final Block block, final Player player) {
-		return CompMaterial.EMERALD_BLOCK;
+	private ArrowTurretTool() {
+		super("arrow");
 	}
 
 	public static void giveOneUse(final Player player) {

@@ -40,6 +40,11 @@ public class TurretSettings extends YamlConfig {
 	}
 
 	@Override
+	protected boolean saveComments() {
+		return false;
+	}
+
+	@Override
 	protected void onLoad() {
 		if (this.levels != null && this.playerBlacklist != null && this.mobBlacklist != null) {
 			this.save();
@@ -202,9 +207,9 @@ public class TurretSettings extends YamlConfig {
 
 			map.put("Range", this.range);
 			map.put("Price", this.price);
-			map.put("Laser_Enabled", this.laserEnabled);
-			map.put("Laser_Damage", this.laserDamage);
 			map.put("Health", this.health);
+			map.put("Enable_Laser_Pointer", this.laserEnabled);
+			map.put("Laser_Pointer_Damage", this.laserDamage);
 			map.putIf("Loot_Drops", this.lootChances);
 
 			return map;
@@ -224,7 +229,7 @@ public class TurretSettings extends YamlConfig {
 			levelData.price = map.getDouble("Price");
 			Valid.checkNotNull(levelData.price, "Missing 'Price' key from level: " + map);
 
-			levelData.laserEnabled = map.getBoolean("Enable_Laser_Pointers");
+			levelData.laserEnabled = map.getBoolean("Enable_Laser_Pointer");
 			Valid.checkNotNull(levelData.laserEnabled, "Missing 'Enable_Laser_Pointers' key from level: " + map);
 
 			levelData.laserDamage = map.getDouble("Laser_Pointer_Damage");

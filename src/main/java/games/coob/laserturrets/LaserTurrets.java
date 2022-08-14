@@ -4,6 +4,7 @@ import games.coob.laserturrets.database.LaserTurretsDatabase;
 import games.coob.laserturrets.menu.UpgradeMenu;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.task.ArrowTask;
@@ -58,11 +59,13 @@ public final class LaserTurrets extends SimplePlugin { // TODO create an animati
 	@Override
 	protected void onPluginReload() {
 		TurretRegistry.getInstance().save();
+		Sequence.reload();
 	}
 
 	@Override
 	protected void onPluginStop() {
 		TurretRegistry.getInstance().save();
+		Sequence.reload();
 	}
 
 	public String[] getTypes() {
@@ -78,6 +81,7 @@ public final class LaserTurrets extends SimplePlugin { // TODO create an animati
 	protected void onReloadablesStart() {
 		LagCatcher.start("onStart");
 		for (final String type : getTypes()) {
+			// if (!TurretSettings.isTurretSettingLoaded(type))
 			TurretSettings.createSettings(type);
 		}
 		LagCatcher.end("onStart", true);
