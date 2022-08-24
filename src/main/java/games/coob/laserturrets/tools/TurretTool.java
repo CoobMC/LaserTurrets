@@ -9,10 +9,12 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.menu.tool.Tool;
+import org.mineacademy.fo.plugin.SimplePlugin;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompMetadata;
 import org.mineacademy.fo.visual.VisualTool;
@@ -58,8 +60,10 @@ public abstract class TurretTool extends VisualTool {
 
 	@Override
 	protected void handleBlockClick(final Player player, final ClickType click, final Block block) {
-		final String type = this.turretType;
+		if (block.hasMetadata("IsCreating"))
+			return;
 
+		final String type = this.turretType;
 		final TurretRegistry registry = TurretRegistry.getInstance();
 		final boolean isRegisteredExclude = registry.isRegisteredExclude(block, type);
 		final boolean isTurret = registry.isTurretOfType(block, type);
@@ -71,7 +75,9 @@ public abstract class TurretTool extends VisualTool {
 			} else {
 				if (CompMetadata.hasMetadata(this.item, "Destroy"))
 					player.getInventory().remove(this.item);
-				Sequence.TURRET_CREATION(block, type).start(block.getLocation());
+
+				block.setMetadata("IsCreating", new FixedMetadataValue(SimplePlugin.getInstance(), ""));
+				Sequence.TURRET_CREATION(player, block, type).start(block.getLocation());
 				Messenger.success(player, "Successfully &aregistered &7the " + type + " turret at " + Common.shortLocation(block.getLocation()) + ".");
 			}
 		} else

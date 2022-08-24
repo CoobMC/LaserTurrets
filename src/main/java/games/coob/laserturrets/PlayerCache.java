@@ -108,7 +108,7 @@ public final class PlayerCache extends YamlConfig {
 		if (isUsingVault) {
 			economy.withdrawPlayer(player, amount);
 		} else {
-			this.currency = this.currency + amount;
+			this.currency = this.currency - amount;
 			save();
 		}
 

@@ -33,6 +33,8 @@ public class BlacklistMenu extends Menu {
 
 	private final TurretData turretData;
 
+	private final Menu parent;
+
 	@Position(14)
 	private final Button mobBlacklistButton;
 
@@ -42,6 +44,7 @@ public class BlacklistMenu extends Menu {
 	public BlacklistMenu(final Menu parent, final TurretData turretData, final Player player) {
 		super(parent);
 
+		this.parent = parent;
 		this.turretData = turretData;
 
 		this.setViewer(player);
@@ -53,6 +56,11 @@ public class BlacklistMenu extends Menu {
 
 		this.playerBlacklistButton = new ButtonMenu(new PlayerBlacklistMenu(), CompMaterial.PLAYER_HEAD,
 				"Player Blacklist", "", "Edit your player blacklist");
+	}
+
+	@Override
+	public Menu newInstance() {
+		return new BlacklistMenu(this.parent, this.turretData, this.getViewer());
 	}
 
 	private class MobBlacklistMenu extends MenuPagged<EntityType> {
@@ -83,7 +91,11 @@ public class BlacklistMenu extends Menu {
 		protected void onPageClick(final Player player, final EntityType entityType, final ClickType clickType) {
 			TurretRegistry.getInstance().removeMobFromBlacklist(turretData, entityType);
 			this.restartMenu("&cRemoved " + entityType.name());
-			newInstance().displayTo(player);
+		}
+
+		@Override
+		protected void onMenuClose(final Player player, final Inventory inventory) {
+			this.restartMenu();
 		}
 
 		@Override
@@ -137,6 +149,11 @@ public class BlacklistMenu extends Menu {
 			protected void onMenuClose(final Player player, final Inventory inventory) {
 				MobBlacklistMenu.this.newInstance().displayTo(player);
 			}
+
+			@Override
+			public Menu newInstance() {
+				return new MobSelectionMenu();
+			}
 		}
 	}
 
@@ -189,11 +206,16 @@ public class BlacklistMenu extends Menu {
 		}
 
 		@Override
+		protected void onMenuClose(final Player player, final Inventory inventory) {
+			this.restartMenu();
+		}
+
+		@Override
 		public ItemStack getItemAt(final int slot) {
 			if (slot == this.getBottomCenterSlot() - 1)
-				return addButton.getItem();
+				return this.addButton.getItem();
 			if (slot == this.getBottomCenterSlot() + 1)
-				return addPromptButton.getItem();
+				return this.addPromptButton.getItem();
 
 			return super.getItemAt(slot);
 		}
@@ -239,6 +261,11 @@ public class BlacklistMenu extends Menu {
 			@Override
 			protected void onMenuClose(final Player player, final Inventory inventory) {
 				PlayerBlacklistMenu.this.newInstance().displayTo(player);
+			}
+
+			@Override
+			public Menu newInstance() {
+				return new PlayerSelectionMenu();
 			}
 		}
 	}

@@ -18,16 +18,6 @@ public class TurretSettings extends YamlConfig {
 
 	private static final ConfigItems<TurretSettings> loadedTurretSettings = ConfigItems.fromFolder("turrets", TurretSettings.class);
 
-	/*public static TurretSettings getInstance(final String turretType) {
-		System.out.println(turretType);
-		TurretSettings settings = loadedTurretSettings.findItem(turretType);
-
-		if (settings == null)
-			settings = createSettings(turretType);
-
-		return settings;
-	}*/
-
 	private List<LevelData> levels = new ArrayList<>();
 
 	private Set<UUID> playerBlacklist = new HashSet<>();
@@ -46,11 +36,11 @@ public class TurretSettings extends YamlConfig {
 
 	@Override
 	protected void onLoad() {
-		if (this.levels != null && this.playerBlacklist != null && this.mobBlacklist != null) {
+		/*if (this.levels != null && this.playerBlacklist != null && this.mobBlacklist != null) {
 			this.save();
 
 			return;
-		}
+		}*/
 
 		this.playerBlacklist = this.getSet("Player_Blacklist", UUID.class);
 		this.mobBlacklist = this.getSet("Mob_Blacklist", EntityType.class);
@@ -188,7 +178,7 @@ public class TurretSettings extends YamlConfig {
 			turretLevel.setPrice(this.price);
 			turretLevel.setLaserEnabled(this.laserEnabled);
 			turretLevel.setLaserDamage(this.laserDamage);
-			turretLevel.setHealth(this.health);
+			turretLevel.setMaxHealth(this.health);
 			turretLevel.setLootChances(this.lootChances);
 		}
 

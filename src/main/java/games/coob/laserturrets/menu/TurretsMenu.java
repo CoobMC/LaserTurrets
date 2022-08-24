@@ -50,12 +50,10 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 		this.changeTypeButton = new ButtonConversation(new EditMenuTypePrompt(),
 				ItemCreator.of(CompMaterial.BEACON, "Change View Type",
-						"",
 						"Click this button to view",
 						"turrets of a different type."));
 
 		this.settingsButton = new ButtonMenu(new SettingsMenu(this, player), CompMaterial.ANVIL, "Settings",
-				"",
 				"Click this button to edit",
 				"your turret settings for a",
 				"specific type.");
@@ -171,17 +169,15 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 			this.levelEditButton = new ButtonMenu(new LevelMenu(turretData, turretData.getCurrentLevel()), CompMaterial.EXPERIENCE_BOTTLE,
 					"Level Menu",
-					"",
 					"Open this menu to upgrade",
 					"or downgrade the turret.");
 
 			this.blacklistButton = new ButtonMenu(new BlacklistMenu(TurretEditMenu.this, turretData, player), CompMaterial.KNOWLEDGE_BOOK,
 					"Turret Blacklist",
-					"",
 					"Click this button to edit",
 					"your turrets blacklist.");
 
-			this.teleportButton = Button.makeSimple(CompMaterial.ENDER_EYE, "Teleport", "Teleport to the turret/nto visit it.", player1 -> {
+			this.teleportButton = Button.makeSimple(CompMaterial.ENDER_EYE, "Teleport", "Click to visit turret", player1 -> {
 				player1.teleport(this.turretData.getLocation());
 
 				Messenger.success(player1, "&aYou have successfully teleported to the " + this.turretData.getType() + " turret with the id of &2" + this.turretData.getId() + "&a.");
@@ -258,7 +254,6 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 						final boolean isEnabled = turretData.getLevel(turretLevel).isLaserEnabled();
 
 						return ItemCreator.of(isEnabled ? CompMaterial.GREEN_CONCRETE : CompMaterial.RED_CONCRETE, "Enabled/Disable Laser",
-								"",
 								"Current: " + (isEnabled ? "&atrue" : "&cfalse"),
 								"",
 								"Click to enable or disable",
@@ -273,7 +268,6 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 				this.lootButton = new ButtonMenu(new LevelMenu.TurretLootChancesMenu(), CompMaterial.CHEST,
 						"Turret Loot",
-						"",
 						"Open this menu to edit",
 						"the loot players get when",
 						"they destroy a turret.",
@@ -327,7 +321,6 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 				this.priceButton = Button.makeDecimalPrompt(ItemCreator.of(
 								CompMaterial.SUNFLOWER,
 								"Edit Price",
-								"",
 								"Current: " + this.level.getPrice() + " coins",
 								"",
 								"Edit the price for",
@@ -336,7 +329,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 						RangedValue.parse("0-100000"), (Double input) -> registry.setLevelPrice(turretData, turretLevel, input));
 			}
 
-			private TurretData.TurretLevel getOrMakeLevel(final int turretLevel) { // TODO get level 3 too
+			private TurretData.TurretLevel getOrMakeLevel(final int turretLevel) {
 				TurretData.TurretLevel level = this.turretData.getLevel(turretLevel);
 
 				if (level == null)
@@ -352,6 +345,11 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 						"level in this menu and set its",
 						"price."
 				};
+			}
+
+			@Override
+			public Menu newInstance() {
+				return new LevelMenu(this.turretData, this.turretLevel);
 			}
 
 			private class TurretLootChancesMenu extends MenuContainerChances {

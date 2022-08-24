@@ -3,6 +3,7 @@ package games.coob.laserturrets.util;
 import games.coob.laserturrets.model.TurretRegistry;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
@@ -19,7 +20,7 @@ public class EntityUtil {
 			return null;
 
 		for (final Entity nearby : center.getWorld().getNearbyEntities(center, range3D, range3D, range3D)) {
-			if (nearby instanceof LivingEntity && entityClass.isAssignableFrom(nearby.getClass())) {
+			if (nearby instanceof LivingEntity && entityClass.isAssignableFrom(nearby.getClass()) && !(nearby instanceof ArmorStand)) {
 				if (!registry.isPlayerBlacklisted(turret, nearby.getUniqueId()) && !registry.isMobBlacklisted(turret, nearby.getType()))
 					found.add(nearby);
 			}

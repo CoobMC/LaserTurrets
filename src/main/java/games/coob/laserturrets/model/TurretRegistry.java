@@ -4,7 +4,9 @@ import games.coob.laserturrets.settings.TurretSettings;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.constants.FoConstants;
@@ -54,7 +56,7 @@ public class TurretRegistry extends YamlConfig {
 		this.set("Turrets", this.registeredTurrets);
 	}
 
-	public void register(final Block block, final String type) {
+	public void register(final Player player, final Block block, final String type) {
 		final TurretData turretData = new TurretData();
 		final String uniqueID = UUID.randomUUID().toString().substring(0, 4);
 
@@ -63,17 +65,20 @@ public class TurretRegistry extends YamlConfig {
 		turretData.setLocation(block.getLocation());
 		turretData.setMaterial(CompMaterial.fromMaterial(block.getType()));
 		turretData.setType(type);
+		turretData.setOwner(player.getUniqueId());
 		turretData.setId(uniqueID);
 		turretData.setCurrentLevel(1);
 
-		final TurretSettings turretSettings = TurretSettings.findTurretSettings(type + "-turrets");
+		final TurretSettings turretSettings = TurretSettings.findTurretSettings(type);
 
 		turretData.setMobBlacklist(turretSettings.getMobBlacklist());
 		turretData.setPlayerBlacklist(turretSettings.getPlayerBlacklist());
+		turretData.addPlayerToBlacklist(player.getUniqueId());
 
 		for (final TurretSettings.LevelData levelData : turretSettings.getLevels()) {
 			turretData.addLevel();
 			levelData.setLevelData(turretData.getLevel(levelData.getLevel()));
+			turretData.setCurrentHealth(turretData.getLevel(1).getMaxHealth());
 		}
 
 		this.registeredTurrets.add(turretData);
@@ -96,7 +101,7 @@ public class TurretRegistry extends YamlConfig {
 	public void unregister(final Block block, final String type) {
 		for (final TurretData turretData : this.registeredTurrets) {
 			if (turretData.getLocation().equals(block.getLocation())) {
-				// synchronized (registeredBlocks) { // synchronized is used for anyscronous processing (Common.runLaterAsync)
+				block.getRelative(BlockFace.UP).setType(CompMaterial.AIR.getMaterial());
 				this.registeredTurrets.remove(turretData);
 
 				switch (type) {
@@ -229,14 +234,6 @@ public class TurretRegistry extends YamlConfig {
 		this.save();
 	}
 
-	public int getCurrentTurretLevel(final Block block) {
-		for (final TurretData turretData : this.registeredTurrets)
-			if (turretData.getLocation().equals(block.getLocation()))
-				return turretData.getCurrentLevel();
-
-		return 0;
-	}
-
 	public void setCurrentTurretLevel(final TurretData turretData, final int level) {
 		turretData.setCurrentLevel(level);
 
@@ -267,12 +264,49 @@ public class TurretRegistry extends YamlConfig {
 		return 0.5;
 	}
 
+	public void setTurretHealth(final Block block, final double health) {
+		for (final TurretData turretData : this.registeredTurrets)
+			if (turretData.getLocation().equals(block.getLocation()))
+				turretData.setCurrentHealth(health);
+
+		this.save();
+	}
+
+	public void setTurretHealth(final TurretData turretData, final double health) {
+		turretData.setCurrentHealth(health);
+
+		this.save();
+	}
+
+	public void setBroken(final Block block, final boolean destroyed) {
+		for (final TurretData turretData : this.registeredTurrets)
+			if (turretData.getLocation().equals(block.getLocation()))
+				turretData.setBroken(destroyed);
+
+		this.save();
+	}
+
+	public void setBroken(final TurretData turretData, final boolean destroyed) {
+		turretData.setBroken(destroyed);
+
+		if (!turretData.isBroken())
+			setTurretHealth(turretData, turretData.getLevel(turretData.getCurrentLevel()).getMaxHealth());
+
+		this.save();
+	}
+
 	public List<Tuple<ItemStack, Double>> getTurretLootChances(final TurretData turretData, final int level) {
 		return turretData.getLevel(level).getLootChances();
 	}
 
 	public void setTurretLootChances(final TurretData turretData, final int level, final List<Tuple<ItemStack, Double>> lootChances) {
 		turretData.getLevel(level).setLootChances(lootChances);
+
+		this.save();
+	}
+
+	public void setCurrentLoot(final TurretData turretData, final List<ItemStack> items) {
+		turretData.setCurrentLoot(items);
 
 		this.save();
 	}

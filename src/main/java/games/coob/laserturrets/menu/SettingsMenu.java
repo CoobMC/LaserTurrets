@@ -60,19 +60,16 @@ public final class SettingsMenu extends Menu {
 
 		this.arrowSettingsButton = new ButtonMenu(new SettingsEditMenu("arrow"), CompMaterial.ARROW,
 				"Arrow Turret Settings",
-				"",
 				"Edit the default settings",
 				"for arrow turrets.");
 
 		this.flameSettingsButton = new ButtonMenu(new SettingsEditMenu("flame"), CompMaterial.LAVA_BUCKET,
 				"Flame Turret Settings",
-				"",
 				"Edit the default settings",
 				"for flame turrets.");
 
 		this.laserSettingsButton = new ButtonMenu(new SettingsEditMenu("laser"), CompMaterial.BLAZE_ROD,
 				"Laser Turret Settings",
-				"",
 				"Edit the default settings",
 				"for laser turrets.");
 	}
@@ -96,13 +93,11 @@ public final class SettingsMenu extends Menu {
 
 			this.levelEditButton = new ButtonMenu(new LevelMenu(1), CompMaterial.EXPERIENCE_BOTTLE,
 					"Level Menu",
-					"",
 					"Open this menu to upgrade",
 					"or downgrade the turret.");
 
 			this.blacklistButton = new ButtonMenu(new SettingsBlacklistMenu(SettingsEditMenu.this, viewer), CompMaterial.KNOWLEDGE_BOOK,
 					"Turret Blacklist",
-					"",
 					"Click this button to edit",
 					"your turrets blacklist.");
 		}
@@ -151,8 +146,8 @@ public final class SettingsMenu extends Menu {
 
 				this.rangeButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.BOW).name("Turret Range")
 								.lore("Set the turrets range", "by clicking this button.", "", "Current: &9" + level.getRange()),
-						"Type in an integer value between 1 and 40 (recommend value : 15-20)",
-						new RangedValue(1, 40), level::getRange, (Integer input) -> settings.setSettingsRange(level, input));
+						"Type in an integer value between 0 and 40 (recommend value : 15-20).",
+						new RangedValue(0, 40), level::getRange, (Integer input) -> settings.setSettingsRange(level, input));
 
 
 				this.laserEnabledButton = new Button() {
@@ -169,7 +164,6 @@ public final class SettingsMenu extends Menu {
 						final boolean isEnabled = level.isLaserEnabled();
 
 						return ItemCreator.of(isEnabled ? CompMaterial.GREEN_CONCRETE : CompMaterial.RED_CONCRETE, "Enabled/Disable Laser",
-								"",
 								"Current: " + (isEnabled ? "&atrue" : "&cfalse"),
 								"",
 								"Click to enable or disable",
@@ -179,12 +173,11 @@ public final class SettingsMenu extends Menu {
 
 				this.laserDamageButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.END_CRYSTAL).name("Laser Damage")
 								.lore("Set the amount of damage", "lasers deal if they're enabled", "by clicking this button.", "", "Current: &9" + level.getLaserDamage()),
-						"Type in an integer value between 1 and 40 (recommended value: 15-20)",
-						new RangedValue(1, 40), level::getLaserDamage, (Double input) -> settings.setLaserDamage(level, input));
+						"Type in an integer value between 0.0 and 500.0.",
+						new RangedValue(0.0, 500.0), level::getLaserDamage, (Double input) -> settings.setLaserDamage(level, input));
 
 				this.lootButton = new ButtonMenu(new LevelMenu.TurretLootChancesMenu(), CompMaterial.CHEST,
 						"Turret Loot",
-						"",
 						"Open this menu to edit",
 						"the loot players get when",
 						"they destroy a turret.",
@@ -233,7 +226,6 @@ public final class SettingsMenu extends Menu {
 				this.priceButton = Button.makeDecimalPrompt(ItemCreator.of(
 								CompMaterial.SUNFLOWER,
 								"Edit Price",
-								"",
 								"Current: " + this.level.getPrice() + " coins",
 								"",
 								"Edit the price for",
@@ -258,6 +250,11 @@ public final class SettingsMenu extends Menu {
 						"level in this menu and set its",
 						"price."
 				};
+			}
+
+			@Override
+			public Menu newInstance() {
+				return new LevelMenu(level.getLevel());
 			}
 
 			private class TurretLootChancesMenu extends MenuContainerChances {
@@ -321,10 +318,10 @@ public final class SettingsMenu extends Menu {
 				this.setTitle("Turret Blacklist");
 
 				this.mobBlacklistButton = new ButtonMenu(new MobBlacklistMenu(), CompMaterial.CREEPER_HEAD,
-						"Mob Blacklist", "", "Edit your mob blacklist");
+						"Mob Blacklist", "Edit your mob blacklist");
 
 				this.playerBlacklistButton = new ButtonMenu(new PlayerBlacklistMenu(), CompMaterial.PLAYER_HEAD,
-						"Player Blacklist", "", "Edit your player blacklist");
+						"Player Blacklist", "Edit your player blacklist");
 			}
 
 			private class MobBlacklistMenu extends MenuPagged<EntityType> {
@@ -338,7 +335,6 @@ public final class SettingsMenu extends Menu {
 
 					this.addButton = new ButtonMenu(new MobBlacklistMenu.MobSelectionMenu(), CompMaterial.ENDER_CHEST,
 							"Add Mob",
-							"",
 							"Open this menu to add ",
 							"mobs from the blacklist",
 							"to prevent the turret",
@@ -355,7 +351,11 @@ public final class SettingsMenu extends Menu {
 				protected void onPageClick(final Player player, final EntityType entityType, final ClickType clickType) {
 					settings.removeMobFromBlacklist(entityType);
 					this.restartMenu("&cRemoved " + entityType.name());
-					MobBlacklistMenu.this.newInstance().displayTo(player);
+				}
+
+				@Override
+				protected void onMenuClose(final Player player, final Inventory inventory) {
+					this.restartMenu();
 				}
 
 				@Override
@@ -425,7 +425,6 @@ public final class SettingsMenu extends Menu {
 
 					this.addButton = new ButtonMenu(new PlayerBlacklistMenu.PlayerSelectionMenu(), CompMaterial.ENDER_CHEST,
 							"Add Players",
-							"",
 							"Open this menu to add ",
 							"players to the blacklist",
 							"to prevent the turret",
@@ -433,7 +432,6 @@ public final class SettingsMenu extends Menu {
 
 					this.addPromptButton = new ButtonConversation(new PlayerBlacklistPrompt(),
 							ItemCreator.of(CompMaterial.WRITABLE_BOOK, "Type a name",
-									"",
 									"Click this button if you",
 									"would like to add a player",
 									"to the blacklist by typing ",
@@ -459,7 +457,11 @@ public final class SettingsMenu extends Menu {
 
 					settings.removePlayerFromBlacklist(target.getUniqueId());
 					this.restartMenu("&cRemoved " + target.getName());
-					PlayerBlacklistMenu.this.newInstance().displayTo(player);
+				}
+
+				@Override
+				protected void onMenuClose(final Player player, final Inventory inventory) {
+					this.restartMenu();
 				}
 
 				@Override

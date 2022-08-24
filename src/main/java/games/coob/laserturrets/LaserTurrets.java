@@ -1,23 +1,15 @@
 package games.coob.laserturrets;
 
 import games.coob.laserturrets.database.LaserTurretsDatabase;
-import games.coob.laserturrets.menu.UpgradeMenu;
-import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.task.ArrowTask;
+import games.coob.laserturrets.task.FireballTask;
 import games.coob.laserturrets.task.LaserPointerTask;
 import games.coob.laserturrets.task.LaserTask;
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockBurnEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.debug.LagCatcher;
 import org.mineacademy.fo.model.HookManager;
@@ -30,9 +22,7 @@ import org.mineacademy.fo.plugin.SimplePlugin;
  * <p>
  * It uses Foundation for fast and efficient development process.
  */
-public final class LaserTurrets extends SimplePlugin { // TODO create an animation when registering a turret (spiny head animation)
-
-	// TODO allow players to buy already placed turrets
+public final class LaserTurrets extends SimplePlugin {
 
 	private static Economy econ = null;
 
@@ -91,53 +81,9 @@ public final class LaserTurrets extends SimplePlugin { // TODO create an animati
 		// Please see @AutoRegister for parts you do not have to register manually
 		//
 		Common.runTimer(20, new ArrowTask());
-		Common.runTimer(2, new LaserPointerTask());
 		Common.runTimer(30, new LaserTask());
-	}
-
-	/* ------------------------------------------------------------------------------- */
-	/* Events */
-	/* ------------------------------------------------------------------------------- */
-
-	@EventHandler
-	public void onBlockBreak(final BlockBreakEvent event) {
-		final Block block = event.getBlock();
-		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
-
-		if (turretRegistry.isRegistered(block))
-			event.setCancelled(true);
-	}
-
-	@EventHandler
-	public void onBlockExplode(final BlockExplodeEvent event) {
-		final Block block = event.getBlock();
-		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
-
-		if (turretRegistry.isRegistered(block))
-			event.setCancelled(true);
-	}
-
-	@EventHandler
-	public void onBlockBurn(final BlockBurnEvent event) {
-		final Block block = event.getBlock();
-		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
-
-		if (turretRegistry.isRegistered(block))
-			event.setCancelled(true);
-	}
-
-	@EventHandler
-	public void onPlayerInteractAtBlock(final PlayerInteractEvent event) {
-		final Block block = event.getClickedBlock();
-		final TurretRegistry registry = TurretRegistry.getInstance();
-
-		if (registry.isRegistered(block)) {
-			final TurretData turretData = registry.getTurretByBlock(block);
-			final Player player = event.getPlayer();
-
-			if (turretData.getPlayerBlacklist() != null && turretData.getPlayerBlacklist().contains(player))
-				new UpgradeMenu(turretData, turretData.getCurrentLevel(), player).displayTo(player);
-		}
+		Common.runTimer(10, new FireballTask());
+		Common.runTimer(2, new LaserPointerTask());
 	}
 
 	/* ------------------------------------------------------------------------------- */

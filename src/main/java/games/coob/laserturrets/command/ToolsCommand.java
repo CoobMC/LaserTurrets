@@ -19,7 +19,6 @@ final class ToolsCommand extends SimpleSubCommand {
 
 		setDescription("Chose a tool to set up your turrets!");
 		setPermission("laserturrets.command.tool");
-		setMinArguments(1);
 	}
 
 	/**
@@ -31,9 +30,9 @@ final class ToolsCommand extends SimpleSubCommand {
 
 		final Player player = getPlayer();
 
-		if (args.length == 0) {
+		if (args.length == 0)
 			new ToolsMenu().displayTo(player);
-		} else {
+		else {
 			final String param = args[0];
 
 			if ("arrow_turret".equals(param))

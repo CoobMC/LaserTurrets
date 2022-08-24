@@ -5,10 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.mineacademy.fo.Common;
-import org.mineacademy.fo.ItemUtil;
 import org.mineacademy.fo.plugin.SimplePlugin;
 
 import java.util.HashMap;
@@ -29,15 +29,15 @@ public abstract class Sequence {
 	/**
 	 * Pre-loaded crate drop sequence.
 	 */
-	public static Sequence TURRET_CREATION(final Block block, final String type) {
-		return new TurretCreationSequence(block, type);
+	public static Sequence TURRET_CREATION(final Player player, final Block block, final String type) {
+		return new TurretCreationSequence(player, block, type);
 	}
 
 	/**
 	 * How long to wait between each scene? Defaults to 20 ticks (1 second)
 	 */
 	@Setter(AccessLevel.PROTECTED)
-	private int sceneDelayTicks = 20;
+	private int sceneDelayTicks = 48;
 
 	/**
 	 * A dynamic variable storing the last location (of a last animated stand for example)
@@ -129,7 +129,7 @@ public abstract class Sequence {
 
 		stand.setGlowing(glow);
 		stand.setAnimated(animated);
-		stand.setLore(ItemUtil.bountifyCapitalized(itemStack.getType()));
+		stand.setLore();
 
 		stand.spawn();
 

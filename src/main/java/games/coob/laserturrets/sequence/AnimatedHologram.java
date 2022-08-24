@@ -34,7 +34,7 @@ public class AnimatedHologram extends SimpleHologramStand {
 	 * How far down or up (in blocks) can this stand
 	 * move from its initial spawn location when animated?
 	 */
-	private double verticalMovementThreshold = 0.25;
+	private double verticalMovementThreshold = 2;
 
 	/*
 	 * A private flag to determine if we're going up or down.
@@ -69,11 +69,11 @@ public class AnimatedHologram extends SimpleHologramStand {
 				if (y > lastY + this.verticalMovementThreshold)
 					this.motionDown = true;
 
-				location.subtract(0, 0.01 * (this.motionDown ? 1 : -1), 0);
+				location.subtract(0, 0.01 * (this.motionDown ? 4 : -4), 0);
 			}
 
 			if (this.isRotatingToSides())
-				location.setYaw(location.getYaw() + 7 * (this.motionDown ? -1 : 1));
+				location.setYaw(location.getYaw() + 7 * (this.motionDown ? -4 : 4));
 
 			this.getEntity().teleport(location);
 		}

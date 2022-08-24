@@ -28,11 +28,19 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 
 	private String type;
 
+	private UUID owner;
+
+	private boolean broken;
+
+	private List<ItemStack> currentLoot; // TODO arraylist
+
 	private Set<UUID> playerBlacklist = new HashSet<>();
 
 	private Set<EntityType> mobBlacklist = new HashSet<>();
 
 	private List<TurretData.TurretLevel> turretLevels = new ArrayList<>();
+
+	private double currentHealth;
 
 	private int currentLevel;
 
@@ -52,8 +60,20 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 		this.id = id;
 	}
 
+	public void setOwner(final UUID uuid) {
+		this.owner = uuid;
+	}
+
+	public void setBroken(final boolean broken) {
+		this.broken = broken;
+	}
+
 	public void setCurrentLevel(final int level) {
 		this.currentLevel = level;
+	}
+
+	public void setCurrentLoot(final @Nullable List<ItemStack> items) {
+		this.currentLoot = items;
 	}
 
 	public void addPlayerToBlacklist(final UUID uuid) {
@@ -75,6 +95,9 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 		this.playerBlacklist = playerBlacklist;
 	}
 
+	public void setCurrentHealth(final double health) {
+		this.currentHealth = health;
+	}
 
 	public void addMobToBlacklist(final EntityType entityType) {
 		this.mobBlacklist.add(entityType);
@@ -88,12 +111,14 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 		return this.mobBlacklist.contains(entityType);
 	}
 
-	public void setMobBlacklist(final @org.jetbrains.annotations.Nullable Set<EntityType> entityTypes) {
+	public void setMobBlacklist(final @Nullable Set<EntityType> entityTypes) {
 		this.mobBlacklist = entityTypes;
 	}
 
 	public TurretLevel getLevel(final int level) {
 		final boolean outOfBounds = level < 0 || level >= this.turretLevels.toString().length();
+
+		//	System.out.println(this.turretLevels.toString().length());
 
 		if (!outOfBounds)
 			return this.turretLevels.get(level - 1);
@@ -141,10 +166,14 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 		map.put("Block", toHash(this.location, this.material));
 		map.put("Id", this.id);
 		map.put("Type", this.type);
+		map.put("Owner", this.owner);
 		map.putIf("Player_Blacklist", this.playerBlacklist);
 		map.putIf("Mob_Blacklist", this.mobBlacklist);
+		map.put("Current_Health", this.currentHealth);
 		map.put("Current_Level", this.currentLevel);
+		map.put("Destroyed", this.broken);
 		map.put("Levels", this.turretLevels);
+		map.putIf("Current_Loot", this.currentLoot);
 
 		return map;
 	}
@@ -155,10 +184,14 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 		final String hash = map.getString("Block");
 		final String id = map.getString("Id");
 		final String type = map.getString("Type");
+		final UUID owner = map.getUUID("Owner");
 		final Set<UUID> blacklist = map.getSet("Player_Blacklist", UUID.class);
 		final Set<EntityType> entityTypes = map.getSet("Mob_Blacklist", EntityType.class);
 		final Integer level = map.getInteger("Current_Level");
+		final boolean destroyed = map.getBoolean("Destroyed", false);
 		final List<TurretLevel> levels = map.getList("Levels", TurretLevel.class, turretData);
+		final double currentHealth = map.getDouble("Current_Health");
+		final List<ItemStack> currentLoot = map.getList("Current_Loot", ItemStack.class);
 
 		final String[] split = hash.split(" \\| ");
 		final Location location = SerializeUtil.deserializeLocation(split[0]);
@@ -168,16 +201,20 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 		turretData.setLocation(location);
 		turretData.setId(id);
 		turretData.setType(type);
+		turretData.setOwner(owner);
 		turretData.setPlayerBlacklist(blacklist);
 		turretData.setMobBlacklist(entityTypes);
 		turretData.setCurrentLevel(level);
+		turretData.setCurrentHealth(currentHealth);
+		turretData.setBroken(destroyed);
 		turretData.setTurretLevels(levels);
+		turretData.setCurrentLoot(currentLoot);
 
 		return turretData;
 	}
 
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-	public final static class TurretLevel implements ConfigSerializable { // TODO create damage effects (on fire, suffocation, freeze)
+	public final static class TurretLevel implements ConfigSerializable {
 
 		private final TurretData turretData;
 
@@ -185,7 +222,6 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 		private double price;
 
 		@Getter
-		@Nullable
 		private List<Tuple<ItemStack, Double>> lootChances;
 
 		@Getter
@@ -198,7 +234,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 		private double laserDamage;
 
 		@Getter
-		private int health;
+		private int maxHealth;
 
 		public void setPrice(final double price) {
 			this.price = price;
@@ -220,8 +256,8 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 			this.lootChances = lootChances;
 		}
 
-		public void setHealth(final int health) {
-			this.health = health;
+		public void setMaxHealth(final int health) {
+			this.maxHealth = health;
 		}
 
 		public static TurretLevel deserialize(final SerializedMap map, final TurretData turretData) {
@@ -230,7 +266,8 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 			final int range = map.getInteger("Range");
 			final boolean laserEnabled = map.getBoolean("Laser_Enabled");
 			final double laserDamage = map.getDouble("Laser_Damage");
-			final int health = map.getInteger("Health");
+			final int maxHealth = map.getInteger("Max_Health");
+			final List<ItemStack> currentLoot = map.getList("Current_Loot", ItemStack.class);
 
 			final TurretLevel level = new TurretLevel(turretData);
 
@@ -239,7 +276,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 			level.setRange(range);
 			level.setLaserEnabled(laserEnabled);
 			level.setLaserDamage(laserDamage);
-			level.setHealth(health);
+			level.setMaxHealth(maxHealth);
 
 			return level;
 		}
@@ -250,7 +287,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 
 			map.put("Price", this.price);
 			map.put("Range", this.range);
-			map.put("Health", this.health);
+			map.put("Max_Health", this.maxHealth);
 			map.put("Laser_Enabled", this.laserEnabled);
 			map.put("Laser_Damage", this.laserDamage);
 			map.putIf("Loot_Chances", this.lootChances);

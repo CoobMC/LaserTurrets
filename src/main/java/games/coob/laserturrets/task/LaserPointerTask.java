@@ -18,11 +18,11 @@ public class LaserPointerTask extends BukkitRunnable {
 		for (final TurretData turretData : turretRegistry.getRegisteredTurrets()) {
 			final Location location = turretData.getLocation();
 			final Block block = location.getBlock();
-			final int level = turretRegistry.getCurrentTurretLevel(block);
+			final int level = turretData.getCurrentLevel();
 
 			if (!turretData.getLevel(level).isLaserEnabled())
 				continue;
-			
+
 			final LivingEntity nearestEntity = EntityUtil.findNearestEntityNonBlacklisted(location, turretRegistry.getTurretRange(block, level), LivingEntity.class, block);
 
 			if (nearestEntity == null)
@@ -31,9 +31,10 @@ public class LaserPointerTask extends BukkitRunnable {
 			nearestEntity.damage(turretRegistry.getLaserDamage(block, level));
 
 			final int length = 50; // show twenty blocks ahead
-			final Location laserLocation = location.clone();
+			final Location laserLocation = location.clone().add(0.5, 1.2, 0.5);
+			final Location targetLocation = nearestEntity.getLocation().add(0, 1.6, 0);
 
-			laserLocation.setY(location.getY() + 1.2);
+			/*laserLocation.setY(location.getY() + 1.2);
 			laserLocation.setX(location.getX() + 0.5);
 			laserLocation.setZ(location.getZ() + 0.5);
 
@@ -48,14 +49,16 @@ public class LaserPointerTask extends BukkitRunnable {
 			final double Y = Math.sin(pitch) * Math.sin(yaw);
 			final double Z = Math.cos(pitch);
 
-			final Vector vector = new Vector(X, Z, Y);
+			final Vector vector = new Vector(X, Z, Y);*/
+
+			final Vector vector = targetLocation.subtract(laserLocation).toVector().normalize().multiply(2);
 
 			for (double waypoint = 1; waypoint < length; waypoint += 0.5) {
 				laserLocation.add(vector);
 				CompParticle.REDSTONE.spawn(laserLocation);
 			}
 
-			if (turretRegistry.isLaserEnabled(block, turretRegistry.getCurrentTurretLevel(block)) && turretRegistry.getLaserDamage(block, level) > 0) {
+			if (turretRegistry.isLaserEnabled(block, level) && turretRegistry.getLaserDamage(block, level) > 0) {
 				final double damage = turretRegistry.getLaserDamage(block, level);
 				nearestEntity.damage(damage); // TODO
 			}
