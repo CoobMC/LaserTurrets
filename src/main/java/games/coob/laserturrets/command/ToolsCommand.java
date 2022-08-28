@@ -2,9 +2,11 @@ package games.coob.laserturrets.command;
 
 import games.coob.laserturrets.menu.ToolsMenu;
 import games.coob.laserturrets.tools.ArrowTurretTool;
-import games.coob.laserturrets.tools.FlameTurretTool;
-import games.coob.laserturrets.tools.LaserTurretTool;
+import games.coob.laserturrets.tools.BeamTurretTool;
+import games.coob.laserturrets.tools.FireballTurretTool;
 import org.bukkit.entity.Player;
+import org.mineacademy.fo.Messenger;
+import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.command.SimpleSubCommand;
 
 import java.util.List;
@@ -15,7 +17,7 @@ import java.util.List;
 final class ToolsCommand extends SimpleSubCommand {
 
 	ToolsCommand() {
-		super("tool");
+		super("tool|tools");
 
 		setDescription("Chose a tool to set up your turrets!");
 		setPermission("laserturrets.command.tool");
@@ -37,17 +39,19 @@ final class ToolsCommand extends SimpleSubCommand {
 
 			if ("arrow_turret".equals(param))
 				ArrowTurretTool.getInstance().give(player);
-			else if ("laser_turret".equals(param))
-				LaserTurretTool.getInstance().give(player);
-			else if ("flame_turret".equals(param))
-				FlameTurretTool.getInstance().give(player);
+			else if ("beam_turret".equals(param))
+				if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_9))
+					BeamTurretTool.getInstance().give(player);
+				else Messenger.error(player, "Beam turrets are only supported in versions 1.9 and above.");
+			else if ("fireball_turret".equals(param))
+				FireballTurretTool.getInstance().give(player);
 		}
 	}
 
 	@Override
 	protected List<String> tabComplete() {
 		if (args.length == 1)
-			return this.completeLastWord("arrow_turret", "laser_turret", "flame_turret");
+			return this.completeLastWord("arrow_turret", "beam_turret", "fireball_turret");
 
 		return NO_COMPLETE;
 	}

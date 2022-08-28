@@ -2,6 +2,8 @@ package games.coob.laserturrets.menu;
 
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.settings.Settings;
+import games.coob.laserturrets.util.DecimalPrompt;
 import games.coob.laserturrets.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.conversations.ConversationContext;
@@ -9,8 +11,10 @@ import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.mineacademy.fo.Common;
 import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.collection.StrictMap;
 import org.mineacademy.fo.conversation.SimplePrompt;
@@ -34,6 +38,8 @@ import java.util.Set;
 public class TurretsMenu extends MenuPagged<TurretData> {
 
 	private TurretType turretType;
+
+	private TurretData turretData;
 
 	private final Button changeTypeButton;
 
@@ -96,7 +102,9 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 	@Override
 	protected void onPageClick(final Player player, final TurretData turretData, final ClickType clickType) {
-		new TurretEditMenu(turretData, player).displayTo(player);
+		this.newInstance().displayTo(player);
+		this.turretData = turretData;
+		Common.runLater(() -> new TurretEditMenu(this.turretData, player).displayTo(player));
 	}
 
 	@Override
@@ -111,7 +119,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 	@Override
 	public Menu newInstance() {
-		return new TurretsMenu(getViewer(), turretType);
+		return new TurretsMenu(this.getViewer(), this.turretType);
 	}
 
 	/**
@@ -125,17 +133,17 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 		@Override
 		protected String getPrompt(final ConversationContext ctx) {
-			return "&6Enter one of the following turret types (all, arrow, flame, laser)";
+			return "&6Enter one of the following turret types (all, arrow, fireball, beam)";
 		}
 
 		@Override
 		protected boolean isInputValid(final ConversationContext context, final String input) {
-			return input.equals("all") || input.equals("arrow") || input.equals("flame") || input.equals("laser");
+			return input.equals("all") || input.equals("arrow") || input.equals("fireball") || input.equals("beam");
 		}
 
 		@Override
 		protected String getFailedValidationText(final ConversationContext context, final String invalidInput) {
-			return "Type " + invalidInput + " does not exist, choose one of the following (all, arrow, flame, laser).";
+			return "Type " + invalidInput + " does not exist, choose one of the following (all, arrow, fireball, beam).";
 		}
 
 		@Override
@@ -147,8 +155,6 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 	}
 
 	private final class TurretEditMenu extends Menu {
-
-		private final TurretData turretData;
 
 		@Position(11)
 		private final Button levelEditButton;
@@ -162,12 +168,10 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 		TurretEditMenu(final TurretData turretData, final Player player) {
 			super(TurretsMenu.this);
 
-			this.turretData = turretData;
-
 			this.setSize(9 * 4);
 			this.setTitle(turretType.typeName + " Turrets");
 
-			this.levelEditButton = new ButtonMenu(new LevelMenu(turretData, turretData.getCurrentLevel()), CompMaterial.EXPERIENCE_BOTTLE,
+			this.levelEditButton = new ButtonMenu(new LevelMenu(turretData.getCurrentLevel()), CompMaterial.EXPERIENCE_BOTTLE,
 					"Level Menu",
 					"Open this menu to upgrade",
 					"or downgrade the turret.");
@@ -178,10 +182,15 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 					"your turrets blacklist.");
 
 			this.teleportButton = Button.makeSimple(CompMaterial.ENDER_EYE, "Teleport", "Click to visit turret", player1 -> {
-				player1.teleport(this.turretData.getLocation());
+				player1.teleport(turretData.getLocation());
 
-				Messenger.success(player1, "&aYou have successfully teleported to the " + this.turretData.getType() + " turret with the id of &2" + this.turretData.getId() + "&a.");
+				Messenger.success(player1, "&aYou have successfully teleported to the " + turretData.getType() + " turret with the id of &2" + turretData.getId() + "&a.");
 			});
+		}
+
+		@Override
+		protected void onMenuClose(final Player player, final Inventory inventory) {
+			this.restartMenu();
 		}
 
 		@Override
@@ -191,9 +200,12 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 			};
 		}
 
-		private class LevelMenu extends Menu {
+		@Override
+		public Menu newInstance() {
+			return new TurretEditMenu(turretData, this.getViewer());
+		}
 
-			private final TurretData turretData;
+		private class LevelMenu extends Menu {
 
 			private final int turretLevel;
 
@@ -220,13 +232,12 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 			@Position(31)
 			private final Button priceButton;
 
-			public LevelMenu(final TurretData turretData, final int turretLevel) {
+			public LevelMenu(final int turretLevel) {
 				super(TurretEditMenu.this);
 
 				final boolean nextLevelExists = turretLevel < turretData.getLevels() || turretData.getLevels() == 0;
 				final TurretRegistry registry = TurretRegistry.getInstance();
 
-				this.turretData = turretData;
 				this.turretLevel = turretLevel;
 				this.level = getOrMakeLevel(turretLevel);
 
@@ -253,7 +264,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 					public ItemStack getItem() {
 						final boolean isEnabled = turretData.getLevel(turretLevel).isLaserEnabled();
 
-						return ItemCreator.of(isEnabled ? CompMaterial.GREEN_CONCRETE : CompMaterial.RED_CONCRETE, "Enabled/Disable Laser",
+						return ItemCreator.of(isEnabled ? CompMaterial.GREEN_WOOL : CompMaterial.RED_WOOL, "Enabled/Disable Laser",
 								"Current: " + (isEnabled ? "&atrue" : "&cfalse"),
 								"",
 								"Click to enable or disable",
@@ -261,7 +272,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 					}
 				};
 
-				this.laserDamageButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.END_CRYSTAL).name("Laser Damage")
+				this.laserDamageButton = DecimalPrompt.makeDecimalPrompt(ItemCreator.of(CompMaterial.BLAZE_POWDER).name("Laser Damage")
 								.lore("Set the amount of damage", "lasers deal if they're enabled", "by clicking this button.", "", "Current: &9" + turretData.getLevel(turretLevel).getLaserDamage()),
 						"Type in an integer value between 1 and 40 (recommended value: 15-20)",
 						new RangedValue(1, 40), () -> turretData.getLevel(turretLevel).getLaserDamage(), (Double input) -> registry.setLaserDamage(turretData, turretLevel, input));
@@ -281,7 +292,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 					@Override
 					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
 						if (aboveFirstLevel)
-							new LevelMenu(turretData, turretLevel - 1).displayTo(player);
+							new LevelMenu(turretLevel - 1).displayTo(player);
 					}
 
 					@Override
@@ -299,11 +310,11 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 						final Menu nextLevelMenu;
 
 						if (nextLevelExists) {
-							nextLevelMenu = new LevelMenu(turretData, turretLevel + 1); // TODO add level
+							nextLevelMenu = new LevelMenu(turretLevel + 1); // TODO add level
 							System.out.println("Exists");
 						} else {
 							TurretRegistry.getInstance().createLevel(turretData);
-							nextLevelMenu = new LevelMenu(turretData, turretLevel + 1);
+							nextLevelMenu = new LevelMenu(turretLevel + 1);
 							System.out.println("Doesn't exist");
 						}
 
@@ -324,16 +335,15 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 								"Current: " + this.level.getPrice() + " coins",
 								"",
 								"Edit the price for",
-								"this level."),
-						"Enter teh price for this level. Curretnt: " + this.level.getPrice() + " coins.",
-						RangedValue.parse("0-100000"), (Double input) -> registry.setLevelPrice(turretData, turretLevel, input));
+								"this level."), "Enter the price for this level. (Current: " + this.level.getPrice() + " " + Settings.CurrencySection.CURRENCY_NAME + ")",
+						this.getTitle(), RangedValue.parse("0-100000"), () -> turretData.getLevel(turretLevel).getPrice(), (Double input) -> registry.setLevelPrice(turretData, turretLevel, input));
 			}
 
 			private TurretData.TurretLevel getOrMakeLevel(final int turretLevel) {
-				TurretData.TurretLevel level = this.turretData.getLevel(turretLevel);
+				TurretData.TurretLevel level = turretData.getLevel(turretLevel);
 
 				if (level == null)
-					level = this.turretData.addLevel();
+					level = turretData.addLevel();
 
 				return level;
 			}
@@ -349,7 +359,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 			@Override
 			public Menu newInstance() {
-				return new LevelMenu(this.turretData, this.turretLevel);
+				return new LevelMenu(this.turretLevel);
 			}
 
 			private class TurretLootChancesMenu extends MenuContainerChances {
@@ -408,8 +418,8 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 	private enum TurretType {
 		ALL("All", TurretRegistry.getInstance().getRegisteredTurrets()),
 		ARROW("Arrow", TurretRegistry.getInstance().getArrowTurrets()),
-		FLAME("Flame", TurretRegistry.getInstance().getFlameTurrets()),
-		LASER("Laser", TurretRegistry.getInstance().getLaserTurrets());
+		FIREBALL("Fireball", TurretRegistry.getInstance().getFireballTurrets()),
+		BEAM("Beam", TurretRegistry.getInstance().getBeamTurrets());
 
 		private final String typeName;
 		private final Set<TurretData> turretTypeList;
@@ -423,11 +433,11 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 		new TurretsMenu(player, TurretType.ARROW).displayTo(player);
 	}
 
-	public static void openFlameTurretsSelectionMenu(final Player player) {
-		new TurretsMenu(player, TurretType.FLAME).displayTo(player);
+	public static void openFireballTurretsSelectionMenu(final Player player) {
+		new TurretsMenu(player, TurretType.FIREBALL).displayTo(player);
 	}
 
-	public static void openLaserTurretsSelectionMenu(final Player player) {
-		new TurretsMenu(player, TurretType.LASER).displayTo(player);
+	public static void openBeamTurretsSelectionMenu(final Player player) {
+		new TurretsMenu(player, TurretType.BEAM).displayTo(player);
 	}
 }

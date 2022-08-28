@@ -36,11 +36,11 @@ public class TurretSettings extends YamlConfig {
 
 	@Override
 	protected void onLoad() {
-		/*if (this.levels != null && this.playerBlacklist != null && this.mobBlacklist != null) {
+		if (!this.levels.isEmpty()) {
 			this.save();
 
 			return;
-		}*/
+		}
 
 		this.playerBlacklist = this.getSet("Player_Blacklist", UUID.class);
 		this.mobBlacklist = this.getSet("Mob_Blacklist", EntityType.class);
@@ -101,7 +101,7 @@ public class TurretSettings extends YamlConfig {
 	}
 
 	public LevelData getLevel(final int level) {
-		final boolean outOfBounds = level < 0 || level >= this.levels.toArray().length;
+		final boolean outOfBounds = level < 0 || level >= this.levels.size();
 
 		if (!outOfBounds)
 			return this.levels.get(level - 1);

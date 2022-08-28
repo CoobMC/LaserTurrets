@@ -48,12 +48,11 @@ public abstract class TurretTool extends VisualTool {
 	public ItemStack getItem() {
 		if (item == null)
 			item = ItemCreator.of(
-							getTurretMaterial(),
-							"&a" + StringUtil.capitalize(this.turretType) + " Turret Tool",
-							"",
-							"&7Click blocks to",
-							"&7un/register a turret.").glow(true)
-					.make();
+					getTurretMaterial(),
+					"&a" + StringUtil.capitalize(this.turretType) + " Turret Tool",
+					"",
+					"&7Click blocks to",
+					"&7un/register a turret.").glow(true).make();
 
 		return item;
 	}
@@ -65,23 +64,19 @@ public abstract class TurretTool extends VisualTool {
 
 		final String type = this.turretType;
 		final TurretRegistry registry = TurretRegistry.getInstance();
-		final boolean isRegisteredExclude = registry.isRegisteredExclude(block, type);
 		final boolean isTurret = registry.isTurretOfType(block, type);
 
-		if (!isRegisteredExclude) {
-			if (isTurret && !CompMetadata.hasMetadata(this.item, "Destroy")) {
-				registry.unregister(block, type);
-				Messenger.success(player, "Successfully &cunregistered &7the " + type + " turret at " + Common.shortLocation(block.getLocation()) + ".");
-			} else {
-				if (CompMetadata.hasMetadata(this.item, "Destroy"))
-					player.getInventory().remove(this.item);
+		if (isTurret && !CompMetadata.hasMetadata(this.item, "Destroy")) {
+			registry.unregister(block, type);
+			Messenger.success(player, "Successfully &cunregistered &7the " + type + " turret at " + Common.shortLocation(block.getLocation()) + ".");
+		} else if (!isTurret) {
+			if (CompMetadata.hasMetadata(this.item, "Destroy"))
+				player.getInventory().remove(this.item);
 
-				block.setMetadata("IsCreating", new FixedMetadataValue(SimplePlugin.getInstance(), ""));
-				Sequence.TURRET_CREATION(player, block, type).start(block.getLocation());
-				Messenger.success(player, "Successfully &aregistered &7the " + type + " turret at " + Common.shortLocation(block.getLocation()) + ".");
-			}
-		} else
-			Messenger.error(player, "This block is already a turret, you can only have 1 type of turret per a block.");
+			block.setMetadata("IsCreating", new FixedMetadataValue(SimplePlugin.getInstance(), ""));
+			Sequence.TURRET_CREATION(player, block, type).start(block.getLocation());
+			Messenger.success(player, "Successfully &aregistered &7the " + type + " turret at " + Common.shortLocation(block.getLocation()) + ".");
+		}
 	}
 
 	@Override
@@ -119,12 +114,12 @@ public abstract class TurretTool extends VisualTool {
 		switch (this.turretType) {
 			case "arrow":
 				return CompMaterial.ARROW;
-			case "laser":
+			case "beam":
 				return CompMaterial.BLAZE_ROD;
-			case "flame":
+			case "fireball":
 				return CompMaterial.LAVA_BUCKET;
 		}
 
-		return null;
+		return CompMaterial.STICK;
 	}
 }

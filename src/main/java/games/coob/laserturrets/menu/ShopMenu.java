@@ -4,8 +4,8 @@ import games.coob.laserturrets.PlayerCache;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.tools.ArrowTurretTool;
-import games.coob.laserturrets.tools.FlameTurretTool;
-import games.coob.laserturrets.tools.LaserTurretTool;
+import games.coob.laserturrets.tools.BeamTurretTool;
+import games.coob.laserturrets.tools.FireballTurretTool;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
@@ -23,7 +23,7 @@ public class ShopMenu extends Menu {
 	private final Button arrowTurretButton;
 
 	@Position(12)
-	private final Button flameTurretButton;
+	private final Button fireballTurretButton;
 
 	@Position(14)
 	private final Button laserTurretButton;
@@ -54,22 +54,22 @@ public class ShopMenu extends Menu {
 			}
 		};
 
-		this.flameTurretButton = new Button() {
+		this.fireballTurretButton = new Button() {
 			@Override
 			public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
-				final double buyPrice = TurretSettings.findTurretSettings("flame-turrets").getLevels().get(0).getPrice();
+				final double buyPrice = TurretSettings.findTurretSettings("fireball-turrets").getLevels().get(0).getPrice();
 
-				FlameTurretTool.giveOneUse(player);
+				FireballTurretTool.giveOneUse(player);
 				cache.takeCurrency(buyPrice, false);
-				animateTitle("&aPurchased a Flame Turret tool");
+				animateTitle("&aPurchased a Fireball Turret tool");
 			}
 
 			@Override
 			public ItemStack getItem() {
-				final double buyPrice = TurretSettings.findTurretSettings("flame-turrets").getLevels().get(0).getPrice();
+				final double buyPrice = TurretSettings.findTurretSettings("fireball-turrets").getLevels().get(0).getPrice();
 
-				return ItemCreator.of(CompMaterial.ARROW, "&aFlame Turret",
-						"Click to purchase this tool", "that will allow you to", "create a flame turret.", "", "Price: " + buyPrice).make();
+				return ItemCreator.of(CompMaterial.ARROW, "&aFireball Turret",
+						"Click to purchase this tool", "that will allow you to", "create a fireball turret.", "", "Price: " + buyPrice).make();
 			}
 		};
 
@@ -78,7 +78,7 @@ public class ShopMenu extends Menu {
 			public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
 				final double buyPrice = TurretSettings.findTurretSettings("laser-turrets").getLevels().get(0).getPrice();
 
-				LaserTurretTool.giveOneUse(player);
+				BeamTurretTool.giveOneUse(player);
 				cache.takeCurrency(buyPrice, false);
 				animateTitle("&aPurchased a Laser Turret tool");
 			}

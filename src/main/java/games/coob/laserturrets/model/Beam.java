@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 /**
- * A whole class to create Guardian Lasers and Ender Crystal Beams using packets and reflection.<br>
+ * A whole class to create Guardian beams using packets and reflection.<br>
  * Inspired by the API <a href="https://www.spigotmc.org/resources/GuardianBeamapi.18329">GuardianBeamAPI</a><br>
  * <b>1.9 -> 1.19</b>
  *
@@ -30,7 +30,7 @@ import java.util.function.Supplier;
  * @version 2.3.0
  * @see <a href="https://github.com/SkytAsul/GuardianBeam">GitHub repository</a>
  */
-public abstract class Laser {
+public abstract class Beam {
 
 	protected final int distanceSquared;
 	protected final int duration;
@@ -49,9 +49,9 @@ public abstract class Laser {
 
 	private List<Runnable> executeEnd = new ArrayList<>(1);
 
-	protected Laser(final Location start, final Location end, final int duration, final int distance) {
+	protected Beam(final Location start, final Location end, final int duration, final int distance) {
 		if (!Packets.enabled)
-			throw new IllegalStateException("The Laser has been disabled. An error has occurred during initialization.");
+			throw new IllegalStateException("The beam has been disabled. An error has occurred during initialization.");
 		if (start.getWorld() != end.getWorld())
 			throw new IllegalArgumentException("Locations do not belong to the same worlds.");
 		this.start = start;
@@ -61,12 +61,12 @@ public abstract class Laser {
 	}
 
 	/**
-	 * Adds a runnable to execute when the laser reaches its final duration
+	 * Adds a runnable to execute when the beam reaches its final duration
 	 *
 	 * @param runnable action to execute
-	 * @return this {@link Laser} instance
+	 * @return this {@link Beam} instance
 	 */
-	public Laser executeEnd(final Runnable runnable) {
+	public Beam executeEnd(final Runnable runnable) {
 		executeEnd.add(runnable);
 		return this;
 	}
@@ -74,19 +74,19 @@ public abstract class Laser {
 	/**
 	 * Makes the duration provided in the constructor passed as ticks and not seconds
 	 *
-	 * @return this {@link Laser} instance
+	 * @return this {@link Beam} instance
 	 */
-	public Laser durationInTicks() {
+	public Beam durationInTicks() {
 		durationInTicks = true;
 		return this;
 	}
 
 	/**
-	 * Starts this laser.
+	 * Starts this beam.
 	 * <p>
-	 * It will make the laser visible for nearby players and start the countdown to the final duration.
+	 * It will make the beam visible for nearby players and start the countdown to the final duration.
 	 * <p>
-	 * Once finished, it will destroy the laser and execute all runnables passed with {@link Laser#executeEnd}.
+	 * Once finished, it will destroy the beam and execute all runnables passed with {@link Beam#executeEnd}.
 	 *
 	 * @param plugin plugin used to start the task
 	 */
@@ -139,9 +139,9 @@ public abstract class Laser {
 	}
 
 	/**
-	 * Stops this laser.
+	 * Stops this beam.
 	 * <p>
-	 * This will destroy the laser for every player and start execute all runnables passed with {@link Laser#executeEnd}
+	 * This will destroy the beam for every player and start execute all runnables passed with {@link Beam#executeEnd}
 	 */
 	public void stop() {
 		if (main == null) throw new IllegalStateException("Task not started");
@@ -149,53 +149,51 @@ public abstract class Laser {
 	}
 
 	/**
-	 * Gets laser status.
+	 * Gets beam status.
 	 *
-	 * @return <code>true</code> if the laser is currently running
+	 * @return <code>true</code> if the beam is currently running
 	 * (i.e. {@link #start} has been called and the duration is not over)
 	 */
 	public boolean isStarted() {
 		return main != null;
 	}
 
-	// new GuardianLaser(start, end, duration, distance); TODO
-
 	/**
-	 * Instantly moves the start of the laser to the location provided.
+	 * Instantly moves the start of the beam to the location provided.
 	 *
 	 * @param location New start location
-	 * @throws ReflectiveOperationException if a reflection exception occurred during laser moving
+	 * @throws ReflectiveOperationException if a reflection exception occurred during beam moving
 	 */
 	public abstract void moveStart(Location location) throws ReflectiveOperationException;
 
 	/**
-	 * Instantly moves the end of the laser to the location provided.
+	 * Instantly moves the end of the beam to the location provided.
 	 *
 	 * @param location New end location
-	 * @throws ReflectiveOperationException if a reflection exception occurred during laser moving
+	 * @throws ReflectiveOperationException if a reflection exception occurred during beam moving
 	 */
 	public abstract void moveEnd(Location location) throws ReflectiveOperationException;
 
 	/**
-	 * Gets the start location of the laser.
+	 * Gets the start location of the beam.
 	 *
-	 * @return where exactly is the start position of the laser located
+	 * @return where exactly is the start position of the beam located
 	 */
 	public Location getStart() {
 		return start;
 	}
 
 	/**
-	 * Gets the end location of the laser.
+	 * Gets the end location of the beam.
 	 *
-	 * @return where exactly is the end position of the laser located
+	 * @return where exactly is the end position of the beam located
 	 */
 	public Location getEnd() {
 		return end;
 	}
 
 	/**
-	 * Moves the start of the laser smoothly to the new location, within a given time.
+	 * Moves the start of the beam smoothly to the new location, within a given time.
 	 *
 	 * @param location New start location to go to
 	 * @param ticks    Duration (in ticks) to make the move
@@ -206,7 +204,7 @@ public abstract class Laser {
 	}
 
 	/**
-	 * Moves the end of the laser smoothly to the new location, within a given time.
+	 * Moves the end of the beam smoothly to the new location, within a given time.
 	 *
 	 * @param location New end location to go to
 	 * @param ticks    Duration (in ticks) to make the move
@@ -218,7 +216,7 @@ public abstract class Laser {
 
 	private BukkitTask moveInternal(final Location location, final int ticks, final BukkitTask oldTask, final Supplier<Location> locationSupplier, final ReflectiveConsumer<Location> moveConsumer, final Runnable callback) {
 		if (ticks <= 0) throw new IllegalArgumentException("Ticks must be a positive value");
-		if (plugin == null) throw new IllegalStateException("The laser must have been started a least once");
+		if (plugin == null) throw new IllegalStateException("The beam must have been started a least once");
 		if (oldTask != null && !oldTask.isCancelled()) oldTask.cancel();
 		return new BukkitRunnable() {
 			double xPerTick = (location.getX() - locationSupplier.get().getX()) / ticks;
@@ -270,7 +268,7 @@ public abstract class Laser {
 				getEnd().distanceSquared(location) <= distanceSquared;
 	}
 
-	public static class GuardianLaser extends Laser {
+	public static class GuardianBeam extends Beam {
 		private static AtomicInteger teamID = new AtomicInteger(ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE));
 
 		private Object createGuardianPacket;
@@ -297,19 +295,19 @@ public abstract class Laser {
 		private Location correctEnd;
 
 		/**
-		 * Creates a new Guardian Laser instance
+		 * Creates a new Guardian beam instance
 		 *
-		 * @param start    Location where laser will starts
-		 * @param end      Location where laser will ends
-		 * @param duration Duration of laser in seconds (<i>-1 if infinite</i>)
-		 * @param distance Distance where laser will be visible (<i>-1 if infinite</i>)
-		 * @throws ReflectiveOperationException if a reflection exception occurred during Laser creation
-		 * @see Laser#start(Plugin) to start the laser
+		 * @param start    Location where beam will starts
+		 * @param end      Location where beam will ends
+		 * @param duration Duration of beam in seconds (<i>-1 if infinite</i>)
+		 * @param distance Distance where beam will be visible (<i>-1 if infinite</i>)
+		 * @throws ReflectiveOperationException if a reflection exception occurred during beam creation
+		 * @see Beam#start(Plugin) to start the beam
 		 * @see #durationInTicks() to make the duration in ticks
-		 * @see #executeEnd(Runnable) to add Runnable-s to execute when the laser will stop
-		 * @see #GuardianLaser(Location, LivingEntity, int, int) to create a laser which follows an entity
+		 * @see #executeEnd(Runnable) to add Runnable-s to execute when the beam will stop
+		 * @see #GuardianBeam(Location, LivingEntity, int, int) to create a beam which follows an entity
 		 */
-		public GuardianLaser(final Location start, final Location end, final int duration, final int distance) throws ReflectiveOperationException {
+		public GuardianBeam(final Location start, final Location end, final int duration, final int distance) throws ReflectiveOperationException {
 			super(start, end, duration, distance);
 
 			initSquid();
@@ -317,32 +315,32 @@ public abstract class Laser {
 			targetID = squidID;
 			targetUUID = squidUUID;
 
-			initLaser();
+			initBeam();
 		}
 
 		/**
-		 * Creates a new Guardian Laser instance
+		 * Creates a new Guardian beam instance
 		 *
-		 * @param start     Location where laser will starts
-		 * @param endEntity Entity who the laser will follow
-		 * @param duration  Duration of laser in seconds (<i>-1 if infinite</i>)
-		 * @param distance  Distance where laser will be visible (<i>-1 if infinite</i>)
-		 * @throws ReflectiveOperationException if a reflection exception occurred during Laser creation
-		 * @see Laser#start(Plugin) to start the laser
+		 * @param start     Location where beam will starts
+		 * @param endEntity Entity who the beam will follow
+		 * @param duration  Duration of beam in seconds (<i>-1 if infinite</i>)
+		 * @param distance  Distance where beam will be visible (<i>-1 if infinite</i>)
+		 * @throws ReflectiveOperationException if a reflection exception occurred during beam creation
+		 * @see Beam#start(Plugin) to start the beam
 		 * @see #durationInTicks() to make the duration in ticks
-		 * @see #executeEnd(Runnable) to add Runnable-s to execute when the laser will stop
-		 * @see #GuardianLaser(Location, Location, int, int) to create a laser with a specific end location
+		 * @see #executeEnd(Runnable) to add Runnable-s to execute when the beam will stop
+		 * @see #GuardianBeam(Location, Location, int, int) to create a beam with a specific end location
 		 */
-		public GuardianLaser(final Location start, final LivingEntity endEntity, final int duration, final int distance) throws ReflectiveOperationException {
+		public GuardianBeam(final Location start, final LivingEntity endEntity, final int duration, final int distance) throws ReflectiveOperationException {
 			super(start, endEntity.getLocation(), duration, distance);
 
 			targetID = endEntity.getEntityId();
 			targetUUID = endEntity.getUniqueId();
 
-			initLaser();
+			initBeam();
 		}
 
-		private void initLaser() throws ReflectiveOperationException {
+		private void initBeam() throws ReflectiveOperationException {
 			fakeGuardianDataWatcher = Packets.createFakeDataWatcher();
 			Packets.initGuardianWatcher(fakeGuardianDataWatcher, targetID);
 			if (Packets.version >= 17) {
@@ -385,17 +383,17 @@ public abstract class Laser {
 		}
 
 		/**
-		 * Makes the laser follow an entity (moving end location).
+		 * Makes the beam follow an entity (moving end location).
 		 * <p>
 		 * This is done client-side by making the fake guardian follow the existing entity.
 		 * Hence, there is no consuming of server resources.
 		 *
-		 * @param entity living entity the laser will follow
+		 * @param entity living entity the beam will follow
 		 * @throws ReflectiveOperationException if a reflection operation fails
 		 */
 		public void attachEndEntity(final LivingEntity entity) throws ReflectiveOperationException {
 			if (entity.getWorld() != start.getWorld())
-				throw new IllegalArgumentException("Attached entity is not in the same world as the laser.");
+				throw new IllegalArgumentException("Attached entity is not in the same world as the beam.");
 			this.endEntity = entity;
 			setTargetEntity(entity.getUniqueId(), entity.getEntityId());
 		}
@@ -504,7 +502,7 @@ public abstract class Laser {
 		}
 
 		/**
-		 * Asks viewers' clients to change the color of this laser
+		 * Asks viewers' clients to change the color of this beam
 		 *
 		 * @throws ReflectiveOperationException
 		 */
@@ -523,7 +521,6 @@ public abstract class Laser {
 			return lastIssuedEID.getAndIncrement();
 		}
 
-		//private static Logger logger; TODO
 		private static int version;
 		private static int versionMinor;
 		private static String npack = "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
@@ -533,15 +530,12 @@ public abstract class Laser {
 		private static Object squidType;
 		private static Object guardianType;
 
-		private static Constructor<?> crystalConstructor;
 		private static Constructor<?> squidConstructor;
 		private static Constructor<?> guardianConstructor;
 
 		private static Object watcherObject1; // invisilibity
 		private static Object watcherObject2; // spikes
 		private static Object watcherObject3; // attack id
-		private static Object watcherObject4; // crystal target
-		private static Object watcherObject5; // crystal base plate
 
 		private static Constructor<?> watcherConstructor;
 		private static Method watcherSet;
@@ -599,14 +593,11 @@ public abstract class Laser {
 
 				final Class<?> entityTypesClass = getNMSClass("world.entity", "EntityTypes");
 				final Class<?> entityClass = getNMSClass("world.entity", "Entity");
-				final Class<?> crystalClass = getNMSClass("world.entity.boss.enderdragon", "EntityEnderCrystal");
 				final Class<?> squidClass = getNMSClass("world.entity.animal", "EntitySquid");
 				final Class<?> guardianClass = getNMSClass("world.entity.monster", "EntityGuardian");
 				watcherObject1 = getField(entityClass, mappings.getWatcherFlags(), null);
 				watcherObject2 = getField(guardianClass, mappings.getWatcherSpikes(), null);
 				watcherObject3 = getField(guardianClass, mappings.getWatcherTargetEntity(), null);
-				watcherObject4 = getField(crystalClass, mappings.getWatcherTargetLocation(), null);
-				watcherObject5 = getField(crystalClass, mappings.getWatcherBasePlate(), null);
 
 				if (version >= 13) {
 					squidType = entityTypesClass.getDeclaredField(mappings.getSquidTypeName()).get(null);
@@ -637,7 +628,6 @@ public abstract class Laser {
 				squidConstructor = squidClass.getDeclaredConstructors()[0];
 				if (version >= 17) {
 					guardianConstructor = guardianClass.getDeclaredConstructors()[0];
-					crystalConstructor = crystalClass.getDeclaredConstructor(nmsWorld.getClass().getSuperclass(), double.class, double.class, double.class);
 				}
 
 				final Object[] entityConstructorParams = version < 14 ? new Object[]{nmsWorld} : new Object[]{entityTypesClass.getDeclaredField(mappings.getSquidTypeName()).get(null), nmsWorld};
@@ -669,11 +659,7 @@ public abstract class Laser {
 				enabled = true;
 			} catch (final Exception e) {
 				e.printStackTrace();
-				final String errorMsg = "Laser Beam reflection failed to initialize. The util is disabled. Please ensure your version (" + Bukkit.getServer().getClass().getPackage().getName() + ") is supported.";
-				/*if (logger == null)
-					System.err.println(errorMsg);
-				else
-					logger.severe(errorMsg);*/ // TODO
+				final String errorMsg = "Laser beam reflection failed to initialize. The util is disabled. Please ensure your version (" + Bukkit.getServer().getClass().getPackage().getName() + ") is supported.";
 				Common.log(errorMsg);
 			}
 		}

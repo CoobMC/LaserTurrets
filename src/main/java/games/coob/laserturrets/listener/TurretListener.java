@@ -5,21 +5,23 @@ import games.coob.laserturrets.menu.UpgradeMenu;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import org.bukkit.Particle;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.projectiles.ProjectileSource;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.annotation.AutoRegister;
 import org.mineacademy.fo.menu.tool.Tool;
+import org.mineacademy.fo.remain.CompAttribute;
 import org.mineacademy.fo.remain.Remain;
 
 @AutoRegister
@@ -48,11 +50,24 @@ public final class TurretListener implements Listener {
 	}
 
 	@EventHandler
-	public void onBlockBurn(final BlockBurnEvent event) {
-		final Block block = event.getBlock();
+	public void onEntityExplode(final EntityExplodeEvent event) {
 		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
 
-		if (turretRegistry.isRegistered(block))
+		for (final Block block : event.blockList()) {
+			final Block blockUnder = block.getRelative(BlockFace.DOWN);
+
+			if (turretRegistry.isRegistered(block) || turretRegistry.isRegistered(blockUnder))
+				event.setCancelled(true);
+		}
+	}
+
+	@EventHandler
+	public void onBlockBurn(final BlockBurnEvent event) {
+		final Block block = event.getBlock();
+		final Block blockUnder = block.getRelative(BlockFace.DOWN);
+		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
+
+		if (turretRegistry.isRegistered(block) || turretRegistry.isRegistered(blockUnder))
 			event.setCancelled(true);
 	}
 
@@ -67,25 +82,30 @@ public final class TurretListener implements Listener {
 		final TurretRegistry registry = TurretRegistry.getInstance();
 		final Action action = event.getAction();
 		final Player player = event.getPlayer();
-		final double damage = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getValue();
 
-		if (registry.isRegistered(block)) {
-			if (action == Action.RIGHT_CLICK_BLOCK)
-				openTurretMenu(player, block);
-			else if (action == Action.LEFT_CLICK_BLOCK)
-				damageTurret(player, block, damage);
-		} else if (registry.isRegistered(blockUnder)) {
-			if (action == Action.RIGHT_CLICK_BLOCK)
-				openTurretMenu(player, blockUnder);
-			else if (action == Action.LEFT_CLICK_BLOCK)
-				damageTurret(player, blockUnder, damage);
+		if (Tool.getTool(player.getInventory().getItemInHand()) == null) {
+			final Double damage = CompAttribute.GENERIC_ATTACK_DAMAGE.get(player);
+
+			if (registry.isRegistered(block)) {
+				event.setCancelled(true);
+
+				if (action == Action.RIGHT_CLICK_BLOCK)
+					openTurretMenu(player, block);
+				else if (action == Action.LEFT_CLICK_BLOCK)
+					damageTurret(player, block, damage);
+			} else if (registry.isRegistered(blockUnder)) {
+				if (action == Action.RIGHT_CLICK_BLOCK)
+					openTurretMenu(player, blockUnder);
+				else if (action == Action.LEFT_CLICK_BLOCK)
+					damageTurret(player, blockUnder, damage);
+			}
 		}
 	}
 
 	private void openTurretMenu(final Player player, final Block block) {
-		if (Tool.getTool(player.getInventory().getItemInMainHand()) != null)
+		if (Tool.getTool(player.getInventory().getItemInHand()) != null)
 			return;
-		
+
 		final TurretRegistry registry = TurretRegistry.getInstance();
 		final TurretData turretData = registry.getTurretByBlock(block);
 
@@ -101,13 +121,16 @@ public final class TurretListener implements Listener {
 
 	@EventHandler
 	public void onProjectileHit(final ProjectileHitEvent event) {
-		final Block block = event.getHitBlock();
 		final TurretRegistry registry = TurretRegistry.getInstance();
+		final Projectile projectile = event.getEntity();
 
-		if (event.getEntity() instanceof Arrow) {
-			if (block == null)
+		if (projectile instanceof Arrow) {
+			final Arrow arrow = (Arrow) projectile;
+
+			if (!arrow.isInBlock()) // TODO
 				return;
 
+			final Block block = arrow.getLocation().getBlock();
 			final Block blockUnder = block.getRelative(BlockFace.DOWN);
 			final ProjectileSource source = event.getEntity().getShooter();
 			final double damage = 10.0;

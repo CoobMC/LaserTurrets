@@ -116,9 +116,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 	}
 
 	public TurretLevel getLevel(final int level) {
-		final boolean outOfBounds = level < 0 || level >= this.turretLevels.toString().length();
-
-		//	System.out.println(this.turretLevels.toString().length());
+		final boolean outOfBounds = level <= 0 || level >= this.turretLevels.size();
 
 		if (!outOfBounds)
 			return this.turretLevels.get(level - 1);

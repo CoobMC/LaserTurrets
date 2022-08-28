@@ -1,7 +1,6 @@
 package games.coob.laserturrets.sequence;
 
 import games.coob.laserturrets.model.TurretRegistry;
-import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -10,6 +9,7 @@ import org.mineacademy.fo.Common;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.menu.model.SkullCreator;
 import org.mineacademy.fo.plugin.SimplePlugin;
+import org.mineacademy.fo.remain.CompParticle;
 
 public final class TurretCreationSequence extends Sequence {
 
@@ -50,7 +50,7 @@ public final class TurretCreationSequence extends Sequence {
 	}
 
 	private void onFinish() {
-		this.getLastLocation().getWorld().spawnParticle(Particle.EXPLOSION_LARGE, this.block.getLocation().add(0.5, 1, 0.5), 2);
+		CompParticle.EXPLOSION_LARGE.spawn(this.block.getLocation().add(0.5, 1, 0.5), 2);
 
 		final Block skullBlock = this.block.getRelative(BlockFace.UP);
 		SkullCreator.blockWithBase64(skullBlock, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGNjNzI1NzhhNjBjMGViMWEzZmEzODFhYTYyMmEwYzkyNzZkYTdmOTU4YWU5YTBjNzFlZTQ4ZTc3MWZiMmNjNSJ9fX0=");

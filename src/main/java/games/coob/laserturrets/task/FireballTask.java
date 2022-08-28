@@ -4,6 +4,7 @@ import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.util.EntityUtil;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.LivingEntity;
@@ -17,7 +18,7 @@ public class FireballTask extends BukkitRunnable {
 	public void run() {
 		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
 
-		for (final TurretData turretData : turretRegistry.getFlameTurrets()) {
+		for (final TurretData turretData : turretRegistry.getFireballTurrets()) {
 			final Location location = turretData.getLocation();
 			final Block block = location.getBlock();
 			final int level = turretData.getCurrentLevel();
@@ -34,12 +35,18 @@ public class FireballTask extends BukkitRunnable {
 	private void shootFireball(final LivingEntity target, final Block block) {
 		if (target != null) {
 			final Location blockLocation = block.getLocation().add(0.5, 1.5, 0.5);
-			final Location targetLocation = target.getLocation().clone().add(0, 1, 0);
-			final Vector vector = targetLocation.subtract(blockLocation).toVector().normalize().multiply(1);
+			final Location targetLocation = target.getLocation().clone().add(0, 0.5, 0);
+			final Vector vector = targetLocation.subtract(blockLocation).toVector().normalize();
 			final Fireball fireball = block.getWorld().spawn(blockLocation, Fireball.class);
 
-			fireball.setDirection(vector); // TODO prevent fireball from exploding on spawn
-			fireball.setYield(0);
+			fireball.setYield(1);
+			fireball.setDirection(vector);
+
+			for (int i = 0; i <= 10; i++)
+				if (fireball.getLocation().getBlock().getType() != Material.AIR)
+					fireball.teleport(fireball.getLocation().add(vector.clone().add(new Vector(0, -0.1, 0)).normalize().multiply(0.1)));
+
+			fireball.setVelocity(vector.add(new Vector(0, 0.02, 0)).multiply(1.4));
 			Common.runLater(80, fireball::remove);
 		}
 	}

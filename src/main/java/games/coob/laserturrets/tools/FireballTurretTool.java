@@ -11,13 +11,13 @@ import org.mineacademy.fo.remain.CompMetadata;
  * An automatically registered tool you can use in the game
  */
 @AutoRegister
-public final class LaserTurretTool extends TurretTool {
-	
-	@Getter
-	private static final Tool instance = new LaserTurretTool();
+public final class FireballTurretTool extends TurretTool {
 
-	private LaserTurretTool() {
-		super("laser");
+	@Getter
+	private static final Tool instance = new FireballTurretTool();
+
+	private FireballTurretTool() {
+		super("fireball");
 	}
 
 	public static void giveOneUse(final Player player) {

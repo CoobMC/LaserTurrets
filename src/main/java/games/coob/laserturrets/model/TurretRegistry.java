@@ -28,10 +28,10 @@ public class TurretRegistry extends YamlConfig {
 	private final Set<TurretData> arrowTurrets = new HashSet<>();
 
 	@Getter
-	private final Set<TurretData> flameTurrets = new HashSet<>();
+	private final Set<TurretData> fireballTurrets = new HashSet<>();
 
 	@Getter
-	private final Set<TurretData> laserTurrets = new HashSet<>();
+	private final Set<TurretData> beamTurrets = new HashSet<>();
 
 	private TurretRegistry() {
 		this.loadConfiguration(NO_DEFAULT, FoConstants.File.DATA);
@@ -44,10 +44,10 @@ public class TurretRegistry extends YamlConfig {
 		for (final TurretData turretData : this.registeredTurrets) {
 			if (turretData.getType().equalsIgnoreCase("arrow"))
 				this.arrowTurrets.add(turretData);
-			if (turretData.getType().equalsIgnoreCase("flame"))
-				this.flameTurrets.add(turretData);
-			if (turretData.getType().equalsIgnoreCase("laser"))
-				this.laserTurrets.add(turretData);
+			if (turretData.getType().equalsIgnoreCase("fireball"))
+				this.fireballTurrets.add(turretData);
+			if (turretData.getType().equalsIgnoreCase("beam"))
+				this.beamTurrets.add(turretData);
 		}
 	}
 
@@ -76,22 +76,22 @@ public class TurretRegistry extends YamlConfig {
 		turretData.addPlayerToBlacklist(player.getUniqueId());
 
 		for (final TurretSettings.LevelData levelData : turretSettings.getLevels()) {
-			turretData.addLevel();
-			levelData.setLevelData(turretData.getLevel(levelData.getLevel()));
-			turretData.setCurrentHealth(turretData.getLevel(1).getMaxHealth());
+			final TurretData.TurretLevel level = turretData.addLevel();
+			levelData.setLevelData(level);
 		}
 
+		turretData.setCurrentHealth(turretData.getLevel(1).getMaxHealth());
 		this.registeredTurrets.add(turretData);
 
 		switch (type) {
 			case "arrow":
 				this.arrowTurrets.add(turretData);
 				break;
-			case "flame":
-				this.flameTurrets.add(turretData);
+			case "fireball":
+				this.fireballTurrets.add(turretData);
 				break;
-			case "laser":
-				this.laserTurrets.add(turretData);
+			case "beam":
+				this.beamTurrets.add(turretData);
 				break;
 		}
 
@@ -108,11 +108,11 @@ public class TurretRegistry extends YamlConfig {
 					case "arrow":
 						this.arrowTurrets.remove(turretData);
 						break;
-					case "flame":
-						this.flameTurrets.remove(turretData);
+					case "fireball":
+						this.fireballTurrets.remove(turretData);
 						break;
-					case "laser":
-						this.laserTurrets.remove(turretData);
+					case "beam":
+						this.beamTurrets.remove(turretData);
 						break;
 				}
 			}
@@ -124,15 +124,6 @@ public class TurretRegistry extends YamlConfig {
 	public boolean isRegistered(final Block block) {
 		for (final TurretData turretData : this.registeredTurrets) {
 			if (turretData.getLocation().equals(block.getLocation()))
-				return true;
-		}
-
-		return false;
-	}
-
-	public boolean isRegisteredExclude(final Block block, final String type) {
-		for (final TurretData turretData : this.registeredTurrets) {
-			if (turretData.getLocation().equals(block.getLocation()) && !turretData.getType().equals(type))
 				return true;
 		}
 
@@ -344,12 +335,12 @@ public class TurretRegistry extends YamlConfig {
 				for (final TurretData turretData : this.arrowTurrets)
 					locations.add(turretData.getLocation());
 				break;
-			case "flame":
-				for (final TurretData turretData : this.flameTurrets)
+			case "fireball":
+				for (final TurretData turretData : this.fireballTurrets)
 					locations.add(turretData.getLocation());
 				break;
-			case "laser":
-				for (final TurretData turretData : this.laserTurrets)
+			case "beam":
+				for (final TurretData turretData : this.beamTurrets)
 					locations.add(turretData.getLocation());
 				break;
 		}
@@ -363,12 +354,12 @@ public class TurretRegistry extends YamlConfig {
 				for (final TurretData turretData : this.arrowTurrets)
 					return turretData.getLocation().equals(block.getLocation());
 				break;
-			case "flame":
-				for (final TurretData turretData : this.flameTurrets)
+			case "fireball":
+				for (final TurretData turretData : this.fireballTurrets)
 					return turretData.getLocation().equals(block.getLocation());
 				break;
-			case "laser":
-				for (final TurretData turretData : this.laserTurrets)
+			case "beam":
+				for (final TurretData turretData : this.beamTurrets)
 					return turretData.getLocation().equals(block.getLocation());
 				break;
 		}

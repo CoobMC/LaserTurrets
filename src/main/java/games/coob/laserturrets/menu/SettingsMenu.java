@@ -45,10 +45,10 @@ public final class SettingsMenu extends Menu {
 	private final Button arrowSettingsButton;
 
 	@Position(13)
-	private final Button laserSettingsButton;
+	private final Button beamSettingsButton;
 
 	@Position(15)
-	private final Button flameSettingsButton;
+	private final Button fireballSettingsButton;
 
 	public SettingsMenu(final @Nullable Menu parent, final Player player) {
 		super(parent);
@@ -63,18 +63,20 @@ public final class SettingsMenu extends Menu {
 				"Edit the default settings",
 				"for arrow turrets.");
 
-		this.flameSettingsButton = new ButtonMenu(new SettingsEditMenu("flame"), CompMaterial.LAVA_BUCKET,
-				"Flame Turret Settings",
+		this.fireballSettingsButton = new ButtonMenu(new SettingsEditMenu("fireball"), CompMaterial.LAVA_BUCKET,
+				"Fireball Turret Settings",
 				"Edit the default settings",
-				"for flame turrets.");
+				"for fireball turrets.");
 
-		this.laserSettingsButton = new ButtonMenu(new SettingsEditMenu("laser"), CompMaterial.BLAZE_ROD,
-				"Laser Turret Settings",
+		this.beamSettingsButton = new ButtonMenu(new SettingsEditMenu("beam"), CompMaterial.BLAZE_ROD,
+				"Beam Turret Settings",
 				"Edit the default settings",
-				"for laser turrets.");
+				"for beam turrets.");
 	}
 
 	private final class SettingsEditMenu extends Menu {
+
+		private final String typeName;
 
 		private final TurretSettings settings;
 
@@ -86,6 +88,8 @@ public final class SettingsMenu extends Menu {
 
 		private SettingsEditMenu(final String typeName) {
 			super(SettingsMenu.this);
+
+			this.typeName = typeName;
 			this.settings = TurretSettings.findTurretSettings(typeName);
 
 			this.setSize(9 * 4);
@@ -113,6 +117,8 @@ public final class SettingsMenu extends Menu {
 
 			private final TurretSettings.LevelData level;
 
+			private final TurretSettings settings;
+
 			@Position(10)
 			private final Button rangeButton;
 
@@ -137,7 +143,9 @@ public final class SettingsMenu extends Menu {
 			public LevelMenu(final int turretLevel) {
 				super(SettingsEditMenu.this);
 
-				final boolean nextLevelExists = turretLevel < settings.getLevelsSize() || settings.getLevelsSize() == 0;
+				this.settings = TurretSettings.findTurretSettings(typeName);
+
+				final boolean nextLevelExists = turretLevel < this.settings.getLevelsSize() || this.settings.getLevelsSize() == 0;
 
 				this.level = getOrMakeLevel(turretLevel);
 
@@ -145,9 +153,9 @@ public final class SettingsMenu extends Menu {
 				this.setSize(9 * 4);
 
 				this.rangeButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.BOW).name("Turret Range")
-								.lore("Set the turrets range", "by clicking this button.", "", "Current: &9" + level.getRange()),
+								.lore("Set the turrets range", "by clicking this button.", "", "Current: &9" + this.level.getRange()),
 						"Type in an integer value between 0 and 40 (recommend value : 15-20).",
-						new RangedValue(0, 40), level::getRange, (Integer input) -> settings.setSettingsRange(level, input));
+						new RangedValue(0, 40), level::getRange, (Integer input) -> this.settings.setSettingsRange(this.level, input));
 
 
 				this.laserEnabledButton = new Button() {
@@ -174,7 +182,7 @@ public final class SettingsMenu extends Menu {
 				this.laserDamageButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.END_CRYSTAL).name("Laser Damage")
 								.lore("Set the amount of damage", "lasers deal if they're enabled", "by clicking this button.", "", "Current: &9" + level.getLaserDamage()),
 						"Type in an integer value between 0.0 and 500.0.",
-						new RangedValue(0.0, 500.0), level::getLaserDamage, (Double input) -> settings.setLaserDamage(level, input));
+						new RangedValue(0.0, 500.0), this.level::getLaserDamage, (Double input) -> this.settings.setLaserDamage(this.level, input));
 
 				this.lootButton = new ButtonMenu(new LevelMenu.TurretLootChancesMenu(), CompMaterial.CHEST,
 						"Turret Loot",
@@ -231,14 +239,14 @@ public final class SettingsMenu extends Menu {
 								"Edit the price for",
 								"this level."),
 						"Enter teh price for this level. Curretnt: " + this.level.getPrice() + " coins.",
-						RangedValue.parse("0-100000"), (Double input) -> settings.setLevelPrice(level, input));
+						RangedValue.parse("0-100000"), (Double input) -> settings.setLevelPrice(this.level, input));
 			}
 
 			private TurretSettings.LevelData getOrMakeLevel(final int turretLevel) { // TODO get level 3 too
-				TurretSettings.LevelData level = settings.getLevel(turretLevel);
+				TurretSettings.LevelData level = this.settings.getLevel(turretLevel);
 
 				if (level == null)
-					level = settings.addLevel();
+					level = this.settings.addLevel();
 
 				return level;
 			}
@@ -254,7 +262,7 @@ public final class SettingsMenu extends Menu {
 
 			@Override
 			public Menu newInstance() {
-				return new LevelMenu(level.getLevel());
+				return new LevelMenu(this.level.getLevel());
 			}
 
 			private class TurretLootChancesMenu extends MenuContainerChances {
@@ -419,7 +427,7 @@ public final class SettingsMenu extends Menu {
 				private final Button addPromptButton;
 
 				private PlayerBlacklistMenu() {
-					super(27, SettingsBlacklistMenu.this, TurretSettings.findTurretSettings("laser").getPlayerBlacklist());
+					super(27, SettingsBlacklistMenu.this, settings.getPlayerBlacklist());
 
 					this.setTitle("Player Blacklist");
 
@@ -453,7 +461,6 @@ public final class SettingsMenu extends Menu {
 				@Override
 				protected void onPageClick(final Player player, final UUID item, final ClickType click) {
 					final Player target = Remain.getPlayerByUUID(item);
-					final TurretSettings settings = TurretSettings.findTurretSettings("laser");
 
 					settings.removePlayerFromBlacklist(target.getUniqueId());
 					this.restartMenu("&cRemoved " + target.getName());
@@ -502,13 +509,12 @@ public final class SettingsMenu extends Menu {
 						return ItemCreator.of(
 										CompMaterial.PLAYER_HEAD,
 										player.getName(),
-										(TurretSettings.findTurretSettings("laser").getPlayerBlacklist().contains(player.getUniqueId()) ? "&aAlready blacklisted" : "Click to add"))
+										(settings.getPlayerBlacklist().contains(player.getUniqueId()) ? "&aAlready blacklisted" : "Click to add"))
 								.skullOwner(player.getName()).make();
 					}
 
 					@Override
 					protected void onPageClick(final Player player, final Player item, final ClickType click) {
-						final TurretSettings settings = TurretSettings.findTurretSettings("laser");
 						settings.addPlayerToBlacklist(item.getUniqueId());
 						System.out.println("Blacklist : " + settings.getPlayerBlacklist());
 						this.restartMenu("&aAdded " + player.getName());

@@ -6,13 +6,13 @@ import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.task.ArrowTask;
+import games.coob.laserturrets.task.BeamTask;
 import games.coob.laserturrets.task.FireballTask;
 import games.coob.laserturrets.task.LaserPointerTask;
-import games.coob.laserturrets.task.LaserTask;
 import net.milkbowl.vault.economy.Economy;
 import org.mineacademy.fo.Common;
+import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.debug.LagCatcher;
-import org.mineacademy.fo.model.HookManager;
 import org.mineacademy.fo.plugin.SimplePlugin;
 
 /**
@@ -37,7 +37,7 @@ public final class LaserTurrets extends SimplePlugin {
 	protected void onPluginStart() {
 		Common.runLater(TurretRegistry::getInstance);
 
-		if (!HookManager.isVaultLoaded() && Settings.CurrencySection.USE_VAULT) {
+		if (!Common.doesPluginExist("Vault") && Settings.CurrencySection.USE_VAULT) {
 			Common.log("[LaserTurrets] - Disabled due to no Vault dependency found!", getDescription().getName());
 			getServer().getPluginManager().disablePlugin(this);
 		}
@@ -60,7 +60,7 @@ public final class LaserTurrets extends SimplePlugin {
 
 	public String[] getTypes() {
 		return new String[]{
-				"arrow", "laser", "flame"
+				"arrow", "beam", "fireball"
 		};
 	}
 
@@ -72,6 +72,7 @@ public final class LaserTurrets extends SimplePlugin {
 		LagCatcher.start("onStart");
 		for (final String type : getTypes()) {
 			// if (!TurretSettings.isTurretSettingLoaded(type))
+
 			TurretSettings.createSettings(type);
 		}
 		LagCatcher.end("onStart", true);
@@ -81,9 +82,10 @@ public final class LaserTurrets extends SimplePlugin {
 		// Please see @AutoRegister for parts you do not have to register manually
 		//
 		Common.runTimer(20, new ArrowTask());
-		Common.runTimer(30, new LaserTask());
-		Common.runTimer(10, new FireballTask());
+		Common.runTimer(25, new FireballTask());
 		Common.runTimer(2, new LaserPointerTask());
+		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_9))
+			Common.runTimer(30, new BeamTask());
 	}
 
 	/* ------------------------------------------------------------------------------- */

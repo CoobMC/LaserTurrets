@@ -1,8 +1,9 @@
 package games.coob.laserturrets.menu;
 
 import games.coob.laserturrets.tools.ArrowTurretTool;
-import games.coob.laserturrets.tools.FlameTurretTool;
-import games.coob.laserturrets.tools.LaserTurretTool;
+import games.coob.laserturrets.tools.BeamTurretTool;
+import games.coob.laserturrets.tools.FireballTurretTool;
+import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.menu.MenuTools;
 
 public class ToolsMenu extends MenuTools {
@@ -13,7 +14,7 @@ public class ToolsMenu extends MenuTools {
 	@Override
 	protected Object[] compileTools() {
 		return new Object[]{
-				ArrowTurretTool.class, FlameTurretTool.class, LaserTurretTool.class
+				ArrowTurretTool.class, FireballTurretTool.class, MinecraftVersion.atLeast(MinecraftVersion.V.v1_9) ? BeamTurretTool.class : NO_ITEM
 		};
 	}
 

@@ -6,8 +6,10 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Consumer;
+import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.remain.CompMaterial;
+import org.mineacademy.fo.remain.CompProperty;
 
 /**
  *
@@ -53,10 +55,9 @@ public class SimpleHologramStand extends SimpleHologram {
 
 		this.itemOrMaterial = material;
 	}
-	
+
 	@Override
 	protected final Entity createEntity() {
-
 		final ItemCreator item;
 
 		if (this.itemOrMaterial instanceof ItemStack)
@@ -64,14 +65,24 @@ public class SimpleHologramStand extends SimpleHologram {
 		else
 			item = ItemCreator.of((CompMaterial) this.itemOrMaterial);
 
-		final Consumer<ArmorStand> consumer = armorStand -> {
-			armorStand.setGravity(false);
+		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_11)) {
+			final Consumer<ArmorStand> consumer = armorStand -> {
+				CompProperty.GRAVITY.apply(armorStand, false);
+				armorStand.setHelmet(item.glow(this.glowing).make());
+				armorStand.setVisible(false);
+				armorStand.setSmall(this.small);
+			};
+
+			return getLastTeleportLocation().getWorld().spawn(getLastTeleportLocation(), ArmorStand.class, consumer);
+		} else {
+			final ArmorStand armorStand = getLastTeleportLocation().getWorld().spawn(getLastTeleportLocation(), ArmorStand.class);
+			CompProperty.GRAVITY.apply(armorStand, false);
 			armorStand.setHelmet(item.glow(this.glowing).make());
 			armorStand.setVisible(false);
 			armorStand.setSmall(this.small);
-		};
 
-		return getLastTeleportLocation().getWorld().spawn(getLastTeleportLocation(), ArmorStand.class, consumer);
+			return armorStand;
+		}
 	}
 
 

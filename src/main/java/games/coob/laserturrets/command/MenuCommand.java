@@ -28,11 +28,11 @@ public final class MenuCommand extends SimpleSubCommand {
 				case "arrow":
 					TurretsMenu.openArrowTurretsSelectionMenu(player);
 					break;
-				case "flame":
-					TurretsMenu.openFlameTurretsSelectionMenu(player);
+				case "fireball":
+					TurretsMenu.openFireballTurretsSelectionMenu(player);
 					break;
-				case "laser":
-					TurretsMenu.openLaserTurretsSelectionMenu(player);
+				case "beam":
+					TurretsMenu.openBeamTurretsSelectionMenu(player);
 					break;
 			}
 		}
@@ -41,7 +41,7 @@ public final class MenuCommand extends SimpleSubCommand {
 	@Override
 	protected List<String> tabComplete() {
 		if (this.args.length == 1)
-			return completeLastWord("arrow", "flame", "laser");
+			return completeLastWord("arrow", "fireball", "beam");
 
 		return NO_COMPLETE;
 	}
