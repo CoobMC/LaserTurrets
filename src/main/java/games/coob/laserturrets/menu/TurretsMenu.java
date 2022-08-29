@@ -3,7 +3,6 @@ package games.coob.laserturrets.menu;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.Settings;
-import games.coob.laserturrets.util.DecimalPrompt;
 import games.coob.laserturrets.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.conversations.ConversationContext;
@@ -41,6 +40,8 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 	private TurretData turretData;
 
+	private Player player;
+
 	private final Button changeTypeButton;
 
 	private final Button settingsButton;
@@ -49,10 +50,10 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 		super(9 * 4, compileTurrets(turretType));
 
 		this.turretType = turretType;
+		this.player = player;
 
 		this.setTitle(turretType.typeName + " Turrets");
 		this.setSize(9 * 3);
-		this.setViewer(player);
 
 		this.changeTypeButton = new ButtonConversation(new EditMenuTypePrompt(),
 				ItemCreator.of(CompMaterial.BEACON, "Change View Type",
@@ -104,7 +105,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 	protected void onPageClick(final Player player, final TurretData turretData, final ClickType clickType) {
 		this.newInstance().displayTo(player);
 		this.turretData = turretData;
-		Common.runLater(() -> new TurretEditMenu(this.turretData, player).displayTo(player));
+		Common.runLater(() -> new TurretEditMenu(this).displayTo(player));
 	}
 
 	@Override
@@ -119,7 +120,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 	@Override
 	public Menu newInstance() {
-		return new TurretsMenu(this.getViewer(), this.turretType);
+		return new TurretsMenu(this.player, this.turretType);
 	}
 
 	/**
@@ -165,11 +166,12 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 		@Position(15)
 		private final Button teleportButton;
 
-		TurretEditMenu(final TurretData turretData, final Player player) {
-			super(TurretsMenu.this);
+		TurretEditMenu(final Menu parent) {
+			super(parent);
 
 			this.setSize(9 * 4);
-			this.setTitle(turretType.typeName + " Turrets");
+			this.setTitle(StringUtil.capitalize(turretData.getType()) + " Turret &8" + turretData.getId());
+
 
 			this.levelEditButton = new ButtonMenu(new LevelMenu(turretData.getCurrentLevel()), CompMaterial.EXPERIENCE_BOTTLE,
 					"Level Menu",
@@ -202,7 +204,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 		@Override
 		public Menu newInstance() {
-			return new TurretEditMenu(turretData, this.getViewer());
+			return new TurretEditMenu(getParent());
 		}
 
 		private class LevelMenu extends Menu {
@@ -272,7 +274,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 					}
 				};
 
-				this.laserDamageButton = DecimalPrompt.makeDecimalPrompt(ItemCreator.of(CompMaterial.BLAZE_POWDER).name("Laser Damage")
+				this.laserDamageButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.BLAZE_POWDER).name("Laser Damage")
 								.lore("Set the amount of damage", "lasers deal if they're enabled", "by clicking this button.", "", "Current: &9" + turretData.getLevel(turretLevel).getLaserDamage()),
 						"Type in an integer value between 1 and 40 (recommended value: 15-20)",
 						new RangedValue(1, 40), () -> turretData.getLevel(turretLevel).getLaserDamage(), (Double input) -> registry.setLaserDamage(turretData, turretLevel, input));
@@ -309,15 +311,10 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
 						final Menu nextLevelMenu;
 
-						if (nextLevelExists) {
-							nextLevelMenu = new LevelMenu(turretLevel + 1); // TODO add level
-							System.out.println("Exists");
-						} else {
+						if (!nextLevelExists)
 							TurretRegistry.getInstance().createLevel(turretData);
-							nextLevelMenu = new LevelMenu(turretLevel + 1);
-							System.out.println("Doesn't exist");
-						}
 
+						nextLevelMenu = new LevelMenu(turretLevel + 1);
 						nextLevelMenu.displayTo(player);
 					}
 
@@ -358,8 +355,13 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 			}
 
 			@Override
+			protected void onMenuClose(final Player player, final Inventory inventory) {
+				this.restartMenu();
+			}
+
+			@Override
 			public Menu newInstance() {
-				return new LevelMenu(this.turretLevel);
+				return new LevelMenu(turretLevel);
 			}
 
 			private class TurretLootChancesMenu extends MenuContainerChances {

@@ -26,7 +26,9 @@ import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.Remain;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class BlacklistMenu extends Menu {
@@ -299,15 +301,6 @@ public class BlacklistMenu extends Menu {
 
 			return END_OF_CONVERSATION;
 		}
-	}
-
-	public static List<Player> compileBlacklistedPlayers(final Set<UUID> uuidList) {
-		final List<Player> blacklistedPlayers = new ArrayList<>();
-
-		for (final UUID uuid : uuidList)
-			blacklistedPlayers.add(Remain.getPlayerByUUID(uuid));
-
-		return blacklistedPlayers;
 	}
 
 	private static List<Player> compileWorldPlayers(final TurretData turretData) {
