@@ -10,6 +10,10 @@ public final class MenuCommand extends SimpleSubCommand {
 
 	public MenuCommand() {
 		super("menu");
+
+		setPermission("laserturrets.menu");
+		setPermission("laserturrets.admin");
+		setDescription("This is the main menu that allows you to view all turrets and edit them specifically.");
 	}
 
 	// See SpawnEntityCommand for help and comments.

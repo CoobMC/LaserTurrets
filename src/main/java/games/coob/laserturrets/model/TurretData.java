@@ -116,7 +116,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 	}
 
 	public TurretLevel getLevel(final int level) {
-		final boolean outOfBounds = level <= 0 || level >= this.turretLevels.size();
+		final boolean outOfBounds = level <= 0 || level >= this.turretLevels.size() + 1;
 
 		if (!outOfBounds)
 			return this.turretLevels.get(level - 1);
@@ -150,7 +150,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 	}
 
 	public int getLevels() {
-		return turretLevels.size();
+		return this.turretLevels.size();
 	}
 
 	private String toHash(final Location location, final CompMaterial material) {
@@ -265,7 +265,6 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 			final boolean laserEnabled = map.getBoolean("Laser_Enabled");
 			final double laserDamage = map.getDouble("Laser_Damage");
 			final int maxHealth = map.getInteger("Max_Health");
-			final List<ItemStack> currentLoot = map.getList("Current_Loot", ItemStack.class);
 
 			final TurretLevel level = new TurretLevel(turretData);
 

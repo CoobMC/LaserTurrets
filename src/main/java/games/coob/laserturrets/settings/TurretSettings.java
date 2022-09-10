@@ -57,7 +57,7 @@ public class TurretSettings extends YamlConfig {
 	private List<LevelData> loadLevels() {
 		final List<LevelData> levels = new ArrayList<>();
 
-		for (final Map.Entry<Integer, Object> entry : getMap("Levels", Integer.class, Object.class).entrySet()) {
+		for (final Map.Entry<Integer, Object> entry : this.getMap("Levels", Integer.class, Object.class).entrySet()) {
 			final int level = entry.getKey();
 			final SerializedMap levelSettings = SerializedMap.of(entry.getValue());
 
@@ -78,7 +78,7 @@ public class TurretSettings extends YamlConfig {
 	}
 
 	public LevelData addLevel() {
-		final LevelData level = new LevelData(this.levels.size());
+		final LevelData level = new LevelData(this.levels.size() + 1);
 
 		this.levels.add(level);
 		this.save();
@@ -87,10 +87,11 @@ public class TurretSettings extends YamlConfig {
 	}
 
 	public void createSettingsLevel() {
-		final LevelData level = addLevel();
+		final int size = this.levels.size();
+		final LevelData level = getLevel(size - 1);
 		final List<TurretSettings.LevelData> levels = this.levels;
 
-		levels.get(levels.size() - 1).setLevelSettings(level);
+		levels.get(size - 1).setLevelSettings(level);
 		this.save();
 	}
 
@@ -101,7 +102,7 @@ public class TurretSettings extends YamlConfig {
 	}
 
 	public LevelData getLevel(final int level) {
-		final boolean outOfBounds = level < 0 || level >= this.levels.size();
+		final boolean outOfBounds = level <= 0 || level >= this.levels.size();
 
 		if (!outOfBounds)
 			return this.levels.get(level - 1);

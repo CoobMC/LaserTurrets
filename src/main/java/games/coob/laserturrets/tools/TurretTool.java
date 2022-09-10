@@ -117,7 +117,7 @@ public abstract class TurretTool extends VisualTool {
 			case "beam":
 				return CompMaterial.BLAZE_ROD;
 			case "fireball":
-				return CompMaterial.LAVA_BUCKET;
+				return CompMaterial.FIRE_CHARGE;
 		}
 
 		return CompMaterial.STICK;

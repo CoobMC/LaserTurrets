@@ -20,7 +20,8 @@ final class ToolsCommand extends SimpleSubCommand {
 		super("tool|tools");
 
 		setDescription("Chose a tool to set up your turrets!");
-		setPermission("laserturrets.command.tool");
+		setPermission("laserturrets.tool");
+		setPermission("laserturrets.admin");
 	}
 
 	/**

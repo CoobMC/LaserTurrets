@@ -10,7 +10,6 @@ import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.mineacademy.fo.Common;
@@ -47,7 +46,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 	private final Button settingsButton;
 
 	private TurretsMenu(final Player player, final TurretType turretType) {
-		super(9 * 4, compileTurrets(turretType));
+		super(null, compileTurrets(turretType), true);
 
 		this.turretType = turretType;
 		this.player = player;
@@ -167,7 +166,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 		private final Button teleportButton;
 
 		TurretEditMenu(final Menu parent) {
-			super(parent);
+			super(parent, true);
 
 			this.setSize(9 * 4);
 			this.setTitle(StringUtil.capitalize(turretData.getType()) + " Turret &8" + turretData.getId());
@@ -188,11 +187,6 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 				Messenger.success(player1, "&aYou have successfully teleported to the " + turretData.getType() + " turret with the id of &2" + turretData.getId() + "&a.");
 			});
-		}
-
-		@Override
-		protected void onMenuClose(final Player player, final Inventory inventory) {
-			this.restartMenu();
 		}
 
 		@Override
@@ -235,7 +229,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 			private final Button priceButton;
 
 			public LevelMenu(final int turretLevel) {
-				super(TurretEditMenu.this);
+				super(TurretEditMenu.this, true);
 
 				final boolean nextLevelExists = turretLevel < turretData.getLevels() || turretData.getLevels() == 0;
 				final TurretRegistry registry = TurretRegistry.getInstance();
@@ -267,7 +261,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 						final boolean isEnabled = turretData.getLevel(turretLevel).isLaserEnabled();
 
 						return ItemCreator.of(isEnabled ? CompMaterial.GREEN_WOOL : CompMaterial.RED_WOOL, "Enabled/Disable Laser",
-								"Current: " + (isEnabled ? "&atrue" : "&cfalse"),
+								"Current: " + (isEnabled ? "&aenabled" : "&cdisabled"),
 								"",
 								"Click to enable or disable",
 								"lasers for this turret.").make();
@@ -352,11 +346,6 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 						"level in this menu and set its",
 						"price."
 				};
-			}
-
-			@Override
-			protected void onMenuClose(final Player player, final Inventory inventory) {
-				this.restartMenu();
 			}
 
 			@Override

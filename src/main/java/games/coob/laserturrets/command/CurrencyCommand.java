@@ -1,6 +1,7 @@
 package games.coob.laserturrets.command;
 
 import games.coob.laserturrets.PlayerCache;
+import games.coob.laserturrets.settings.Settings;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.mineacademy.fo.command.SimpleSubCommand;
@@ -12,6 +13,9 @@ public class CurrencyCommand extends SimpleSubCommand {
 		super("currency");
 
 		setMinArguments(1);
+		setPermission("laserturrets.currency");
+		setPermission("laserturrets.admin");
+		setDescription("Get, set,  give or take " + Settings.CurrencySection.CURRENCY_NAME + " from players.");
 	}
 
 	@Override

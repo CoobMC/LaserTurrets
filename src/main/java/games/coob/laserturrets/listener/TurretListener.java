@@ -4,7 +4,7 @@ import games.coob.laserturrets.menu.BrokenTurretMenu;
 import games.coob.laserturrets.menu.UpgradeMenu;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
-import org.bukkit.Particle;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Arrow;
@@ -18,10 +18,13 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.projectiles.ProjectileSource;
+import org.bukkit.util.Vector;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.annotation.AutoRegister;
 import org.mineacademy.fo.menu.tool.Tool;
 import org.mineacademy.fo.remain.CompAttribute;
+import org.mineacademy.fo.remain.CompParticle;
+import org.mineacademy.fo.remain.CompSound;
 import org.mineacademy.fo.remain.Remain;
 
 @AutoRegister
@@ -114,7 +117,7 @@ public final class TurretListener implements Listener {
 				BrokenTurretMenu.openOwnerMenu(turretData, player);
 			else BrokenTurretMenu.openPlayerMenu(turretData, player);
 		} else {
-			if (turretData.getOwner().equals(player.getUniqueId()))
+			if (turretData.getOwner().equals(player.getUniqueId()) || player.hasPermission("laserturrets.admin"))
 				new UpgradeMenu(turretData, turretData.getCurrentLevel(), player).displayTo(player);
 		}
 	}
@@ -127,22 +130,28 @@ public final class TurretListener implements Listener {
 		if (projectile instanceof Arrow) {
 			final Arrow arrow = (Arrow) projectile;
 
-			if (!arrow.isInBlock()) // TODO
-				return;
+			Common.runLater(() -> {
+				if (!arrow.isOnGround())
+					return;
 
-			final Block block = arrow.getLocation().getBlock();
-			final Block blockUnder = block.getRelative(BlockFace.DOWN);
-			final ProjectileSource source = event.getEntity().getShooter();
-			final double damage = 10.0;
+				final Location arrowLocation = arrow.getLocation();
+				final Vector vector = arrow.getVelocity().normalize().multiply(0.1);
 
-			if (source != null) {
-				if (registry.isRegistered(block))
-					damageTurret((LivingEntity) source, block, damage);
-				else if (registry.isRegistered(blockUnder))
+				arrowLocation.add(vector);
+
+				final Block block = arrowLocation.getBlock();
+				final Block blockUnder = block.getRelative(BlockFace.DOWN);
+				final ProjectileSource source = event.getEntity().getShooter();
+				final double damage = 5.0;
+
+				if (registry.isRegistered(blockUnder)) {
 					damageTurret((LivingEntity) source, blockUnder, damage);
-
-				Common.runLater(60, () -> event.getEntity().remove());
-			}
+					Common.runLater(60, () -> event.getEntity().remove());
+				} else if (registry.isRegistered(block)) {
+					damageTurret((LivingEntity) source, block, damage);
+					Common.runLater(60, () -> event.getEntity().remove());
+				}
+			});
 		}
 	}
 
@@ -154,7 +163,7 @@ public final class TurretListener implements Listener {
 
 		if (turretData.getCurrentHealth() <= 0) {
 			registry.setBroken(block, true);
-			block.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, block.getLocation().add(0.5, 1, 0.5), 2);
+			CompParticle.EXPLOSION_LARGE.spawn(block.getLocation().add(0.5, 1, 0.5), 2);
 			registry.setTurretHealth(block, 0);
 		}
 
@@ -167,10 +176,11 @@ public final class TurretListener implements Listener {
 		final TurretData turretData = registry.getTurretByBlock(block);
 
 		registry.setTurretHealth(block, turretData.getCurrentHealth() - damage);
+		CompSound.BLOCK_ANVIL_BREAK.play(block.getLocation());
 
 		if (turretData.getCurrentHealth() <= 0) {
 			registry.setBroken(block, true);
-			block.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, block.getLocation().add(0.5, 1, 0.5), 2);
+			CompParticle.EXPLOSION_LARGE.spawn(block.getLocation().add(0.5, 1, 0.5), 2);
 		}
 	}
 

@@ -1,5 +1,6 @@
 package games.coob.laserturrets.menu;
 
+import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.StringUtil;
 import org.bukkit.Bukkit;
@@ -10,7 +11,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.mineacademy.fo.ItemUtil;
@@ -63,7 +63,7 @@ public final class SettingsMenu extends Menu {
 				"Edit the default settings",
 				"for arrow turrets.");
 
-		this.fireballSettingsButton = new ButtonMenu(new SettingsEditMenu("fireball"), CompMaterial.LAVA_BUCKET,
+		this.fireballSettingsButton = new ButtonMenu(new SettingsEditMenu("fireball"), CompMaterial.FIRE_CHARGE,
 				"Fireball Turret Settings",
 				"Edit the default settings",
 				"for fireball turrets.");
@@ -72,6 +72,11 @@ public final class SettingsMenu extends Menu {
 				"Beam Turret Settings",
 				"Edit the default settings",
 				"for beam turrets.");
+	}
+
+	@Override
+	public Menu newInstance() {
+		return new SettingsMenu(getParent(), this.viewer);
 	}
 
 	private final class SettingsEditMenu extends Menu {
@@ -87,7 +92,7 @@ public final class SettingsMenu extends Menu {
 		private final Button blacklistButton;
 
 		private SettingsEditMenu(final String typeName) {
-			super(SettingsMenu.this);
+			super(SettingsMenu.this, true);
 
 			this.typeName = typeName;
 			this.settings = TurretSettings.findTurretSettings(typeName);
@@ -113,11 +118,14 @@ public final class SettingsMenu extends Menu {
 			};
 		}
 
+		@Override
+		public Menu newInstance() {
+			return new SettingsEditMenu(this.typeName);
+		}
+
 		private class LevelMenu extends Menu {
 
 			private final TurretSettings.LevelData level;
-
-			private final TurretSettings settings;
 
 			@Position(10)
 			private final Button rangeButton;
@@ -141,11 +149,9 @@ public final class SettingsMenu extends Menu {
 			private final Button priceButton;
 
 			public LevelMenu(final int turretLevel) {
-				super(SettingsEditMenu.this);
+				super(SettingsEditMenu.this, true);
 
-				this.settings = TurretSettings.findTurretSettings(typeName);
-
-				final boolean nextLevelExists = turretLevel < this.settings.getLevelsSize() || this.settings.getLevelsSize() == 0;
+				final boolean nextLevelExists = turretLevel < settings.getLevelsSize() || settings.getLevelsSize() == 0;
 
 				this.level = getOrMakeLevel(turretLevel);
 
@@ -155,7 +161,7 @@ public final class SettingsMenu extends Menu {
 				this.rangeButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.BOW).name("Turret Range")
 								.lore("Set the turrets range", "by clicking this button.", "", "Current: &9" + this.level.getRange()),
 						"Type in an integer value between 0 and 40 (recommend value : 15-20).",
-						new RangedValue(0, 40), level::getRange, (Integer input) -> this.settings.setSettingsRange(this.level, input));
+						new RangedValue(0, 40), level::getRange, (Integer input) -> settings.setSettingsRange(this.level, input));
 
 
 				this.laserEnabledButton = new Button() {
@@ -171,18 +177,18 @@ public final class SettingsMenu extends Menu {
 					public ItemStack getItem() {
 						final boolean isEnabled = level.isLaserEnabled();
 
-						return ItemCreator.of(isEnabled ? CompMaterial.GREEN_CONCRETE : CompMaterial.RED_CONCRETE, "Enabled/Disable Laser",
-								"Current: " + (isEnabled ? "&atrue" : "&cfalse"),
+						return ItemCreator.of(isEnabled ? CompMaterial.GREEN_WOOL : CompMaterial.RED_WOOL, "Enabled/Disable Laser",
+								"Current: " + (isEnabled ? "&aenabled" : "&cdisabled"),
 								"",
 								"Click to enable or disable",
 								"lasers for this turret.").make();
 					}
 				};
 
-				this.laserDamageButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.END_CRYSTAL).name("Laser Damage")
+				this.laserDamageButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.BLAZE_POWDER).name("Laser Damage")
 								.lore("Set the amount of damage", "lasers deal if they're enabled", "by clicking this button.", "", "Current: &9" + level.getLaserDamage()),
 						"Type in an integer value between 0.0 and 500.0.",
-						new RangedValue(0.0, 500.0), this.level::getLaserDamage, (Double input) -> this.settings.setLaserDamage(this.level, input));
+						new RangedValue(0.0, 500.0), this.level::getLaserDamage, (Double input) -> settings.setLaserDamage(this.level, input));
 
 				this.lootButton = new ButtonMenu(new LevelMenu.TurretLootChancesMenu(), CompMaterial.CHEST,
 						"Turret Loot",
@@ -237,16 +243,15 @@ public final class SettingsMenu extends Menu {
 								"Current: " + this.level.getPrice() + " coins",
 								"",
 								"Edit the price for",
-								"this level."),
-						"Enter teh price for this level. Curretnt: " + this.level.getPrice() + " coins.",
+								"this level."), "Enter the price for this level. (Current: " + this.level.getPrice() + " " + Settings.CurrencySection.CURRENCY_NAME + ")",
 						RangedValue.parse("0-100000"), (Double input) -> settings.setLevelPrice(this.level, input));
 			}
 
 			private TurretSettings.LevelData getOrMakeLevel(final int turretLevel) { // TODO get level 3 too
-				TurretSettings.LevelData level = this.settings.getLevel(turretLevel);
+				TurretSettings.LevelData level = settings.getLevel(turretLevel);
 
 				if (level == null)
-					level = this.settings.addLevel();
+					level = settings.addLevel();
 
 				return level;
 			}
@@ -268,9 +273,14 @@ public final class SettingsMenu extends Menu {
 			private class TurretLootChancesMenu extends MenuContainerChances {
 
 				TurretLootChancesMenu() {
-					super(LevelMenu.this);
+					super(LevelMenu.this, true);
 
 					this.setTitle("Place turret loot here");
+				}
+
+				@Override
+				public Menu newInstance() {
+					return new TurretLootChancesMenu();
 				}
 
 				@Override
@@ -319,7 +329,7 @@ public final class SettingsMenu extends Menu {
 			private final Button playerBlacklistButton;
 
 			public SettingsBlacklistMenu(final Menu parent, final Player player) {
-				super(parent);
+				super(parent, true);
 
 				this.setViewer(player);
 				this.setSize(27);
@@ -330,6 +340,11 @@ public final class SettingsMenu extends Menu {
 
 				this.playerBlacklistButton = new ButtonMenu(new PlayerBlacklistMenu(), CompMaterial.PLAYER_HEAD,
 						"Player Blacklist", "Edit your player blacklist");
+			}
+
+			@Override
+			public Menu newInstance() {
+				return new SettingsBlacklistMenu(getParent(), this.getViewer());
 			}
 
 			private class MobBlacklistMenu extends MenuPagged<EntityType> {
@@ -358,12 +373,7 @@ public final class SettingsMenu extends Menu {
 				@Override
 				protected void onPageClick(final Player player, final EntityType entityType, final ClickType clickType) {
 					settings.removeMobFromBlacklist(entityType);
-					this.restartMenu("&cRemoved " + entityType.name());
-				}
-
-				@Override
-				protected void onMenuClose(final Player player, final Inventory inventory) {
-					this.restartMenu();
+					this.animateTitle("&cRemoved " + entityType.name());
 				}
 
 				@Override
@@ -394,7 +404,7 @@ public final class SettingsMenu extends Menu {
 					private MobSelectionMenu() {
 						super(27, MobBlacklistMenu.this, Arrays.stream(EntityType.values())
 								.filter(EntityType::isAlive)
-								.collect(Collectors.toList()));
+								.collect(Collectors.toList()), true);
 
 						this.setTitle("Select a Mob");
 					}
@@ -412,11 +422,6 @@ public final class SettingsMenu extends Menu {
 						settings.addMobToBlacklist(entityType);
 						this.restartMenu("&aAdded " + entityType.name());
 					}
-
-					@Override
-					protected void onMenuClose(final Player player, final Inventory inventory) {
-						MobBlacklistMenu.this.newInstance().displayTo(player);
-					}
 				}
 			}
 
@@ -427,7 +432,7 @@ public final class SettingsMenu extends Menu {
 				private final Button addPromptButton;
 
 				private PlayerBlacklistMenu() {
-					super(27, SettingsBlacklistMenu.this, settings.getPlayerBlacklist());
+					super(27, SettingsBlacklistMenu.this, settings.getPlayerBlacklist(), true);
 
 					this.setTitle("Player Blacklist");
 
@@ -464,11 +469,6 @@ public final class SettingsMenu extends Menu {
 
 					settings.removePlayerFromBlacklist(target.getUniqueId());
 					this.restartMenu("&cRemoved " + target.getName());
-				}
-
-				@Override
-				protected void onMenuClose(final Player player, final Inventory inventory) {
-					this.restartMenu();
 				}
 
 				@Override
@@ -518,11 +518,6 @@ public final class SettingsMenu extends Menu {
 						settings.addPlayerToBlacklist(item.getUniqueId());
 						System.out.println("Blacklist : " + settings.getPlayerBlacklist());
 						this.restartMenu("&aAdded " + player.getName());
-					}
-
-					@Override
-					protected void onMenuClose(final Player player, final Inventory inventory) {
-						PlayerBlacklistMenu.this.newInstance().displayTo(player);
 					}
 				}
 			}

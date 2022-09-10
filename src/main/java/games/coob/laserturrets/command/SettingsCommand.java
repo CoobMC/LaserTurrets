@@ -7,6 +7,10 @@ import org.mineacademy.fo.command.SimpleSubCommand;
 public class SettingsCommand extends SimpleSubCommand {
 	protected SettingsCommand() {
 		super("settings");
+
+		setPermission("laserturrets.settings");
+		setPermission("laserturrets.admin");
+		setDescription("Edit your default turret settings in a settings menu.");
 	}
 
 	@Override
