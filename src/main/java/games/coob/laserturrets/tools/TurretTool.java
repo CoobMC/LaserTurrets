@@ -59,6 +59,11 @@ public abstract class TurretTool extends VisualTool {
 
 	@Override
 	protected void handleBlockClick(final Player player, final ClickType click, final Block block) {
+		if (!block.getType().isSolid()) {
+			Messenger.error(player, "Turrets can only be created on solid blocks.");
+			return;
+		}
+		
 		if (block.hasMetadata("IsCreating"))
 			return;
 
@@ -70,6 +75,7 @@ public abstract class TurretTool extends VisualTool {
 			registry.unregister(block, type);
 			Messenger.success(player, "Successfully &cunregistered &7the " + type + " turret at " + Common.shortLocation(block.getLocation()) + ".");
 		} else if (!isTurret) {
+			System.out.println("isTurret : " + isTurret);
 			if (CompMetadata.hasMetadata(this.item, "Destroy"))
 				player.getInventory().remove(this.item);
 

@@ -37,7 +37,7 @@ public class ArrowTask extends BukkitRunnable {
 			final Location blockLocation = block.getLocation().add(0.5, 1.5, 0.5);
 			final Location targetLocation = target.getLocation().clone().add(-0.5, 1, -0.5);
 			final double distance = blockLocation.distance(targetLocation);
-			final Vector vector = targetLocation.subtract(block.getLocation()).toVector().normalize().multiply(2);
+			final Vector vector = targetLocation.subtract(block.getLocation()).toVector().normalize().multiply(1.5);
 			final Arrow arrow = block.getWorld().spawnArrow(blockLocation, vector, 1, 0);
 			final Location arrowLocation = arrow.getLocation().clone();
 

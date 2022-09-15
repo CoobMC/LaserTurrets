@@ -80,6 +80,7 @@ public class SimpleHologramStand extends SimpleHologram {
 			armorStand.setHelmet(item.glow(this.glowing).make());
 			armorStand.setVisible(false);
 			armorStand.setSmall(this.small);
+			//Common.runLater(() -> armorStand.teleport(getLastTeleportLocation().clone().add(0, 10, 0)));
 
 			return armorStand;
 		}

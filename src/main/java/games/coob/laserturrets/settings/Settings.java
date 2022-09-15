@@ -34,7 +34,7 @@ public final class Settings extends SimpleSettings {
 				"Example.Uncommented_Section");
 	}
 
-	public static class CurrencySection { // TODO integrate vault economy
+	public static class CurrencySection {
 		public static String CURRENCY_NAME;
 		public static Double DEFAULT_CURRENCY;
 		public static Boolean USE_VAULT;
@@ -54,7 +54,7 @@ public final class Settings extends SimpleSettings {
 		}
 	}
 
-	public static class DatabaseSection { // TODO integrate vault economy
+	public static class DatabaseSection {
 		public static Boolean ENABLE_MYSQL;
 		public static String HOST;
 		public static Integer PORT;

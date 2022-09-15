@@ -38,7 +38,7 @@
 
         <!-- Change to the latest version from https://github.com/kangarko/Foundation/releases
              or change to "LATEST" if you downloaded Foundation to your disk and compiled it. -->
-        <foundation.version>6.0.10</foundation.version>
+        <foundation.version>6.1.4</foundation.version>
 
         <!-- Leave on "com.github.kangarko" if you use Foundation from GitHub like most people,
              or change to "org.mineacademy" if you downloaded our library to your disk and compiled it. -->
@@ -81,6 +81,13 @@
 
              NB: The <systemPath> is set to the "library" folder in your source folder (in the same parent
                  directory where you have "target" and will look for file patched_1.8.8.jar there as an example. -->
+        <!-- <dependency>
+             <groupId>paper-server</groupId>
+             <artifactId>Paper-1.8.8</artifactId>
+             <version>1</version>
+             <scope>system</scope>
+             <systemPath>/Users/jack.bikar/Desktop/Test Servers/1.8/cache/patched_1.8.8.jar</systemPath>
+         </dependency>-->
     </dependencies>
 
     <!-- DO NOT EDIT unless instructed to do so or you know what you're doing. -->

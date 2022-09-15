@@ -5,7 +5,7 @@
 # If you'd like to edit a specific turret, use the "/lt menu" command in game.
 #
 # -------------------------------------------------------------------------------------------------
-# Edit your currency setting
+# Edit your currency settings
 # -------------------------------------------------------------------------------------------------
 Currency_Settings:
   # If set to false, we will use our own built in economy system that supports MySQL!

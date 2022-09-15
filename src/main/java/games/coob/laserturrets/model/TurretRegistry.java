@@ -99,23 +99,20 @@ public class TurretRegistry extends YamlConfig {
 	}
 
 	public void unregister(final Block block, final String type) {
-		for (final TurretData turretData : this.registeredTurrets) {
-			if (turretData.getLocation().equals(block.getLocation())) {
-				block.getRelative(BlockFace.UP).setType(CompMaterial.AIR.getMaterial());
-				this.registeredTurrets.remove(turretData);
+		final TurretData turretData = getTurretByBlock(block);
+		block.getRelative(BlockFace.UP).setType(CompMaterial.AIR.getMaterial());
+		this.registeredTurrets.remove(turretData);
 
-				switch (type) {
-					case "arrow":
-						this.arrowTurrets.remove(turretData);
-						break;
-					case "fireball":
-						this.fireballTurrets.remove(turretData);
-						break;
-					case "beam":
-						this.beamTurrets.remove(turretData);
-						break;
-				}
-			}
+		switch (type) {
+			case "arrow":
+				this.arrowTurrets.remove(turretData);
+				break;
+			case "fireball":
+				this.fireballTurrets.remove(turretData);
+				break;
+			case "beam":
+				this.beamTurrets.remove(turretData);
+				break;
 		}
 
 		this.save();
@@ -123,31 +120,15 @@ public class TurretRegistry extends YamlConfig {
 
 	public boolean isRegistered(final Block block) {
 		for (final TurretData turretData : this.registeredTurrets) {
-			if (turretData.getLocation().equals(block.getLocation()))
+			if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation()))
 				return true;
 		}
 
 		return false;
 	}
 
-	public void addPlayerToBlacklist(final Block block, final UUID uuid) {
-		for (final TurretData turretData : this.registeredTurrets)
-			if (turretData.getLocation().equals(block.getLocation()))
-				turretData.addPlayerToBlacklist(uuid);
-
-		this.save();
-	}
-
 	public void addPlayerToBlacklist(final TurretData turretData, final UUID uuid) {
 		turretData.addPlayerToBlacklist(uuid);
-
-		this.save();
-	}
-
-	public void removePlayerFromBlacklist(final Block block, final UUID uuid) {
-		for (final TurretData turretData : this.registeredTurrets)
-			if (turretData.getLocation().equals(block.getLocation()))
-				turretData.removePlayerFromBlacklist(uuid);
 
 		this.save();
 	}
@@ -313,7 +294,7 @@ public class TurretRegistry extends YamlConfig {
 
 	public TurretData getTurretByBlock(final Block block) {
 		for (final TurretData turretData : this.registeredTurrets)
-			if (turretData.getLocation().equals(block.getLocation()))
+			if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation()))
 				return turretData;
 
 		return null;
@@ -352,15 +333,15 @@ public class TurretRegistry extends YamlConfig {
 		switch (type) {
 			case "arrow":
 				for (final TurretData turretData : this.arrowTurrets)
-					return turretData.getLocation().equals(block.getLocation());
+					return turretData.getLocation().getBlock().getLocation().equals(block.getLocation());
 				break;
 			case "fireball":
 				for (final TurretData turretData : this.fireballTurrets)
-					return turretData.getLocation().equals(block.getLocation());
+					return turretData.getLocation().getBlock().getLocation().equals(block.getLocation());
 				break;
 			case "beam":
 				for (final TurretData turretData : this.beamTurrets)
-					return turretData.getLocation().equals(block.getLocation());
+					return turretData.getLocation().getBlock().getLocation().equals(block.getLocation());
 				break;
 		}
 
