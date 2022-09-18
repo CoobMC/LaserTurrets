@@ -4,7 +4,6 @@ import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.util.EntityUtil;
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -16,23 +15,23 @@ public class LaserPointerTask extends BukkitRunnable {
 	public void run() {
 		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
 		for (final TurretData turretData : turretRegistry.getRegisteredTurrets()) {
-			final Location location = turretData.getLocation();
-			final Block block = location.getBlock();
 			final int level = turretData.getCurrentLevel();
 
 			if (!turretData.getLevel(level).isLaserEnabled())
 				continue;
 
-			final LivingEntity nearestEntity = EntityUtil.findNearestEntityNonBlacklisted(location, turretRegistry.getTurretRange(block, level), LivingEntity.class, block);
+			final Location location = turretData.getLocation();
+			final int range = turretData.getLevel(level).getRange();
+			final LivingEntity nearestEntity = EntityUtil.findNearestEntityNonBlacklisted(location, range, LivingEntity.class);
 
 			if (nearestEntity == null)
 				continue;
 
-			nearestEntity.damage(turretRegistry.getLaserDamage(block, level));
-
-			final int length = 50; // show twenty blocks ahead
+			final double damage = turretData.getLevel(level).getLaserDamage();
 			final Location laserLocation = location.clone().add(0.5, 1.2, 0.5);
 			final Location targetLocation = nearestEntity.getLocation().add(0, 1.6, 0);
+			final double distance = location.clone().add(0.5, 1.2, 0.5).distance(targetLocation);
+			final Vector vector = targetLocation.subtract(laserLocation).toVector().normalize().multiply(0.5);
 
 			/*laserLocation.setY(location.getY() + 1.2);
 			laserLocation.setX(location.getX() + 0.5);
@@ -51,17 +50,13 @@ public class LaserPointerTask extends BukkitRunnable {
 
 			final Vector vector = new Vector(X, Z, Y);*/
 
-			final Vector vector = targetLocation.subtract(laserLocation).toVector().normalize().multiply(2);
-
-			for (double waypoint = 1; waypoint < length; waypoint += 0.5) {
+			for (double waypoint = 1; waypoint < distance + 0.5; waypoint += 0.5) {
 				laserLocation.add(vector);
 				CompParticle.REDSTONE.spawn(laserLocation);
 			}
 
-			if (turretRegistry.isLaserEnabled(block, level) && turretRegistry.getLaserDamage(block, level) > 0) {
-				final double damage = turretRegistry.getLaserDamage(block, level);
-				nearestEntity.damage(damage); // TODO
-			}
+			if (turretData.getLevel(level).isLaserEnabled() && damage > 0)
+				nearestEntity.damage(damage);
 		}
 	}
 }

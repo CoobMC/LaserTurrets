@@ -408,9 +408,9 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 	@RequiredArgsConstructor
 	private enum TurretType {
 		ALL("All", TurretRegistry.getInstance().getRegisteredTurrets()),
-		ARROW("Arrow", TurretRegistry.getInstance().getArrowTurrets()),
-		FIREBALL("Fireball", TurretRegistry.getInstance().getFireballTurrets()),
-		BEAM("Beam", TurretRegistry.getInstance().getBeamTurrets());
+		ARROW("Arrow", TurretRegistry.getInstance().getTurretsOfType("arrow")),
+		FIREBALL("Fireball", TurretRegistry.getInstance().getTurretsOfType("fireball")),
+		BEAM("Beam", TurretRegistry.getInstance().getTurretsOfType("beam"));
 
 		private final String typeName;
 		private final Set<TurretData> turretTypeList;

@@ -18,12 +18,12 @@ public class FireballTask extends BukkitRunnable {
 	public void run() {
 		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
 
-		for (final TurretData turretData : turretRegistry.getFireballTurrets()) {
+		for (final TurretData turretData : turretRegistry.getTurretsOfType("fireball")) {
 			final Location location = turretData.getLocation();
 			final Block block = location.getBlock();
 			final int level = turretData.getCurrentLevel();
-			final int range = turretRegistry.getTurretRange(block, level);
-			final LivingEntity nearestEntity = EntityUtil.findNearestEntityNonBlacklisted(location, range, LivingEntity.class, block);
+			final int range = turretData.getLevel(level).getRange();
+			final LivingEntity nearestEntity = EntityUtil.findNearestEntityNonBlacklisted(location, range, LivingEntity.class);
 
 			if (nearestEntity == null)
 				continue;

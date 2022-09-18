@@ -24,15 +24,6 @@ public class TurretRegistry extends YamlConfig {
 	@Getter
 	private Set<TurretData> registeredTurrets = new HashSet<>();
 
-	@Getter
-	private final Set<TurretData> arrowTurrets = new HashSet<>();
-
-	@Getter
-	private final Set<TurretData> fireballTurrets = new HashSet<>();
-
-	@Getter
-	private final Set<TurretData> beamTurrets = new HashSet<>();
-
 	private TurretRegistry() {
 		this.loadConfiguration(NO_DEFAULT, FoConstants.File.DATA);
 	}
@@ -40,15 +31,6 @@ public class TurretRegistry extends YamlConfig {
 	@Override
 	protected void onLoad() {
 		this.registeredTurrets = this.getSet("Turrets", TurretData.class);
-
-		for (final TurretData turretData : this.registeredTurrets) {
-			if (turretData.getType().equalsIgnoreCase("arrow"))
-				this.arrowTurrets.add(turretData);
-			if (turretData.getType().equalsIgnoreCase("fireball"))
-				this.fireballTurrets.add(turretData);
-			if (turretData.getType().equalsIgnoreCase("beam"))
-				this.beamTurrets.add(turretData);
-		}
 	}
 
 	@Override
@@ -83,18 +65,6 @@ public class TurretRegistry extends YamlConfig {
 		turretData.setCurrentHealth(turretData.getLevel(1).getMaxHealth());
 		this.registeredTurrets.add(turretData);
 
-		switch (type) {
-			case "arrow":
-				this.arrowTurrets.add(turretData);
-				break;
-			case "fireball":
-				this.fireballTurrets.add(turretData);
-				break;
-			case "beam":
-				this.beamTurrets.add(turretData);
-				break;
-		}
-
 		this.save();
 	}
 
@@ -102,18 +72,6 @@ public class TurretRegistry extends YamlConfig {
 		final TurretData turretData = getTurretByBlock(block);
 		block.getRelative(BlockFace.UP).setType(CompMaterial.AIR.getMaterial());
 		this.registeredTurrets.remove(turretData);
-
-		switch (type) {
-			case "arrow":
-				this.arrowTurrets.remove(turretData);
-				break;
-			case "fireball":
-				this.fireballTurrets.remove(turretData);
-				break;
-			case "beam":
-				this.beamTurrets.remove(turretData);
-				break;
-		}
 
 		this.save();
 	}
@@ -125,6 +83,16 @@ public class TurretRegistry extends YamlConfig {
 		}
 
 		return false;
+	}
+
+	public Set<TurretData> getTurretsOfType(final String turretType) {
+		final Set<TurretData> dataList = new HashSet<>();
+
+		for (final TurretData turretData : this.registeredTurrets)
+			if (turretData.getType().equals(turretType))
+				dataList.add(turretData);
+
+		return dataList;
 	}
 
 	public void addPlayerToBlacklist(final TurretData turretData, final UUID uuid) {
@@ -139,15 +107,6 @@ public class TurretRegistry extends YamlConfig {
 		this.save();
 	}
 
-	public boolean isPlayerBlacklisted(final Block block, final UUID uuid) {
-		for (final TurretData turretData : this.registeredTurrets)
-			if (turretData.getLocation().equals(block.getLocation()))
-				return turretData.isPlayerBlacklisted(uuid);
-
-		return false;
-	}
-
-
 	public void addMobToBlacklist(final TurretData turretData, final EntityType entityType) {
 		turretData.addMobToBlacklist(entityType);
 
@@ -158,22 +117,6 @@ public class TurretRegistry extends YamlConfig {
 		turretData.removeMobFromBlacklist(entityType);
 
 		this.save();
-	}
-
-	public boolean isMobBlacklisted(final Block block, final EntityType entityType) {
-		for (final TurretData turretData : this.registeredTurrets)
-			if (turretData.getLocation().equals(block.getLocation()))
-				return turretData.isMobBlacklisted(entityType);
-
-		return false;
-	}
-
-	public boolean isLaserEnabled(final Block block, final int level) {
-		for (final TurretData turretData : this.registeredTurrets)
-			if (turretData.getLocation().equals(block.getLocation()))
-				return turretData.getLevel(level).isLaserEnabled();
-
-		return false;
 	}
 
 	public void setRange(final TurretData turretData, final int level, final int range) {
@@ -212,33 +155,9 @@ public class TurretRegistry extends YamlConfig {
 		this.save();
 	}
 
-	public String getType(final Block block) {
-		for (final TurretData turretData : this.registeredTurrets)
-			if (turretData.getLocation().equals(block.getLocation()))
-				return turretData.getType();
-
-		return null;
-	}
-
-	public int getTurretRange(final Block block, final int level) {
-		for (final TurretData turretData : this.registeredTurrets)
-			if (turretData.getLocation().equals(block.getLocation()))
-				return turretData.getLevel(level).getRange();
-
-		return 15;
-	}
-
-	public double getLaserDamage(final Block block, final int level) {
-		for (final TurretData turretData : this.registeredTurrets)
-			if (turretData.getLocation().equals(block.getLocation()))
-				return turretData.getLevel(level).getLaserDamage();
-
-		return 0.5;
-	}
-
 	public void setTurretHealth(final Block block, final double health) {
 		for (final TurretData turretData : this.registeredTurrets)
-			if (turretData.getLocation().equals(block.getLocation()))
+			if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation()))
 				turretData.setCurrentHealth(health);
 
 		this.save();
@@ -252,7 +171,7 @@ public class TurretRegistry extends YamlConfig {
 
 	public void setBroken(final Block block, final boolean destroyed) {
 		for (final TurretData turretData : this.registeredTurrets)
-			if (turretData.getLocation().equals(block.getLocation()))
+			if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation()))
 				turretData.setBroken(destroyed);
 
 		this.save();
@@ -271,7 +190,8 @@ public class TurretRegistry extends YamlConfig {
 		return turretData.getLevel(level).getLootChances();
 	}
 
-	public void setTurretLootChances(final TurretData turretData, final int level, final List<Tuple<ItemStack, Double>> lootChances) {
+	public void setTurretLootChances(final TurretData turretData, final int level,
+									 final List<Tuple<ItemStack, Double>> lootChances) {
 		turretData.getLevel(level).setLootChances(lootChances);
 
 		this.save();
@@ -283,15 +203,6 @@ public class TurretRegistry extends YamlConfig {
 		this.save();
 	}
 
-	public List<Location> getLocations() {
-		final List<Location> locations = new ArrayList<>();
-
-		for (final TurretData turretData : this.registeredTurrets)
-			locations.add(turretData.getLocation());
-
-		return locations;
-	}
-
 	public TurretData getTurretByBlock(final Block block) {
 		for (final TurretData turretData : this.registeredTurrets)
 			if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation()))
@@ -300,50 +211,19 @@ public class TurretRegistry extends YamlConfig {
 		return null;
 	}
 
-	public TurretData getTurretByLocation(final Location location) {
-		for (final TurretData turretData : getRegisteredTurrets())
-			if (turretData.getLocation().equals(location))
-				return turretData;
-
-		return null;
-	}
-
 	public List<Location> getTurretLocationsOfType(final String type) {
 		final List<Location> locations = new ArrayList<>();
 
-		switch (type) {
-			case "arrow":
-				for (final TurretData turretData : this.arrowTurrets)
-					locations.add(turretData.getLocation());
-				break;
-			case "fireball":
-				for (final TurretData turretData : this.fireballTurrets)
-					locations.add(turretData.getLocation());
-				break;
-			case "beam":
-				for (final TurretData turretData : this.beamTurrets)
-					locations.add(turretData.getLocation());
-				break;
-		}
+		for (final TurretData turretData : getTurretsOfType(type))
+			locations.add(turretData.getLocation());
 
 		return locations;
 	}
 
 	public boolean isTurretOfType(final Block block, final String type) {
-		switch (type) {
-			case "arrow":
-				for (final TurretData turretData : this.arrowTurrets)
-					return turretData.getLocation().getBlock().getLocation().equals(block.getLocation());
-				break;
-			case "fireball":
-				for (final TurretData turretData : this.fireballTurrets)
-					return turretData.getLocation().getBlock().getLocation().equals(block.getLocation());
-				break;
-			case "beam":
-				for (final TurretData turretData : this.beamTurrets)
-					return turretData.getLocation().getBlock().getLocation().equals(block.getLocation());
-				break;
-		}
+		for (final TurretData turretData : getTurretsOfType(type))
+			if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation()))
+				return true;
 
 		return false;
 	}
