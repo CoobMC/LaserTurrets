@@ -71,8 +71,6 @@ public final class LaserTurrets extends SimplePlugin {
 	protected void onReloadablesStart() {
 		LagCatcher.start("onStart");
 		for (final String type : getTypes()) {
-			// if (!TurretSettings.isTurretSettingLoaded(type))
-
 			TurretSettings.createSettings(type);
 		}
 		LagCatcher.end("onStart", true);
@@ -84,6 +82,7 @@ public final class LaserTurrets extends SimplePlugin {
 		Common.runTimer(20, new ArrowTask());
 		Common.runTimer(25, new FireballTask());
 		Common.runTimer(2, new LaserPointerTask());
+
 		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_9))
 			Common.runTimer(30, new BeamTask());
 	}
