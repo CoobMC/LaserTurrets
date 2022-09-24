@@ -3,7 +3,6 @@ package games.coob.laserturrets.tools;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.util.StringUtil;
-import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -16,9 +15,9 @@ import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.menu.tool.Tool;
 import org.mineacademy.fo.plugin.SimplePlugin;
 import org.mineacademy.fo.remain.CompMaterial;
-import org.mineacademy.fo.remain.CompMetadata;
 import org.mineacademy.fo.visual.VisualTool;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,19 +25,18 @@ import java.util.List;
  */
 public abstract class TurretTool extends VisualTool {
 
-	@Getter
 	private final String turretType;
+
+	private final boolean oneUse;
 
 	/**
 	 * The actual item stored here for maximum performance
 	 */
 	private ItemStack item;
 
-	/**
-	 * Create a tool that may be used for any arena
-	 */
-	protected TurretTool(final String turretType) {
+	protected TurretTool(final String turretType, final boolean oneUse) {
 		this.turretType = turretType;
+		this.oneUse = oneUse;
 	}
 
 	/**
@@ -50,9 +48,9 @@ public abstract class TurretTool extends VisualTool {
 			item = ItemCreator.of(
 					getTurretMaterial(),
 					"&a" + StringUtil.capitalize(this.turretType) + " Turret Tool",
-					"",
 					"&7Click blocks to",
-					"&7un/register a turret.").glow(true).make();
+					"&7un/register a turret.",
+					this.oneUse ? "&61 use" : "").glow(true).make();
 
 		return item;
 	}
@@ -67,16 +65,17 @@ public abstract class TurretTool extends VisualTool {
 		if (block.hasMetadata("IsCreating"))
 			return;
 
+		final boolean oneUse = this.item.getItemMeta().getLore().toString().contains("1 use");
 		final String type = this.turretType;
 		final TurretRegistry registry = TurretRegistry.getInstance();
 		final boolean isTurret = registry.isTurretOfType(block, type);
 
-		if (isTurret && !CompMetadata.hasMetadata(this.item, "Destroy")) {
+		if (isTurret && !oneUse) {
 			registry.unregister(block, type);
 			Messenger.success(player, "Successfully &cunregistered &7the " + type + " turret at " + Common.shortLocation(block.getLocation()) + ".");
 		} else if (!isTurret) {
-			if (CompMetadata.hasMetadata(this.item, "Destroy"))
-				player.getInventory().remove(this.item);
+			if (oneUse)
+				player.getInventory().removeItem(this.item);
 
 			block.setMetadata("IsCreating", new FixedMetadataValue(SimplePlugin.getInstance(), ""));
 			Sequence.TURRET_CREATION(player, block, type).start(block.getLocation());
@@ -86,15 +85,15 @@ public abstract class TurretTool extends VisualTool {
 
 	@Override
 	protected List<Location> getVisualizedPoints(final Player player) {
-		if (!CompMetadata.hasMetadata(this.item, "Destroy"))
+		if (!this.item.getItemMeta().getLore().toString().contains("1 use"))
 			return TurretRegistry.getInstance().getTurretLocationsOfType(this.turretType);
 
-		return null;
+		return new ArrayList<>();
 	}
 
 	@Override
 	protected String getBlockName(final Block block, final Player player) {
-		if (!CompMetadata.hasMetadata(this.item, "Destroy"))
+		if (!this.item.getItemMeta().getLore().toString().contains("1 use"))
 			return "&aRegistered " + StringUtil.capitalize(this.turretType) + " Turret";
 
 		return null;

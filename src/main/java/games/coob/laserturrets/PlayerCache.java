@@ -96,9 +96,6 @@ public final class PlayerCache extends YamlConfig {
 	public void takeCurrency(final double amount, final boolean displayMessage) {
 		Valid.checkBoolean(amount >= 0, "Currency cannot be negative");
 
-		if (amount == 0)
-			return;
-
 		final Player player = toPlayer();
 		final boolean isUsingVault = Settings.CurrencySection.USE_VAULT;
 		final Economy economy = LaserTurrets.getEconomy();

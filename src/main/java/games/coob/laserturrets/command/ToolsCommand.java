@@ -1,6 +1,7 @@
 package games.coob.laserturrets.command;
 
 import games.coob.laserturrets.menu.ToolsMenu;
+import games.coob.laserturrets.model.Permissions;
 import games.coob.laserturrets.tools.ArrowTurretTool;
 import games.coob.laserturrets.tools.BeamTurretTool;
 import games.coob.laserturrets.tools.FireballTurretTool;
@@ -19,9 +20,8 @@ final class ToolsCommand extends SimpleSubCommand {
 	ToolsCommand() {
 		super("tool|tools");
 
-		setDescription("Chose a tool to set up your turrets!");
-		setPermission("laserturrets.tool");
-		setPermission("laserturrets.admin");
+		setDescription("Chose a tool to start creating some turrets!");
+		setPermission(Permissions.Command.TOOL);
 	}
 
 	/**

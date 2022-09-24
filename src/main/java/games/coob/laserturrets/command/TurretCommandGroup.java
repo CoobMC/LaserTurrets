@@ -1,11 +1,13 @@
 package games.coob.laserturrets.command;
 
+import games.coob.laserturrets.model.Permissions;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.bukkit.ChatColor;
 import org.mineacademy.fo.annotation.AutoRegister;
 import org.mineacademy.fo.command.DebugCommand;
+import org.mineacademy.fo.command.PermsCommand;
 import org.mineacademy.fo.command.ReloadCommand;
 import org.mineacademy.fo.command.SimpleCommandGroup;
 import org.mineacademy.fo.model.SimpleComponent;
@@ -77,5 +79,6 @@ public final class TurretCommandGroup extends SimpleCommandGroup {
 		// Register the premade commands from Foundation
 		registerSubcommand(new DebugCommand("laserturrets.command.debug"));
 		registerSubcommand(new ReloadCommand("laserturrets.command.reload"));
+		registerSubcommand(new PermsCommand(Permissions.class, "laserturrets.command.perms"));
 	}
 }

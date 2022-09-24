@@ -1,6 +1,7 @@
 package games.coob.laserturrets.command;
 
 import games.coob.laserturrets.menu.TurretsMenu;
+import games.coob.laserturrets.model.Permissions;
 import org.bukkit.entity.Player;
 import org.mineacademy.fo.command.SimpleSubCommand;
 
@@ -11,8 +12,7 @@ public final class MenuCommand extends SimpleSubCommand {
 	public MenuCommand() {
 		super("menu");
 
-		setPermission("laserturrets.menu");
-		setPermission("laserturrets.admin");
+		setPermission(Permissions.Command.MENU);
 		setDescription("This is the main menu that allows you to view all turrets and edit them specifically.");
 	}
 
