@@ -16,11 +16,15 @@ public class CurrencyCommand extends SimpleSubCommand {
 		setMinArguments(1);
 		setPermission(Permissions.Command.CURRENCY);
 		setDescription("Get, set,  give or take " + Settings.CurrencySection.CURRENCY_NAME + " from players.");
+		setUsage("<get, set, give, take> <player> <amount>");
 	}
 
 	@Override
 	protected void onCommand() {
 		checkConsole();
+
+		if (args.length < 3)
+			returnTell("Wrong usage of command (/lt currency get/set/give/take <player> <amount>).");
 
 		final String param = args[0];
 		final String name = args[1];
@@ -28,7 +32,7 @@ public class CurrencyCommand extends SimpleSubCommand {
 		final Player player = Bukkit.getPlayer(name);
 
 		if (player == null)
-			return;
+			returnTell("The player '" + name + "' does not exist.");
 
 		final PlayerCache cache = PlayerCache.from(player);
 
@@ -36,14 +40,20 @@ public class CurrencyCommand extends SimpleSubCommand {
 			cache.getCurrency(true);
 
 		else if (args.length == 3) {
-			final int amount = Integer.parseInt(args[2]);
+			final String number = args[2];
 
-			if ("set".equals(param))
-				cache.setCurrency(amount, true);
-			else if ("give".equals(param))
-				cache.giveCurrency(amount, true);
-			else if ("take".equals(param))
-				cache.takeCurrency(amount, true);
+			try {
+				final double amount = Double.parseDouble(number);
+
+				if ("set".equals(param))
+					cache.setCurrency(amount, true);
+				else if ("give".equals(param))
+					cache.giveCurrency(amount, true);
+				else if ("take".equals(param))
+					cache.takeCurrency(amount, true);
+			} catch (final NumberFormatException e) {
+				returnTell("'" + number + "' is not a valid number.");
+			}
 		}
 	}
 

@@ -78,21 +78,14 @@ public class TurretSettings extends YamlConfig {
 	}
 
 	public LevelData addLevel() {
-		final LevelData level = new LevelData(this.levels.size() + 1);
-
-		this.levels.add(level);
-		this.save();
-
-		return this.levels.get(this.levels.size() - 1);
-	}
-
-	public void createSettingsLevel() {
-		final int size = this.levels.size();
-		final LevelData level = getLevel(size - 1);
 		final List<TurretSettings.LevelData> levels = this.levels;
+		final LevelData level = new LevelData(levels.size() + 1);
 
-		levels.get(size - 1).setLevelSettings(level);
+		level.setLevelSettings(levels.get(levels.size() - 1), level);
+		levels.add(level);
 		this.save();
+
+		return levels.get(levels.size() - 1);
 	}
 
 	public void setLevelPrice(final LevelData levelData, final double price) {
@@ -102,12 +95,17 @@ public class TurretSettings extends YamlConfig {
 	}
 
 	public LevelData getLevel(final int level) {
-		final boolean outOfBounds = level <= 0 || level >= this.levels.size();
+		final boolean outOfBounds = level <= 0 || level >= this.levels.size() + 1;
 
 		if (!outOfBounds)
 			return this.levels.get(level - 1);
 
 		return null;
+	}
+
+	public void removeLevel(final int settingsLevel) {
+		this.levels.remove(settingsLevel - 1);
+		this.save();
 	}
 
 	public void setLaserEnabled(final LevelData levelData, final boolean laserEnabled) {
@@ -183,13 +181,14 @@ public class TurretSettings extends YamlConfig {
 			turretLevel.setLootChances(this.lootChances);
 		}
 
-		public void setLevelSettings(final LevelData levelData) {
-			levelData.setRange(this.range);
-			levelData.setPrice(this.price);
-			levelData.setLaserEnabled(this.laserEnabled);
-			levelData.setLaserDamage(this.laserDamage);
-			levelData.setHealth(this.health);
-			levelData.setLootChances(this.lootChances);
+		public void setLevelSettings(final LevelData levelData, final LevelData newLevel) {
+			newLevel.setRange(levelData.getRange());
+			newLevel.setPrice(levelData.getPrice());
+			newLevel.setLaserEnabled(levelData.isLaserEnabled());
+			newLevel.setLaserDamage(levelData.getLaserDamage());
+			newLevel.setHealth(levelData.getHealth());
+			newLevel.setLootChances(levelData.getLootChances());
+
 		}
 
 		@Override

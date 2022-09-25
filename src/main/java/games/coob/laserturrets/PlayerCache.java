@@ -2,6 +2,7 @@ package games.coob.laserturrets;
 
 import games.coob.laserturrets.settings.Settings;
 import lombok.Getter;
+import lombok.Setter;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.entity.Player;
 import org.mineacademy.fo.Common;
@@ -41,6 +42,10 @@ public final class PlayerCache extends YamlConfig {
 	@Getter
 	private double currency = 0;
 
+	@Getter
+	@Setter
+	private boolean turretHit;
+
 	/*
 	 * Creates a new player cache (see the bottom)
 	 */
@@ -79,7 +84,6 @@ public final class PlayerCache extends YamlConfig {
 		final boolean isUsingVault = Settings.CurrencySection.USE_VAULT;
 		final Economy economy = LaserTurrets.getEconomy();
 		final String currencyName = Settings.CurrencySection.CURRENCY_NAME;
-		final double currencyAmount = isUsingVault ? formatCurrency(economy.getBalance(player)) : formatCurrency(getCurrency());
 
 		if (isUsingVault) {
 			economy.depositPlayer(player, amount);
@@ -87,6 +91,8 @@ public final class PlayerCache extends YamlConfig {
 			this.currency = this.currency + amount;
 			save();
 		}
+
+		final double currencyAmount = isUsingVault ? formatCurrency(economy.getBalance(player)) : formatCurrency(getCurrency());
 
 		if (displayMessage)
 			Common.tell(player, "&aGave " + this.playerName + " &e" + amount + " &a" + currencyName + " and now has a total of &e" + currencyAmount + " &a" + currencyName + ".");
@@ -100,7 +106,6 @@ public final class PlayerCache extends YamlConfig {
 		final boolean isUsingVault = Settings.CurrencySection.USE_VAULT;
 		final Economy economy = LaserTurrets.getEconomy();
 		final String currencyName = Settings.CurrencySection.CURRENCY_NAME;
-		final double currencyAmount = isUsingVault ? formatCurrency(economy.getBalance(player)) : formatCurrency(getCurrency());
 
 		if (isUsingVault) {
 			economy.withdrawPlayer(player, amount);
@@ -108,6 +113,8 @@ public final class PlayerCache extends YamlConfig {
 			this.currency = this.currency - amount;
 			save();
 		}
+
+		final double currencyAmount = isUsingVault ? formatCurrency(economy.getBalance(player)) : formatCurrency(getCurrency());
 
 		if (displayMessage)
 			Common.tell(player, "&aTook &e" + amount + " &a" + currencyName + " from " + playerName + " who now has a total of &e" + currencyAmount + " &a" + currencyName + ".");
@@ -120,7 +127,6 @@ public final class PlayerCache extends YamlConfig {
 		final boolean isUsingVault = Settings.CurrencySection.USE_VAULT;
 		final Economy economy = LaserTurrets.getEconomy();
 		final String currencyName = Settings.CurrencySection.CURRENCY_NAME;
-		final double currencyAmount = isUsingVault ? formatCurrency(economy.getBalance(player)) : formatCurrency(getCurrency());
 
 		if (isUsingVault) {
 			economy.withdrawPlayer(player, economy.getBalance(player));
@@ -129,6 +135,8 @@ public final class PlayerCache extends YamlConfig {
 			this.currency = amount;
 			save();
 		}
+
+		final double currencyAmount = isUsingVault ? formatCurrency(economy.getBalance(player)) : formatCurrency(getCurrency());
 
 		if (displayMessage)
 			Common.tell(player, "&Set " + this.playerName + "'s amount of " + currencyName + " to &e" + currencyAmount + "&a.");

@@ -127,6 +127,8 @@ public final class SettingsMenu extends Menu {
 
 			private final TurretSettings.LevelData level;
 
+			private final int turretLevel;
+
 			@Position(10)
 			private final Button rangeButton;
 
@@ -145,6 +147,9 @@ public final class SettingsMenu extends Menu {
 			@Position(32)
 			private final Button nextLevelButton;
 
+			@Position(34)
+			private final Button removeLevelButton;
+
 			@Position(31)
 			private final Button priceButton;
 
@@ -154,6 +159,7 @@ public final class SettingsMenu extends Menu {
 				final boolean nextLevelExists = turretLevel < settings.getLevelsSize() || settings.getLevelsSize() == 0;
 
 				this.level = getOrMakeLevel(turretLevel);
+				this.turretLevel = turretLevel;
 
 				this.setTitle("Turret Level " + turretLevel);
 				this.setSize(9 * 4);
@@ -204,15 +210,15 @@ public final class SettingsMenu extends Menu {
 
 					@Override
 					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
-						if (aboveFirstLevel)
+						if (this.aboveFirstLevel)
 							new LevelMenu(turretLevel - 1).displayTo(player);
 					}
 
 					@Override
 					public ItemStack getItem() {
 						return ItemCreator
-								.of(aboveFirstLevel ? CompMaterial.LIME_DYE : CompMaterial.GRAY_DYE,
-										aboveFirstLevel ? "Edit previous level" : "This is the first level").make();
+								.of(this.aboveFirstLevel ? CompMaterial.LIME_DYE : CompMaterial.GRAY_DYE,
+										this.aboveFirstLevel ? "Edit previous level" : "This is the first level").make();
 					}
 				};
 
@@ -222,18 +228,30 @@ public final class SettingsMenu extends Menu {
 					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
 						final Menu nextLevelMenu;
 
-						if (!nextLevelExists)
-							settings.createSettingsLevel();
-
-						nextLevelMenu = new LevelMenu(turretLevel + 1); // TODO add level
+						nextLevelMenu = new LevelMenu(turretLevel + 1);
 						nextLevelMenu.displayTo(player);
 					}
 
 					@Override
 					public ItemStack getItem() {
-						return ItemCreator
-								.of(nextLevelExists ? CompMaterial.LIME_DYE : CompMaterial.PURPLE_DYE,
-										nextLevelExists ? "Edit next level" : "Create a new level").make();
+						return ItemCreator.of(nextLevelExists ? CompMaterial.LIME_DYE : CompMaterial.PURPLE_DYE,
+								nextLevelExists ? "Edit next level" : "Create a new level").make();
+					}
+				};
+
+				this.removeLevelButton = new Button() {
+
+					@Override
+					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
+						if (!nextLevelExists)
+							settings.removeLevel(turretLevel);
+
+						new LevelMenu(turretLevel - 1).displayTo(player);
+					}
+
+					@Override
+					public ItemStack getItem() {
+						return ItemCreator.of(CompMaterial.BARRIER, "&cRemove this level").make();
 					}
 				};
 
@@ -247,7 +265,17 @@ public final class SettingsMenu extends Menu {
 						RangedValue.parse("0-100000"), (Double input) -> settings.setLevelPrice(this.level, input));
 			}
 
-			private TurretSettings.LevelData getOrMakeLevel(final int turretLevel) { // TODO get level 3 too
+			@Override
+			public ItemStack getItemAt(final int slot) {
+				final boolean nextLevelExists = this.turretLevel < settings.getLevelsSize() || settings.getLevelsSize() == 0;
+
+				if (!nextLevelExists)
+					return this.removeLevelButton.getItem();
+
+				return NO_ITEM;
+			}
+
+			private TurretSettings.LevelData getOrMakeLevel(final int turretLevel) {
 				TurretSettings.LevelData level = settings.getLevel(turretLevel);
 
 				if (level == null)

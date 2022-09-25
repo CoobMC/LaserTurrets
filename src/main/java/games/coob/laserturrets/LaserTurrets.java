@@ -1,6 +1,6 @@
 package games.coob.laserturrets;
 
-import games.coob.laserturrets.database.LaserTurretsDatabase;
+import games.coob.laserturrets.database.TurretsDatabase;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
@@ -43,7 +43,7 @@ public final class LaserTurrets extends SimplePlugin {
 		}
 
 		if (Settings.DatabaseSection.ENABLE_MYSQL)
-			LaserTurretsDatabase.getInstance().connect(Settings.DatabaseSection.HOST, Settings.DatabaseSection.PORT, Settings.DatabaseSection.DATABASE, Settings.DatabaseSection.USER, Settings.DatabaseSection.PASSWORD);
+			TurretsDatabase.getInstance().connect(Settings.DatabaseSection.HOST, Settings.DatabaseSection.PORT, Settings.DatabaseSection.DATABASE, Settings.DatabaseSection.USER, Settings.DatabaseSection.PASSWORD);
 	}
 
 	@Override

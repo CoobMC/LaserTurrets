@@ -1,5 +1,6 @@
 package games.coob.laserturrets.listener;
 
+import games.coob.laserturrets.PlayerCache;
 import games.coob.laserturrets.menu.BrokenTurretMenu;
 import games.coob.laserturrets.menu.UpgradeMenu;
 import games.coob.laserturrets.model.TurretData;
@@ -159,12 +160,26 @@ public final class TurretListener implements Listener {
 		final TurretRegistry registry = TurretRegistry.getInstance();
 		final TurretData turretData = registry.getTurretByBlock(block);
 
-		registry.setTurretHealth(block, turretData.getCurrentHealth() - damage);
+		if (entity instanceof Player) {
+			final Player player = (Player) entity;
+			final PlayerCache cache = PlayerCache.from(player);
 
-		if (turretData.getCurrentHealth() <= 0) {
+			if (cache.isTurretHit())
+				return;
+
+			cache.setTurretHit(true);
+			Common.runLater(20, () -> cache.setTurretHit(false));
+		}
+
+		final Location location = block.getLocation().clone();
+
+		registry.setTurretHealth(block, turretData.getCurrentHealth() - damage);
+		CompSound.ITEM_BREAK.play(location);
+
+		if (turretData.getCurrentHealth() <= 0 && !turretData.isBroken()) {
 			registry.setBroken(block, true);
-			CompParticle.EXPLOSION_LARGE.spawn(block.getLocation().add(0.5, 1, 0.5), 2);
-			registry.setTurretHealth(block, 0);
+			CompParticle.EXPLOSION_LARGE.spawn(location.add(0.5, 1, 0.5), 2);
+			CompSound.EXPLODE.play(location);
 		}
 
 		if (entity instanceof Player)
@@ -174,13 +189,15 @@ public final class TurretListener implements Listener {
 	private void damageTurret(final Block block, final double damage) {
 		final TurretRegistry registry = TurretRegistry.getInstance();
 		final TurretData turretData = registry.getTurretByBlock(block);
+		final Location location = block.getLocation().clone();
 
 		registry.setTurretHealth(block, turretData.getCurrentHealth() - damage);
-		CompSound.BLOCK_ANVIL_BREAK.play(block.getLocation());
+		CompSound.ITEM_BREAK.play(location);
 
-		if (turretData.getCurrentHealth() <= 0) {
+		if (turretData.getCurrentHealth() <= 0 && !turretData.isBroken()) {
 			registry.setBroken(block, true);
-			CompParticle.EXPLOSION_LARGE.spawn(block.getLocation().add(0.5, 1, 0.5), 2);
+			CompSound.EXPLODE.play(location);
+			CompParticle.EXPLOSION_LARGE.spawn(location.add(0.5, 1, 0.5), 2);
 		}
 	}
 

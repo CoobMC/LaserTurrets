@@ -3,14 +3,12 @@ package games.coob.laserturrets.util;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
-import org.mineacademy.fo.remain.CompParticle;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -85,19 +83,11 @@ public class EntityUtil {
 				final BlockIterator blockIterator = new BlockIterator(start.getWorld(), start.toVector(), direction, 0, length);
 				Block block;
 
-				final Location location = start.clone();
-				for (double waypoint = 1; waypoint < 50; waypoint += 0.5) {
-					location.add(direction.normalize());
-					CompParticle.REDSTONE.spawn(location);
-				}
-
 				while (blockIterator.hasNext()) {
 					block = blockIterator.next();
 
-					if (block.getType().isSolid()) {
-						block.setType(Material.DIAMOND_BLOCK);
+					if (block.getType().isSolid())
 						return true;
-					}
 				}
 			} catch (final IllegalStateException exception) {
 				return false;

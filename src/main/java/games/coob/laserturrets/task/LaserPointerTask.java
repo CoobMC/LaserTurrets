@@ -17,7 +17,7 @@ public class LaserPointerTask extends BukkitRunnable {
 		for (final TurretData turretData : turretRegistry.getRegisteredTurrets()) {
 			final int level = turretData.getCurrentLevel();
 
-			if (!turretData.getLevel(level).isLaserEnabled())
+			if (!turretData.getLevel(level).isLaserEnabled() && turretData.isBroken())
 				continue;
 
 			final Location location = turretData.getLocation();

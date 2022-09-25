@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 @Getter
-public class TurretData implements ConfigSerializable { // TODO create ammo & health system
+public class TurretData implements ConfigSerializable { // TODO create ammo
 
 	private Location location;
 
@@ -32,7 +32,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 
 	private boolean broken;
 
-	private List<ItemStack> currentLoot; // TODO arraylist
+	private List<ItemStack> currentLoot = new ArrayList<>();
 
 	private Set<UUID> playerBlacklist = new HashSet<>();
 
@@ -66,6 +66,23 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 
 	public void setBroken(final boolean broken) {
 		this.broken = broken;
+
+		if (this.isBroken())
+			this.currentLoot = randomItemPercentageList(this.getLevel(this.currentLevel).getLootChances());
+	}
+
+	private List<ItemStack> randomItemPercentageList(final List<Tuple<ItemStack, Double>> lootChanceList) {
+		final List<ItemStack> items = new ArrayList<>();
+
+		for (final Tuple<ItemStack, Double> lootChance : lootChanceList) {
+			final Random random = new Random();
+			final double randomPercentage = random.nextDouble();
+
+			if (lootChance.getValue() >= randomPercentage)
+				items.add(lootChance.getKey());
+		}
+
+		return items;
 	}
 
 	public void setCurrentLevel(final int level) {
@@ -220,7 +237,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo & he
 		private double price;
 
 		@Getter
-		private List<Tuple<ItemStack, Double>> lootChances;
+		private List<Tuple<ItemStack, Double>> lootChances = new ArrayList<>();
 
 		@Getter
 		private int range;

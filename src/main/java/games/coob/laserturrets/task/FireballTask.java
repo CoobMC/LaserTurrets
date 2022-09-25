@@ -19,6 +19,9 @@ public class FireballTask extends BukkitRunnable {
 		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
 
 		for (final TurretData turretData : turretRegistry.getTurretsOfType("fireball")) {
+			if (turretData.isBroken())
+				continue;
+
 			final Location location = turretData.getLocation();
 			final Block block = location.getBlock();
 			final int level = turretData.getCurrentLevel();

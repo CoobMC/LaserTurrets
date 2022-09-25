@@ -170,11 +170,13 @@ public class TurretRegistry extends YamlConfig {
 	}
 
 	public void setBroken(final Block block, final boolean destroyed) {
-		for (final TurretData turretData : this.registeredTurrets)
-			if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation()))
+		for (final TurretData turretData : this.registeredTurrets) {
+			if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation())) {
 				turretData.setBroken(destroyed);
 
-		this.save();
+				this.save();
+			}
+		}
 	}
 
 	public void setBroken(final TurretData turretData, final boolean destroyed) {

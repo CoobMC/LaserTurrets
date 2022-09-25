@@ -110,4 +110,14 @@ public class UpgradeMenu extends Menu {
 	public Menu newInstance() {
 		return new UpgradeMenu(this.turretData, this.level, this.getViewer());
 	}
+
+	@Override
+	protected String[] getInfo() {
+		return new String[]{
+				"Modify your player blacklist",
+				"or upgrade this turret.",
+				"",
+				"Balance: " + PlayerCache.from(getViewer()).getCurrency(false) + " " + Settings.CurrencySection.CURRENCY_NAME + ""
+		};
+	}
 }

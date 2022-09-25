@@ -17,6 +17,9 @@ public class BeamTask extends BukkitRunnable {
 	public void run() {
 		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
 		for (final TurretData turretData : turretRegistry.getTurretsOfType("beam")) {
+			if (turretData.isBroken())
+				continue;
+
 			final Location location = turretData.getLocation();
 			final int level = turretData.getCurrentLevel();
 			final int range = turretData.getLevel(level).getRange();

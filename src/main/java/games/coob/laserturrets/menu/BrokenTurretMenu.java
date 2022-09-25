@@ -18,8 +18,8 @@ import org.mineacademy.fo.menu.button.ButtonMenu;
 import org.mineacademy.fo.menu.button.StartPosition;
 import org.mineacademy.fo.menu.button.annotation.Position;
 import org.mineacademy.fo.menu.model.ItemCreator;
-import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
+import org.mineacademy.fo.remain.CompSound;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,10 +48,11 @@ public class BrokenTurretMenu extends Menu {
 				final TurretRegistry registry = TurretRegistry.getInstance();
 				final PlayerCache cache = PlayerCache.from(player);
 
+				CompSound.ANVIL_USE.play(turretData.getLocation());
 				registry.setBroken(turretData, false);
 				cache.takeCurrency(price, false);
-				new UpgradeMenu(turretData, turretData.getCurrentLevel(), player).displayTo(player);
-				animateTitle("&aRepaired Turret");
+				player.closeInventory();
+				Common.tell(player, "&aYou have successfully repaired this turret and it costed you " + price + " " + Settings.CurrencySection.CURRENCY_NAME + ".");
 			}
 
 			@Override
@@ -73,10 +74,11 @@ public class BrokenTurretMenu extends Menu {
 				final TurretRegistry registry = TurretRegistry.getInstance();
 				final PlayerCache cache = PlayerCache.from(player);
 
+				CompSound.EXPLODE.play(turretData.getLocation());
 				registry.unregister(turretData.getLocation().getBlock(), turretData.getType());
 				cache.giveCurrency(this.earnings, false);
 				player.closeInventory();
-				Common.tell(player, "You have successfully destroyed this turret and you have earned " + this.earnings + " " + Settings.CurrencySection.CURRENCY_NAME + ".");
+				Common.tell(player, "&6You have successfully destroyed this turret and you have earned " + this.earnings + " " + Settings.CurrencySection.CURRENCY_NAME + ".");
 			}
 
 			@Override
@@ -119,8 +121,13 @@ public class BrokenTurretMenu extends Menu {
 			this.lootAllButton = new Button() {
 				@Override
 				public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
-					PlayerUtil.addItems(player.getInventory(), turretData.getCurrentLoot().toArray(new ItemStack[0]));
+					if (turretData.getCurrentLoot() == null)
+						return;
+					
+					PlayerUtil.addItems(player.getInventory(), turretData.getCurrentLoot());
 					turretData.setCurrentLoot(null);
+					CompSound.LAVA_POP.play(player);
+					restartMenu("&aClaimed all turret loot");
 				}
 
 				@Override
@@ -132,15 +139,12 @@ public class BrokenTurretMenu extends Menu {
 
 		@Override
 		protected ItemStack getDropAt(final int slot) {
-			if (this.turretData.getCurrentLoot() != null) {
-				this.turretData.setCurrentLoot(Common.convert(this.turretData.getLevel(this.turretData.getCurrentLevel()).getLootChances(), Tuple::getKey));
+			final List<ItemStack> items = this.turretData.getCurrentLoot();
 
-				final List<ItemStack> items = this.turretData.getCurrentLoot();
+			if (this.turretData.getCurrentLoot() == null)
+				return NO_ITEM;
 
-				return slot < items.size() ? items.get(slot) : NO_ITEM;
-			}
-
-			return NO_ITEM;
+			return slot < items.size() ? items.get(slot) : NO_ITEM;
 		}
 
 		@Override
@@ -148,6 +152,14 @@ public class BrokenTurretMenu extends Menu {
 			final TurretRegistry registry = TurretRegistry.getInstance();
 
 			registry.setCurrentLoot(this.turretData, new ArrayList<>(items.values()));
+		}
+
+		@Override
+		protected String[] getInfo() {
+			return new String[]{
+					"Claim loot from this broken",
+					"turret before anyone else does!"
+			};
 		}
 	}
 

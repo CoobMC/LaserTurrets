@@ -19,6 +19,9 @@ public class ArrowTask extends BukkitRunnable {
 		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
 
 		for (final TurretData turretData : turretRegistry.getTurretsOfType("arrow")) {
+			if (turretData.isBroken())
+				continue;
+
 			final Location location = turretData.getLocation();
 			final Location locationTemp = location.clone().add(0.5, 1.4, 0.5);
 			final int level = turretData.getCurrentLevel();

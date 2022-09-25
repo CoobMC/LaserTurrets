@@ -8,12 +8,12 @@ import org.mineacademy.fo.database.SimpleFlatDatabase;
 /**
  * Handles MySQL database for player data, votes and pending votes.
  */
-public final class LaserTurretsDatabase extends SimpleFlatDatabase<PlayerCache> {
+public final class TurretsDatabase extends SimpleFlatDatabase<PlayerCache> {
 
 	@Getter
-	private final static LaserTurretsDatabase instance = new LaserTurretsDatabase();
+	private final static TurretsDatabase instance = new TurretsDatabase();
 
-	private LaserTurretsDatabase() {
+	private TurretsDatabase() {
 		this.addVariable("table", "LaserTurrets");
 	}
 

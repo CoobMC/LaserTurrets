@@ -234,7 +234,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 				final boolean nextLevelExists = turretLevel < turretData.getLevels() || turretData.getLevels() == 0;
 				final TurretRegistry registry = TurretRegistry.getInstance();
 
-				this.turretLevel = turretLevel;
+				this.turretLevel = turretLevel; // TODO remove
 				this.level = getOrMakeLevel(turretLevel);
 
 				this.setTitle("Turret Level " + turretLevel);
@@ -314,9 +314,8 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 					@Override
 					public ItemStack getItem() {
-						return ItemCreator
-								.of(nextLevelExists ? CompMaterial.LIME_DYE : CompMaterial.PURPLE_DYE,
-										nextLevelExists ? "Edit next level" : "Create a new level").make();
+						return ItemCreator.of(nextLevelExists ? CompMaterial.LIME_DYE : CompMaterial.PURPLE_DYE,
+								nextLevelExists ? "Edit next level" : "Create a new level").make();
 					}
 				};
 
