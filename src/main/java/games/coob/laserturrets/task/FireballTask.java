@@ -11,6 +11,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.mineacademy.fo.Common;
+import org.mineacademy.fo.remain.CompParticle;
 
 public class FireballTask extends BukkitRunnable {
 
@@ -23,10 +24,11 @@ public class FireballTask extends BukkitRunnable {
 				continue;
 
 			final Location location = turretData.getLocation();
+			final Location locationTemp = location.clone().add(0.5, 1.4, 0.5);
 			final Block block = location.getBlock();
 			final int level = turretData.getCurrentLevel();
 			final int range = turretData.getLevel(level).getRange();
-			final LivingEntity nearestEntity = EntityUtil.findNearestEntityNonBlacklisted(location, range, LivingEntity.class);
+			final LivingEntity nearestEntity = EntityUtil.findNearestEntityNonBlacklisted(locationTemp, range, LivingEntity.class, location.getBlock());
 
 			if (nearestEntity == null)
 				continue;
@@ -37,10 +39,12 @@ public class FireballTask extends BukkitRunnable {
 
 	private void shootFireball(final LivingEntity target, final Block block) {
 		if (target != null) {
-			final Location blockLocation = block.getLocation().add(0.5, 1.5, 0.5);
-			final Location targetLocation = target.getLocation().clone().add(0, 0.5, 0);
+			final Location blockLocation = block.getLocation().clone().add(0.5, 1.4, 0.5);
+			final Location targetLocation = target.getEyeLocation().clone().add(0, -0.5, 0);
 			final Vector vector = targetLocation.subtract(blockLocation).toVector().normalize();
 			final Fireball fireball = block.getWorld().spawn(blockLocation, Fireball.class);
+
+			CompParticle.VILLAGER_HAPPY.spawn(blockLocation);
 
 			fireball.setYield(1);
 			fireball.setDirection(vector);

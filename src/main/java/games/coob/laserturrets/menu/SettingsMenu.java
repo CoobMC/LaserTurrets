@@ -13,6 +13,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.mineacademy.fo.Common;
 import org.mineacademy.fo.ItemUtil;
 import org.mineacademy.fo.collection.StrictMap;
 import org.mineacademy.fo.conversation.SimplePrompt;
@@ -147,7 +148,6 @@ public final class SettingsMenu extends Menu {
 			@Position(32)
 			private final Button nextLevelButton;
 
-			@Position(34)
 			private final Button removeLevelButton;
 
 			@Position(31)
@@ -243,10 +243,12 @@ public final class SettingsMenu extends Menu {
 
 					@Override
 					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
-						if (!nextLevelExists)
-							settings.removeLevel(turretLevel);
+						settings.removeLevel(turretLevel);
 
-						new LevelMenu(turretLevel - 1).displayTo(player);
+						final Menu previousMenu = new LevelMenu(turretLevel - 1);
+
+						previousMenu.displayTo(player);
+						Common.runLater(() -> previousMenu.animateTitle("&cRemoved level " + turretLevel));
 					}
 
 					@Override
@@ -269,7 +271,7 @@ public final class SettingsMenu extends Menu {
 			public ItemStack getItemAt(final int slot) {
 				final boolean nextLevelExists = this.turretLevel < settings.getLevelsSize() || settings.getLevelsSize() == 0;
 
-				if (!nextLevelExists)
+				if (!nextLevelExists && slot == 34)
 					return this.removeLevelButton.getItem();
 
 				return NO_ITEM;

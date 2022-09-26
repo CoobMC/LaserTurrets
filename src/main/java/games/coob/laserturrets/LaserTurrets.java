@@ -9,10 +9,8 @@ import games.coob.laserturrets.task.ArrowTask;
 import games.coob.laserturrets.task.BeamTask;
 import games.coob.laserturrets.task.FireballTask;
 import games.coob.laserturrets.task.LaserPointerTask;
-import net.milkbowl.vault.economy.Economy;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.MinecraftVersion;
-import org.mineacademy.fo.debug.LagCatcher;
 import org.mineacademy.fo.plugin.SimplePlugin;
 
 /**
@@ -23,12 +21,6 @@ import org.mineacademy.fo.plugin.SimplePlugin;
  * It uses Foundation for fast and efficient development process.
  */
 public final class LaserTurrets extends SimplePlugin {
-
-	private static Economy econ = null;
-
-	public static Economy getEconomy() {
-		return econ;
-	}
 
 	/**
 	 * Automatically perform login ONCE when the plugin starts.
@@ -69,11 +61,9 @@ public final class LaserTurrets extends SimplePlugin {
 	 */
 	@Override
 	protected void onReloadablesStart() {
-		LagCatcher.start("onStart");
 		for (final String type : getTypes()) {
 			TurretSettings.createSettings(type);
 		}
-		LagCatcher.end("onStart", true);
 
 		//
 		// Add your own plugin parts to load automatically here

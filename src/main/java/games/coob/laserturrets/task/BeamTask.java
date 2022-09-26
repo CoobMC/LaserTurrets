@@ -14,7 +14,7 @@ import org.mineacademy.fo.plugin.SimplePlugin;
 public class BeamTask extends BukkitRunnable {
 
 	@Override
-	public void run() {
+	public void run() { // TODO
 		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
 		for (final TurretData turretData : turretRegistry.getTurretsOfType("beam")) {
 			if (turretData.isBroken())

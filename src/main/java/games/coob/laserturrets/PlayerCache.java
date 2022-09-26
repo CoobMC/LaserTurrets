@@ -1,5 +1,6 @@
 package games.coob.laserturrets;
 
+import games.coob.laserturrets.hook.VaultHook;
 import games.coob.laserturrets.settings.Settings;
 import lombok.Getter;
 import lombok.Setter;
@@ -82,7 +83,7 @@ public final class PlayerCache extends YamlConfig {
 
 		final Player player = toPlayer();
 		final boolean isUsingVault = Settings.CurrencySection.USE_VAULT;
-		final Economy economy = LaserTurrets.getEconomy();
+		final Economy economy = VaultHook.getEconomy();
 		final String currencyName = Settings.CurrencySection.CURRENCY_NAME;
 
 		if (isUsingVault) {
@@ -104,7 +105,7 @@ public final class PlayerCache extends YamlConfig {
 
 		final Player player = toPlayer();
 		final boolean isUsingVault = Settings.CurrencySection.USE_VAULT;
-		final Economy economy = LaserTurrets.getEconomy();
+		final Economy economy = VaultHook.getEconomy();
 		final String currencyName = Settings.CurrencySection.CURRENCY_NAME;
 
 		if (isUsingVault) {
@@ -125,7 +126,7 @@ public final class PlayerCache extends YamlConfig {
 
 		final Player player = toPlayer();
 		final boolean isUsingVault = Settings.CurrencySection.USE_VAULT;
-		final Economy economy = LaserTurrets.getEconomy();
+		final Economy economy = VaultHook.getEconomy();
 		final String currencyName = Settings.CurrencySection.CURRENCY_NAME;
 
 		if (isUsingVault) {
@@ -145,7 +146,7 @@ public final class PlayerCache extends YamlConfig {
 	public double getCurrency(final boolean displayMessage) {
 		final Player player = toPlayer();
 		final boolean isUsingVault = Settings.CurrencySection.USE_VAULT;
-		final Economy economy = LaserTurrets.getEconomy();
+		final Economy economy = VaultHook.getEconomy();
 		final String currencyName = Settings.CurrencySection.CURRENCY_NAME;
 		final double currencyAmount = isUsingVault ? formatCurrency(economy.getBalance(player)) : formatCurrency(getCurrency());
 

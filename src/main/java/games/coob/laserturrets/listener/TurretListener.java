@@ -28,6 +28,9 @@ import org.mineacademy.fo.remain.CompParticle;
 import org.mineacademy.fo.remain.CompSound;
 import org.mineacademy.fo.remain.Remain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @AutoRegister
 public final class TurretListener implements Listener {
 
@@ -43,26 +46,40 @@ public final class TurretListener implements Listener {
 
 	@EventHandler
 	public void onBlockExplode(final BlockExplodeEvent event) {
-		final Block block = event.getBlock();
-		final Block blockUnder = block.getRelative(BlockFace.DOWN);
 		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
+		final List<Block> blockList = new ArrayList<>();
 
-		if (turretRegistry.isRegistered(block) || turretRegistry.isRegistered(blockUnder)) {
-			event.setCancelled(true);
-			damageTurret(block, 50);
+		for (final Block block : event.blockList()) {
+			final Block blockUnder = block.getRelative(BlockFace.DOWN);
+
+			if (turretRegistry.isRegistered(block)) {
+				blockList.add(block);
+				damageTurret(block, 40);
+			} else if (turretRegistry.isRegistered(blockUnder))
+				blockList.add(block);
 		}
+
+		for (final Block block : blockList)
+			event.blockList().remove(block);
 	}
 
 	@EventHandler
 	public void onEntityExplode(final EntityExplodeEvent event) {
 		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
+		final List<Block> blockList = new ArrayList<>();
 
 		for (final Block block : event.blockList()) {
 			final Block blockUnder = block.getRelative(BlockFace.DOWN);
 
-			if (turretRegistry.isRegistered(block) || turretRegistry.isRegistered(blockUnder))
-				event.setCancelled(true);
+			if (turretRegistry.isRegistered(block)) {
+				blockList.add(block);
+				damageTurret(block, 40);
+			} else if (turretRegistry.isRegistered(blockUnder))
+				blockList.add(block);
 		}
+
+		for (final Block block : blockList)
+			event.blockList().remove(block);
 	}
 
 	@EventHandler
