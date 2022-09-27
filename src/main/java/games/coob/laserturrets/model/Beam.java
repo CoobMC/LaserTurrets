@@ -104,13 +104,13 @@ public abstract class Beam {
 						return;
 					}
 					if (!durationInTicks || time % 20 == 0) {
-						for (final Player p : start.getWorld().getPlayers()) {
-							if (isCloseEnough(p)) {
-								if (show.add(p)) {
-									sendStartPackets(p, !seen.add(p));
+						for (final Player player : start.getWorld().getPlayers()) {
+							if (isCloseEnough(player)) {
+								if (show.add(player)) {
+									sendStartPackets(player, !seen.add(player));
 								}
-							} else if (show.remove(p)) {
-								sendDestroyPackets(p);
+							} else if (show.remove(player)) {
+								sendDestroyPackets(player);
 							}
 						}
 					}
@@ -332,7 +332,7 @@ public abstract class Beam {
 		 * @see #GuardianBeam(Location, Location, int, int) to create a beam with a specific end location
 		 */
 		public GuardianBeam(final Location start, final LivingEntity endEntity, final int duration, final int distance) throws ReflectiveOperationException {
-			super(start, endEntity.getLocation(), duration, distance);
+			super(start, endEntity.getEyeLocation(), duration, distance);
 
 			targetID = endEntity.getEntityId();
 			targetUUID = endEntity.getUniqueId();
@@ -416,7 +416,7 @@ public abstract class Beam {
 
 		@Override
 		public Location getEnd() {
-			return endEntity == null ? end : endEntity.getLocation();
+			return endEntity == null ? end : endEntity.getEyeLocation();
 		}
 
 		protected Location getCorrectStart() {

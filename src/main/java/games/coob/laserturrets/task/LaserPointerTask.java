@@ -15,21 +15,25 @@ public class LaserPointerTask extends BukkitRunnable {
 	public void run() {
 		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
 		for (final TurretData turretData : turretRegistry.getRegisteredTurrets()) {
+			if (turretData.isBroken())
+				continue;
+
 			final int level = turretData.getCurrentLevel();
 
-			if (!turretData.getLevel(level).isLaserEnabled() && turretData.isBroken())
+			if (!turretData.getLevel(level).isLaserEnabled())
 				continue;
 
 			final Location location = turretData.getLocation();
+			final Location shootLocation = location.clone().add(0.5, 1.4, 0.5);
 			final int range = turretData.getLevel(level).getRange();
-			final LivingEntity nearestEntity = EntityUtil.findNearestEntityNonBlacklisted(location, range, LivingEntity.class);
+			final LivingEntity nearestEntity = EntityUtil.findNearestEntityNonBlacklisted(shootLocation, range, LivingEntity.class, location.getBlock());
 
 			if (nearestEntity == null)
 				continue;
 
 			final double damage = turretData.getLevel(level).getLaserDamage();
 			final Location laserLocation = location.clone().add(0.5, 1.2, 0.5);
-			final Location targetLocation = nearestEntity.getLocation().add(0, 1.6, 0);
+			final Location targetLocation = nearestEntity.getEyeLocation();
 			final double distance = location.clone().add(0.5, 1.2, 0.5).distance(targetLocation);
 			final Vector vector = targetLocation.subtract(laserLocation).toVector().normalize().multiply(0.5);
 

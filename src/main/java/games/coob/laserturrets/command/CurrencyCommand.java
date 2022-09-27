@@ -21,11 +21,6 @@ public class CurrencyCommand extends SimpleSubCommand {
 
 	@Override
 	protected void onCommand() {
-		checkConsole();
-
-		if (args.length < 3)
-			returnTell("Wrong usage of command (/lt currency get/set/give/take <player> <amount>).");
-
 		final String param = args[0];
 		final String name = args[1];
 
@@ -38,6 +33,9 @@ public class CurrencyCommand extends SimpleSubCommand {
 
 		if ("get".equals(param))
 			cache.getCurrency(true);
+
+		if (args.length < 3 && !param.equals("get"))
+			returnTell("Wrong usage of command (/lt currency get/set/give/take <player> <amount>).");
 
 		else if (args.length == 3) {
 			final String number = args[2];

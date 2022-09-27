@@ -52,7 +52,7 @@ public final class TurretCommandGroup extends SimpleCommandGroup {
 	// Change this to remove "Visit MineAcademy" link we by default have for our plugins
 	@Override
 	protected String getCredits() {
-		return "&7Join our discord server for help.";
+		return "&7Join our discord server for support: &bhttps://discord.gg/2rgvQbHsSW";
 	}
 
 	// Change this to edit the messages at the top of our help command, defaults to
@@ -77,8 +77,8 @@ public final class TurretCommandGroup extends SimpleCommandGroup {
 		registerSubcommand(new CurrencyCommand());
 
 		// Register the premade commands from Foundation
-		registerSubcommand(new DebugCommand("laserturrets.command.debug"));
-		registerSubcommand(new ReloadCommand("laserturrets.command.reload"));
-		registerSubcommand(new PermsCommand(Permissions.class, "laserturrets.command.perms"));
+		registerSubcommand(new DebugCommand("turret.command.debug"));
+		registerSubcommand(new ReloadCommand("turret.command.reload"));
+		registerSubcommand(new PermsCommand(Permissions.class, "turret.command.perms"));
 	}
 }

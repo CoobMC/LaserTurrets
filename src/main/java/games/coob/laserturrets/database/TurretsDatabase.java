@@ -2,6 +2,7 @@ package games.coob.laserturrets.database;
 
 import games.coob.laserturrets.PlayerCache;
 import lombok.Getter;
+import org.bukkit.entity.Player;
 import org.mineacademy.fo.collection.SerializedMap;
 import org.mineacademy.fo.database.SimpleFlatDatabase;
 
@@ -33,6 +34,24 @@ public final class TurretsDatabase extends SimpleFlatDatabase<PlayerCache> {
 			map.put("Currency", cache.getCurrency());
 
 		return map;
+	}
+
+	/**
+	 * Saves data about the player to the database
+	 */
+	public static void save(final Player player) {
+		final PlayerCache cache = PlayerCache.from(player);
+
+		instance.save(player.getName(), player.getUniqueId(), cache);
+	}
+
+	/**
+	 * Loads data about the player to the database
+	 */
+	public static void load(final Player player) {
+		final PlayerCache cache = PlayerCache.from(player);
+
+		instance.load(player.getUniqueId(), cache);
 	}
 
 	@Override

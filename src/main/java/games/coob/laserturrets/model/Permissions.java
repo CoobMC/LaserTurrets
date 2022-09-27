@@ -21,18 +21,18 @@ public final class Permissions {
 	public static final class Command {
 
 		@Permission("Chose a tool to start creating some turrets!")
-		public static final String TOOL = "laserturret.command.tool";
+		public static final String TOOL = "turret.command.tool";
 
 		@Permission("This is the main menu that allows you to view all turrets and edit them specifically.")
-		public static final String MENU = "laserturret.command.menu";
+		public static final String MENU = "turret.command.menu";
 
 		@Permission("Get, set,  give or take a specific amount of the currency from players.")
-		public static final String CURRENCY = "laserturret.command.currency";
+		public static final String CURRENCY = "turret.command.currency";
 
 		@Permission("Executes a command to open the portal menu.")
-		public static final String SHOP = "laserturret.command.shop";
+		public static final String SHOP = "turret.command.shop";
 
 		@Permission("Executes a command to open the portal menu.")
-		public static final String SETTINGS = "laserturret.command.settings";
+		public static final String SETTINGS = "turret.command.settings";
 	}
 }

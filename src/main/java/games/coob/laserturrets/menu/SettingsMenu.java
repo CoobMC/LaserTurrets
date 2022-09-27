@@ -305,6 +305,7 @@ public final class SettingsMenu extends Menu {
 				TurretLootChancesMenu() {
 					super(LevelMenu.this, true);
 
+					this.setSize(54);
 					this.setTitle("Place turret loot here");
 				}
 

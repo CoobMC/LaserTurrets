@@ -231,6 +231,10 @@ public final class PlayerCache extends YamlConfig {
 		}
 	}
 
+	public static void remove(final Player player) {
+		cacheMap.remove(player.getUniqueId());
+	}
+
 	/**
 	 * Clear the entire cache map
 	 */

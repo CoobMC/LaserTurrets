@@ -14,16 +14,17 @@ import org.mineacademy.fo.plugin.SimplePlugin;
 public class BeamTask extends BukkitRunnable {
 
 	@Override
-	public void run() { // TODO
+	public void run() {
 		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
 		for (final TurretData turretData : turretRegistry.getTurretsOfType("beam")) {
 			if (turretData.isBroken())
 				continue;
 
 			final Location location = turretData.getLocation();
+			final Location shootLocation = location.clone().add(0.5, 1.4, 0.5);
 			final int level = turretData.getCurrentLevel();
 			final int range = turretData.getLevel(level).getRange();
-			final LivingEntity nearestEntity = EntityUtil.findNearestEntityNonBlacklisted(location, range, LivingEntity.class);
+			final LivingEntity nearestEntity = EntityUtil.findNearestEntityNonBlacklisted(shootLocation, range, LivingEntity.class, location.getBlock());
 
 			if (nearestEntity == null)
 				continue;

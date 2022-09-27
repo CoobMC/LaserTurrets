@@ -45,36 +45,6 @@ public class EntityUtil {
 		return foundEntities.isEmpty() ? null : (LivingEntity) foundEntities.get(0);
 	}
 
-
-	public static <T> LivingEntity findNearestEntityNonBlacklisted(final Location center, final double range3D, final Class<T> entityClass) {
-		if (center.getWorld() == null)
-			return null;
-
-		final List<Entity> found = new ArrayList<>();
-		final TurretRegistry registry = TurretRegistry.getInstance();
-		final TurretData turretData = registry.getTurretByBlock(center.getBlock());
-
-		for (final Entity nearby : center.getWorld().getNearbyEntities(center, range3D, range3D, range3D))
-			if (nearby instanceof LivingEntity && entityClass.isAssignableFrom(nearby.getClass()) && !(nearby instanceof ArmorStand))
-				if (!turretData.isPlayerBlacklisted(nearby.getUniqueId()) && !turretData.isMobBlacklisted(nearby.getType()))
-					found.add(nearby);
-
-		found.sort(Comparator.comparingDouble(entity -> entity.getLocation().distance(center)));
-
-		for (final Iterator<Entity> entityIterator = found.iterator(); entityIterator.hasNext(); ) {
-			final Entity entity = entityIterator.next();
-			final Location entityLocation = ((LivingEntity) entity).getEyeLocation().clone();
-			final Vector vector = entityLocation.subtract(center).toVector();
-
-			center.setDirection(vector);
-
-			if (vectorHasBlock(center, vector))
-				entityIterator.remove();
-		}
-
-		return found.isEmpty() ? null : (LivingEntity) found.get(0);
-	}
-
 	private static boolean vectorHasBlock(final Location start, final Vector direction) {
 		final int length = (int) Math.floor(direction.length());
 

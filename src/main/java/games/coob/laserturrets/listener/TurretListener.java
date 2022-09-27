@@ -1,10 +1,12 @@
 package games.coob.laserturrets.listener;
 
 import games.coob.laserturrets.PlayerCache;
+import games.coob.laserturrets.database.TurretsDatabase;
 import games.coob.laserturrets.menu.BrokenTurretMenu;
 import games.coob.laserturrets.menu.UpgradeMenu;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.settings.Settings;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -18,6 +20,8 @@ import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 import org.mineacademy.fo.Common;
@@ -33,6 +37,26 @@ import java.util.List;
 
 @AutoRegister
 public final class TurretListener implements Listener {
+
+	@EventHandler
+	public void onJoin(final PlayerJoinEvent event) {
+		final Player player = event.getPlayer();
+
+		if (Settings.DatabaseSection.ENABLE_MYSQL)
+			Common.runLaterAsync(() -> TurretsDatabase.load(player));
+	}
+
+	@EventHandler
+	public void onQuit(final PlayerQuitEvent event) {
+		final Player player = event.getPlayer();
+
+		if (Settings.DatabaseSection.ENABLE_MYSQL) {
+			Common.runLaterAsync(() -> {
+				TurretsDatabase.save(player);
+				PlayerCache.remove(player);
+			});
+		}
+	}
 
 	@EventHandler
 	public void onBlockBreak(final BlockBreakEvent event) {
