@@ -75,7 +75,7 @@ public class BrokenTurretMenu extends Menu {
 				final PlayerCache cache = PlayerCache.from(player);
 
 				CompSound.EXPLODE.play(turretData.getLocation());
-				registry.unregister(turretData.getLocation().getBlock(), turretData.getType());
+				registry.unregister(turretData.getLocation().getBlock());
 				cache.giveCurrency(this.earnings, false);
 				player.closeInventory();
 				Common.tell(player, "&6You have successfully destroyed this turret and you have earned " + this.earnings + " " + Settings.CurrencySection.CURRENCY_NAME + ".");
@@ -123,7 +123,7 @@ public class BrokenTurretMenu extends Menu {
 				public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
 					if (turretData.getCurrentLoot() == null)
 						return;
-					
+
 					PlayerUtil.addItems(player.getInventory(), turretData.getCurrentLoot());
 					turretData.setCurrentLoot(null);
 					CompSound.LAVA_POP.play(player);

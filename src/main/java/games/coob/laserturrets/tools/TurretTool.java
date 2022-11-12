@@ -71,7 +71,7 @@ public abstract class TurretTool extends VisualTool {
 		final boolean isTurret = registry.isTurretOfType(block, type);
 
 		if (isTurret && !oneUse) {
-			registry.unregister(block, type);
+			registry.unregister(block);
 			Messenger.success(player, "Successfully &cunregistered &7the " + type + " turret at " + Common.shortLocation(block.getLocation()) + ".");
 		} else if (!isTurret) {
 			if (oneUse)

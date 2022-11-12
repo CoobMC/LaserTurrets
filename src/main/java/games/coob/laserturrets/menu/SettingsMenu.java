@@ -86,11 +86,14 @@ public final class SettingsMenu extends Menu {
 
 		private final TurretSettings settings;
 
-		@Position(12)
+		@Position(11)
 		private final Button levelEditButton;
 
-		@Position(14)
+		@Position(13)
 		private final Button blacklistButton;
+
+		@Position(15)
+		private final Button turretLimitButton;
 
 		private SettingsEditMenu(final String typeName) {
 			super(SettingsMenu.this, true);
@@ -100,6 +103,30 @@ public final class SettingsMenu extends Menu {
 
 			this.setSize(9 * 4);
 			this.setTitle(StringUtil.capitalize(typeName) + " Turrets");
+
+			this.turretLimitButton = new Button() {
+				@Override
+				public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
+					final ItemStack itemStack = this.getItem();
+
+					if (click.isLeftClick()) {
+						itemStack.setAmount(itemStack.getAmount() + 1);
+						restartMenu();
+					} else if (click.isRightClick()) {
+						if (itemStack.getAmount() > 0) {
+							itemStack.setAmount(itemStack.getAmount() - 1);
+							restartMenu();
+						} else animateTitle("&cLimit cannot be negative");
+					}
+				}
+
+				@Override
+				public ItemStack getItem() {
+					return ItemCreator.of(CompMaterial.CRAFTING_TABLE, "&ft/Turret Limit",
+							"Limit the amount of " + typeName,
+							"turrets that can be created.").make();
+				}
+			};
 
 			this.levelEditButton = new ButtonMenu(new LevelMenu(1), CompMaterial.EXPERIENCE_BOTTLE,
 					"Level Menu",
@@ -141,6 +168,8 @@ public final class SettingsMenu extends Menu {
 
 			@Position(16)
 			private final Button lootButton;
+
+			private final Button healthButton;
 
 			@Position(30)
 			private final Button previousLevelButton;
@@ -203,6 +232,12 @@ public final class SettingsMenu extends Menu {
 						"they destroy a turret.",
 						"You can also edit the drop",
 						"chance.");
+
+				this.healthButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.BLAZE_POWDER).name("Health")
+								.lore("Set the amount of health", "the turrets will have", "by clicking this button.", "", "Current: &9" + level.getHealth()),
+						"Type in an integer value between 0.0 and 500.0.",
+						new RangedValue(0.0, 500.0), this.level::getLaserDamage, (Double input) -> settings.setLaserDamage(this.level, input));
+
 
 				this.previousLevelButton = new Button() {
 

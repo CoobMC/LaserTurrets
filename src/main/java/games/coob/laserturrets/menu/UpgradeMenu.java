@@ -117,7 +117,7 @@ public class UpgradeMenu extends Menu {
 				"Modify your player blacklist",
 				"or upgrade this turret.",
 				"",
-				"Balance: " + PlayerCache.from(getViewer()).getCurrency(false) + " " + Settings.CurrencySection.CURRENCY_NAME + ""
+				"&eBalance: " + PlayerCache.from(getViewer()).getCurrency(false) + " " + Settings.CurrencySection.CURRENCY_NAME + ""
 		};
 	}
 }

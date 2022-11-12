@@ -129,7 +129,8 @@ public final class TurretListener implements Listener {
 		final Player player = event.getPlayer();
 
 		if (Tool.getTool(player.getInventory().getItemInHand()) == null) {
-			final Double damage = CompAttribute.GENERIC_ATTACK_DAMAGE.get(player);
+			final Double damage = CompAttribute.GENERIC_ATTACK_DAMAGE.get(player); // TODO doesn't work in 1.18 
+			//player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
 
 			if (registry.isRegistered(block)) {
 				event.setCancelled(true);

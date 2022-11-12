@@ -59,6 +59,8 @@ public class TurretRegistry extends YamlConfig {
 
 		for (final TurretSettings.LevelData levelData : turretSettings.getLevels()) {
 			final TurretData.TurretLevel level = turretData.addLevel();
+
+			System.out.println("LevelData1: " + levelData);
 			levelData.setLevelData(level);
 		}
 
@@ -68,7 +70,7 @@ public class TurretRegistry extends YamlConfig {
 		this.save();
 	}
 
-	public void unregister(final Block block, final String type) {
+	public void unregister(final Block block) {
 		final TurretData turretData = getTurretByBlock(block);
 		block.getRelative(BlockFace.UP).setType(CompMaterial.AIR.getMaterial());
 		this.registeredTurrets.remove(turretData);
