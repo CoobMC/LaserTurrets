@@ -315,8 +315,10 @@ public final class SettingsMenu extends Menu {
 			private TurretSettings.LevelData getOrMakeLevel(final int turretLevel) {
 				TurretSettings.LevelData level = settings.getLevel(turretLevel);
 
-				if (level == null)
+				if (level == null) {
 					level = settings.addLevel();
+					//level.setLevel(turretLevel);
+				}
 
 				return level;
 			}
@@ -332,7 +334,7 @@ public final class SettingsMenu extends Menu {
 
 			@Override
 			public Menu newInstance() {
-				return new LevelMenu(this.level.getLevel());
+				return new LevelMenu(this.turretLevel); // TODO level.getLevel
 			}
 
 			private class TurretLootChancesMenu extends MenuContainerChances {

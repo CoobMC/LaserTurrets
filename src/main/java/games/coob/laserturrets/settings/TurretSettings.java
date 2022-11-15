@@ -69,8 +69,9 @@ public class TurretSettings extends YamlConfig {
 
 	public LevelData addLevel() {
 		final List<LevelData> levels = this.levels;
-		final LevelData level = new LevelData(levels.size() + 1);
+		final LevelData level = new LevelData();
 
+		//level.setLevel(levels.size() + 1);
 		level.setLevelSettings(levels.get(levels.size() - 1), level);
 		levels.add(level);
 		this.save();
@@ -92,7 +93,7 @@ public class TurretSettings extends YamlConfig {
 
 		return null;
 	}
-	
+
 	public void removeLevel(final int settingsLevel) {
 		this.levels.remove(settingsLevel - 1);
 		this.save();
@@ -148,7 +149,6 @@ public class TurretSettings extends YamlConfig {
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 	public static class LevelData implements ConfigSerializable {
 
-		private final int level;
 
 		private double price;
 
@@ -163,6 +163,7 @@ public class TurretSettings extends YamlConfig {
 		private List<Tuple<ItemStack, Double>> lootChances;
 
 		public void setLevelData(final TurretData.TurretLevel turretLevel) {
+			//turretLevel.setLevel(this.level + upgradeValue);
 			turretLevel.setRange(this.range);
 			turretLevel.setPrice(this.price);
 			turretLevel.setLaserEnabled(this.laserEnabled);
@@ -184,7 +185,7 @@ public class TurretSettings extends YamlConfig {
 		public SerializedMap serialize() {
 			final SerializedMap map = new SerializedMap();
 
-			map.put("Level", this.level);
+			//map.put("Level", this.level);
 			map.put("Range", this.range);
 			map.put("Price", this.price);
 			map.put("Health", this.health);
@@ -195,51 +196,8 @@ public class TurretSettings extends YamlConfig {
 			return map;
 		}
 
-		/*public static List<LevelData> deserialize(final SerializedMap map) {
-			//final Map<Integer, LevelData> levels = new HashMap<>();
-			final List<LevelData> levelDataList = new ArrayList<>();
-
-			for (final Map.Entry<String, Object> entry : map.entrySet()) {
-				final int level = Integer.parseInt(entry.getKey());
-				final LevelData levelData = new LevelData(level);
-				final SerializedMap levelSettings = SerializedMap.of(entry.getValue());
-
-				System.out.println("Level: " + level);
-				System.out.println("Map: " + map);
-				System.out.println("Entry: " + levelSettings);
-
-				levelSettings.setRemoveOnGet(true);
-
-				levelData.range = levelSettings.getInteger("Range");
-				Valid.checkNotNull(levelData.range, "Missing 'Range' key from level: " + map);
-
-				levelData.health = levelSettings.getInteger("Health");
-				Valid.checkNotNull(levelData.health, "Missing 'Health' key from level: " + map);
-
-				levelData.price = levelSettings.getDouble("Price");
-				Valid.checkNotNull(levelData.price, "Missing 'Price' key from level: " + map);
-
-				levelData.laserEnabled = levelSettings.getBoolean("Enable_Laser_Pointer");
-				Valid.checkNotNull(levelData.laserEnabled, "Missing 'Enable_Laser_Pointers' key from level: " + map);
-
-				levelData.laserDamage = levelSettings.getDouble("Laser_Pointer_Damage");
-				Valid.checkNotNull(levelData.price, "Missing 'Laser_Pointer_Damage' key from level: " + map);
-
-				levelData.lootChances = levelSettings.getTupleList("Loot_Drops", ItemStack.class, Double.class);
-				Valid.checkNotNull(levelData.lootChances, "Missing 'Loot_Drops' key from level: " + map);
-
-				Valid.checkBoolean(levelSettings.isEmpty(), "Found unrecognized level settings: " + map);
-
-				//levels.put(level, levelData);
-				levelDataList.add(level - 1, levelData);
-			}
-
-			System.out.println("Levels map: " + levelDataList);
-
-			return levelDataList;
-		}*/
-
 		public static LevelData deserialize(final SerializedMap map) {
+			//	final int level = map.getInteger("Level");
 			final int range = map.getInteger("Range");
 			final int health = map.getInteger("Health");
 			final double price = map.getDouble("Price");
@@ -247,8 +205,9 @@ public class TurretSettings extends YamlConfig {
 			final double laserPointerDamage = map.getDouble("Laser_Pointer_Damage");
 			final List<Tuple<ItemStack, Double>> lootDrops = map.getTupleList("Loot_Drops", ItemStack.class, Double.class);
 
-			final LevelData levelData = new LevelData(map.getInteger("Level"));
+			final LevelData levelData = new LevelData();
 
+			//levelData.setLevel(level);
 			levelData.setRange(range);
 			levelData.setPrice(price);
 			levelData.setHealth(health);
@@ -257,54 +216,6 @@ public class TurretSettings extends YamlConfig {
 			levelData.setLootChances(lootDrops);
 
 			return levelData;
-
-			/*System.out.println("Map : " + map);
-			System.out.println("Values: " + map.values());
-			final List<LevelData> dataList = new ArrayList<>();
-
-			for (final Object object : map.values()) {
-				final ConfigSection configSection = (ConfigSection) object;
-				System.out.println("Level: " + configSection.retrieve("Level"));
-
-				final int range = (int) configSection.retrieve("Range");
-				final int health = (int) configSection.retrieve("Health");
-				final double price = (double) configSection.retrieve("Price");
-				final boolean enableLaserPointer = (boolean) configSection.retrieve("Enable_Laser_Pointer");
-				final double laserPointerDamage = (double) configSection.retrieve("Laser_Pointer_Damage");
-				final List<Tuple<ItemStack, Double>> lootDrops = (List<Tuple<ItemStack, Double>>) configSection.retrieve("Loot_Drops");
-
-				final LevelData levelData = new LevelData((Integer) ((ConfigSection) object).retrieve("Level"));
-
-				levelData.setRange(range);
-				levelData.setPrice(price);
-				levelData.setHealth(health);
-				levelData.setLaserEnabled(enableLaserPointer);
-				levelData.setLaserDamage(laserPointerDamage);
-				levelData.setLootChances(lootDrops);
-
-				dataList.add(levelData);
-				System.out.println("LevelData: " + dataList);
-			}
-
-			System.out.println("DataList: " + dataList);
-
-			return dataList;*/
-
-			/*final int range = map.getInteger("Range");
-			final int health = map.getInteger("Health");
-			final double price = map.getDouble("Price");
-			final boolean enableLaserPointer = map.getBoolean("Enable_Laser_Pointer");
-			final double laserPointerDamage = map.getDouble("Laser_Pointer_Damage");
-			final List<Tuple<ItemStack, Double>> lootDrops = map.getTupleList("Loot_Drops", ItemStack.class, Double.class);
-
-			final LevelData levelData = new LevelData(map.getInteger("Level"));
-
-			levelData.setRange(range);
-			levelData.setPrice(price);
-			levelData.setHealth(health);
-			levelData.setLaserEnabled(enableLaserPointer);
-			levelData.setLaserDamage(laserPointerDamage);
-			levelData.setLootChances(lootDrops);*/
 		}
 	}
 

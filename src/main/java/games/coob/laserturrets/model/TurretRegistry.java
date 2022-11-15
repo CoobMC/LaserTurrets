@@ -59,8 +59,6 @@ public class TurretRegistry extends YamlConfig {
 
 		for (final TurretSettings.LevelData levelData : turretSettings.getLevels()) {
 			final TurretData.TurretLevel level = turretData.addLevel();
-
-			System.out.println("LevelData1: " + levelData);
 			levelData.setLevelData(level);
 		}
 

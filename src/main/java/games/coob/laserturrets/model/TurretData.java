@@ -233,6 +233,9 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 
 		private final TurretData turretData;
 
+		//@Getter
+		//private int level;
+
 		@Getter
 		private double price;
 
@@ -259,6 +262,10 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 			this.range = range;
 		}
 
+		/*public void setLevel(final int level) {
+			this.level = level;
+		}*/
+
 		public void setLaserEnabled(final boolean laserEnabled) {
 			this.laserEnabled = laserEnabled;
 		}
@@ -276,6 +283,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		}
 
 		public static TurretLevel deserialize(final SerializedMap map, final TurretData turretData) {
+			//final int lvl = map.getInteger("Level");
 			final double price = map.getDouble("Price");
 			final List<Tuple<ItemStack, Double>> lootChances = map.getTupleList("Loot_Chances", ItemStack.class, Double.class);
 			final int range = map.getInteger("Range");
@@ -285,6 +293,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 
 			final TurretLevel level = new TurretLevel(turretData);
 
+			//level.setLevel(lvl);
 			level.setPrice(price);
 			level.setLootChances(lootChances);
 			level.setRange(range);
@@ -299,6 +308,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		public SerializedMap serialize() {
 			final SerializedMap map = new SerializedMap();
 
+			//map.put("Level", this.level);
 			map.put("Price", this.price);
 			map.put("Range", this.range);
 			map.put("Max_Health", this.maxHealth);
