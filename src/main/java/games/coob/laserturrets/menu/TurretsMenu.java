@@ -177,7 +177,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 					"Open this menu to upgrade",
 					"or downgrade the turret.");
 
-			this.blacklistButton = new ButtonMenu(new BlacklistMenu(TurretEditMenu.this, turretData, player), CompMaterial.KNOWLEDGE_BOOK,
+			this.blacklistButton = new ButtonMenu(new AlliesMenu(TurretEditMenu.this, turretData, player), CompMaterial.KNOWLEDGE_BOOK,
 					"Turret Blacklist",
 					"Click this button to edit",
 					"your turrets blacklist.");

@@ -90,10 +90,10 @@ public class UpgradeMenu extends Menu {
 			}
 		};
 
-		this.blacklistButton = new ButtonMenu(new BlacklistMenu(UpgradeMenu.this, turretData, player), CompMaterial.KNOWLEDGE_BOOK,
-				"Turret Blacklist",
+		this.blacklistButton = new ButtonMenu(new AlliesMenu(UpgradeMenu.this, turretData, player), CompMaterial.KNOWLEDGE_BOOK,
+				"Turret Allies",
 				"Click this button to edit",
-				"your turrets blacklist.");
+				"your turrets allies.");
 	}
 
 	@Override

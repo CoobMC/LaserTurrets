@@ -11,7 +11,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.mineacademy.fo.Common;
-import org.mineacademy.fo.remain.CompParticle;
 
 public class FireballTask extends BukkitRunnable {
 
@@ -43,8 +42,6 @@ public class FireballTask extends BukkitRunnable {
 			final Location targetLocation = target.getEyeLocation().clone().add(0, -0.5, 0);
 			final Vector vector = targetLocation.subtract(blockLocation).toVector().normalize();
 			final Fireball fireball = block.getWorld().spawn(blockLocation, Fireball.class);
-
-			CompParticle.VILLAGER_HAPPY.spawn(blockLocation);
 
 			fireball.setYield(1);
 			fireball.setDirection(vector);

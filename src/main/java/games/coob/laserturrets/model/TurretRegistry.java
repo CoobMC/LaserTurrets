@@ -53,9 +53,13 @@ public class TurretRegistry extends YamlConfig {
 
 		final TurretSettings turretSettings = TurretSettings.findTurretSettings(type);
 
-		turretData.setMobBlacklist(turretSettings.getMobBlacklist());
-		turretData.setPlayerBlacklist(turretSettings.getPlayerBlacklist());
-		turretData.addPlayerToBlacklist(player.getUniqueId());
+		turretData.setMobBlacklist(turretSettings.getMobList());
+		turretData.setPlayerBlacklist(turretSettings.getPlayerList());
+		turretData.setPlayerWhitelistEnabled(turretSettings.isEnablePlayerWhitelist());
+		turretData.setMobWhitelistEnabled(turretSettings.isEnableMobWhitelist());
+
+		if (!turretData.isPlayerWhitelistEnabled())
+			turretData.addPlayerToBlacklist(player.getUniqueId());
 
 		for (final TurretSettings.LevelData levelData : turretSettings.getLevels()) {
 			final TurretData.TurretLevel level = turretData.addLevel();
@@ -115,6 +119,18 @@ public class TurretRegistry extends YamlConfig {
 
 	public void removeMobFromBlacklist(final TurretData turretData, final EntityType entityType) {
 		turretData.removeMobFromBlacklist(entityType);
+
+		this.save();
+	}
+
+	public void enableMobWhitelist(final TurretData turretData, final boolean enableWhitelist) {
+		turretData.setMobWhitelistEnabled(enableWhitelist);
+
+		this.save();
+	}
+
+	public void enablePlayerWhitelist(final TurretData turretData, final boolean enableWhitelist) {
+		turretData.setPlayerWhitelistEnabled(enableWhitelist);
 
 		this.save();
 	}

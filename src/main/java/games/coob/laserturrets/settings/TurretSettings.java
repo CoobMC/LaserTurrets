@@ -19,9 +19,13 @@ public class TurretSettings extends YamlConfig {
 
 	private List<LevelData> levels;
 
-	private Set<UUID> playerBlacklist = new HashSet<>();
+	private Set<UUID> playerList = new HashSet<>();
 
-	private Set<EntityType> mobBlacklist = new HashSet<>();
+	private Set<EntityType> mobList = new HashSet<>();
+
+	private boolean enableMobWhitelist;
+
+	private boolean enablePlayerWhitelist;
 
 	private int turretLimit;
 
@@ -44,16 +48,20 @@ public class TurretSettings extends YamlConfig {
 		}
 
 		this.turretLimit = this.getInteger("Turret_Limit");
-		this.playerBlacklist = this.getSet("Player_Blacklist", UUID.class);
-		this.mobBlacklist = this.getSet("Mob_Blacklist", EntityType.class);
+		this.playerList = this.getSet("Player_Blacklist", UUID.class);
+		this.mobList = this.getSet("Mob_Blacklist", EntityType.class);
+		this.enableMobWhitelist = this.getBoolean("Use_Mob_Whitelist");
+		this.enablePlayerWhitelist = this.getBoolean("Use_Player_Whitelist");
 		this.levels = this.getList("Levels", LevelData.class);
 	}
 
 	@Override
 	protected void onSave() {
 		this.set("Turret_Limit", this.turretLimit);
-		this.set("Player_Blacklist", this.playerBlacklist);
-		this.set("Mob_Blacklist", this.mobBlacklist);
+		this.set("Player_Blacklist", this.playerList);
+		this.set("Mob_Blacklist", this.mobList);
+		this.set("Use_Player_Whitelist", this.enablePlayerWhitelist);
+		this.set("Use_Mob_Whitelist", this.enableMobWhitelist);
 		this.set("Levels", this.levels);
 	}
 
@@ -118,27 +126,39 @@ public class TurretSettings extends YamlConfig {
 	}
 
 	public void addPlayerToBlacklist(final UUID uuid) {
-		this.playerBlacklist.add(uuid);
+		this.playerList.add(uuid);
 
 		this.save();
 	}
 
 	public void removePlayerFromBlacklist(final UUID uuid) {
-		if (this.playerBlacklist != null)
-			this.playerBlacklist.remove(uuid);
+		if (this.playerList != null)
+			this.playerList.remove(uuid);
 
 		this.save();
 	}
 
 	public void addMobToBlacklist(final EntityType entityType) {
-		this.mobBlacklist.add(entityType);
+		this.mobList.add(entityType);
 
 		this.save();
 	}
 
 	public void removeMobFromBlacklist(final EntityType entityType) {
-		if (this.mobBlacklist != null)
-			this.mobBlacklist.remove(entityType);
+		if (this.mobList != null)
+			this.mobList.remove(entityType);
+
+		this.save();
+	}
+
+	public void enableMobWhitelist(final boolean enableMobWhitelist) {
+		this.enableMobWhitelist = enableMobWhitelist;
+
+		this.save();
+	}
+
+	public void enablePlayerWhitelist(final boolean enablePlayerWhitelist) {
+		this.enablePlayerWhitelist = enablePlayerWhitelist;
 
 		this.save();
 	}

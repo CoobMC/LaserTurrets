@@ -2,6 +2,8 @@ Turret_Settings:
   Turret_Limit: 10
   Player_Blacklist: [ ]
   Mob_Blacklist: [ ]
+  Use_Player_Whitelist: false
+  Use_Mob_Whitelist: false
   Levels:
     - Level: 1
       Range: 15

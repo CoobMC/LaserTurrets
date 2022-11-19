@@ -90,7 +90,7 @@ public final class SettingsMenu extends Menu {
 		private final Button levelEditButton;
 
 		@Position(13)
-		private final Button blacklistButton;
+		private final Button alliesManagerButton;
 
 		@Position(15)
 		private final Button turretLimitButton;
@@ -122,7 +122,7 @@ public final class SettingsMenu extends Menu {
 
 				@Override
 				public ItemStack getItem() {
-					return ItemCreator.of(CompMaterial.CRAFTING_TABLE, "&ft/Turret Limit",
+					return ItemCreator.of(CompMaterial.CRAFTING_TABLE, "&fTurret Limit",
 							"Limit the amount of " + typeName,
 							"turrets that can be created.").make();
 				}
@@ -133,10 +133,10 @@ public final class SettingsMenu extends Menu {
 					"Open this menu to upgrade",
 					"or downgrade the turret.");
 
-			this.blacklistButton = new ButtonMenu(new SettingsBlacklistMenu(SettingsEditMenu.this, viewer), CompMaterial.KNOWLEDGE_BOOK,
-					"Turret Blacklist",
+			this.alliesManagerButton = new ButtonMenu(new SettingsAlliesMenu(SettingsEditMenu.this, viewer), CompMaterial.KNOWLEDGE_BOOK,
+					"Turret Allies Manager",
 					"Click this button to edit",
-					"your turrets blacklist.");
+					"your turrets targets.");
 		}
 
 		@Override
@@ -169,7 +169,7 @@ public final class SettingsMenu extends Menu {
 			@Position(16)
 			private final Button lootButton;
 
-			private final Button healthButton;
+			private final Button healthButton; // TODO
 
 			@Position(30)
 			private final Button previousLevelButton;
@@ -334,7 +334,7 @@ public final class SettingsMenu extends Menu {
 
 			@Override
 			public Menu newInstance() {
-				return new LevelMenu(this.turretLevel); // TODO level.getLevel
+				return new LevelMenu(this.turretLevel);
 			}
 
 			private class TurretLootChancesMenu extends MenuContainerChances {
@@ -388,7 +388,7 @@ public final class SettingsMenu extends Menu {
 			}
 		}
 
-		public class SettingsBlacklistMenu extends Menu {
+		public class SettingsAlliesMenu extends Menu {
 
 			@Position(14)
 			private final Button mobBlacklistButton;
@@ -396,40 +396,70 @@ public final class SettingsMenu extends Menu {
 			@Position(12)
 			private final Button playerBlacklistButton;
 
-			public SettingsBlacklistMenu(final Menu parent, final Player player) {
+			public SettingsAlliesMenu(final Menu parent, final Player player) {
 				super(parent, true);
 
 				this.setViewer(player);
 				this.setSize(27);
-				this.setTitle("Turret Blacklist");
+				this.setTitle("Turret Allies Manager");
 
-				this.mobBlacklistButton = new ButtonMenu(new MobBlacklistMenu(), CompMaterial.CREEPER_HEAD,
-						"Mob Blacklist", "Edit your mob blacklist");
+				this.mobBlacklistButton = new ButtonMenu(new MobAlliesMenu(), CompMaterial.CREEPER_HEAD,
+						"Mob " + (settings.isEnableMobWhitelist() ? "Whitelist" : "Blacklist"), "Edit your mob " + (settings.isEnableMobWhitelist() ? "whitelist" : "blacklist"));
 
-				this.playerBlacklistButton = new ButtonMenu(new PlayerBlacklistMenu(), CompMaterial.PLAYER_HEAD,
-						"Player Blacklist", "Edit your player blacklist");
+				this.playerBlacklistButton = new ButtonMenu(new PlayerAlliesMenu(), CompMaterial.PLAYER_HEAD,
+						"Player " + (settings.isEnablePlayerWhitelist() ? "Whitelist" : "Blacklist"), "Edit your player " + (settings.isEnablePlayerWhitelist() ? "whitelist" : "blacklist"));
+			}
+
+			@Override
+			protected String[] getInfo() {
+				return new String[]{
+						"&fWhitelisted&7 players/mobs are",
+						"the only targets of the turret.",
+						"",
+						"&8Blacklisted&7 players/mobs won't",
+						"get targeted by the turret."
+				};
 			}
 
 			@Override
 			public Menu newInstance() {
-				return new SettingsBlacklistMenu(getParent(), this.getViewer());
+				return new SettingsAlliesMenu(getParent(), this.getViewer());
 			}
 
-			private class MobBlacklistMenu extends MenuPagged<EntityType> {
+			private class MobAlliesMenu extends MenuPagged<EntityType> {
 
 				private final Button addButton;
 
-				private MobBlacklistMenu() {
-					super(27, SettingsBlacklistMenu.this, settings.getMobBlacklist());
+				private final Button mobListTypeButton;
 
-					this.setTitle("Mob Blacklist");
+				private MobAlliesMenu() {
+					super(27, SettingsAlliesMenu.this, settings.getMobList());
 
-					this.addButton = new ButtonMenu(new MobBlacklistMenu.MobSelectionMenu(), CompMaterial.ENDER_CHEST,
+					this.setTitle("Mob " + (settings.isEnableMobWhitelist() ? "Whitelist" : "Blacklist"));
+
+					this.addButton = new ButtonMenu(new MobAlliesMenu.MobSelectionMenu(), CompMaterial.ENDER_CHEST,
 							"Add Mob",
-							"Open this menu to add ",
-							"mobs from the blacklist",
-							"to prevent the turret",
-							"from targeting them.");
+							"Open this menu to add",
+							"mobs to the " + (settings.isEnableMobWhitelist() ? "whitelist." : "blacklist."));
+
+					this.mobListTypeButton = new Button() {
+						@Override
+						public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
+							final boolean isWhitelist = settings.isEnableMobWhitelist();
+
+							settings.enableMobWhitelist(!isWhitelist);
+							setTitle("&0Mob " + (settings.isEnableMobWhitelist() ? "Whitelist" : "Blacklist"));
+							restartMenu("&eChanged to " + (isWhitelist ? "&fWhitelist" : "&0Blacklist"));
+						}
+
+						@Override
+						public ItemStack getItem() {
+							final boolean isWhitelist = settings.isEnableMobWhitelist();
+
+							return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, (isWhitelist ? "&fWhitelist" : "&8Blacklist"),
+									"Click to change to " + (!isWhitelist ? "&fwhitelist" : "&8blacklist")).make();
+						}
+					};
 				}
 
 				@Override
@@ -448,6 +478,8 @@ public final class SettingsMenu extends Menu {
 				public ItemStack getItemAt(final int slot) {
 					if (slot == this.getBottomCenterSlot())
 						return addButton.getItem();
+					if (slot == this.getBottomCenterSlot() + 3)
+						return mobListTypeButton.getItem();
 
 					return super.getItemAt(slot);
 				}
@@ -455,22 +487,22 @@ public final class SettingsMenu extends Menu {
 				@Override
 				protected String[] getInfo() {
 					return new String[]{
-							"Edit your mob blacklist by",
+							"Edit your mob " + (settings.isEnableMobWhitelist() ? "whitelist" : "blacklist") + " by",
 							"clicking the existing eggs",
 							"to remove them or clicking",
 							"the 'Add Mob' button to add",
-							"mobs to your blacklist."
+							"mobs to your " + (settings.isEnableMobWhitelist() ? "whitelist" : "blacklist") + "."
 					};
 				}
 
 				@Override
 				public Menu newInstance() {
-					return new MobBlacklistMenu();
+					return new MobAlliesMenu();
 				}
 
 				private class MobSelectionMenu extends MenuPagged<EntityType> {
 					private MobSelectionMenu() {
-						super(27, MobBlacklistMenu.this, Arrays.stream(EntityType.values())
+						super(27, MobAlliesMenu.this, Arrays.stream(EntityType.values())
 								.filter(EntityType::isAlive)
 								.collect(Collectors.toList()), true);
 
@@ -480,8 +512,8 @@ public final class SettingsMenu extends Menu {
 					@Override
 					protected ItemStack convertToItemStack(final EntityType entityType) {
 						return ItemCreator.ofEgg(entityType, ItemUtil.bountifyCapitalized(entityType))
-								.glow(settings.getMobBlacklist().contains(entityType))
-								.lore(settings.getMobBlacklist().contains(entityType) ? "&aAlready blacklisted" : "Click to add")
+								.glow(settings.getMobList().contains(entityType))
+								.lore(settings.getMobList().contains(entityType) ? "&aAlready " + (settings.isEnableMobWhitelist() ? "whitelisted" : "blacklisted") : "Click to add")
 								.make();
 					}
 
@@ -493,31 +525,50 @@ public final class SettingsMenu extends Menu {
 				}
 			}
 
-			private class PlayerBlacklistMenu extends MenuPagged<UUID> {
+			private class PlayerAlliesMenu extends MenuPagged<UUID> {
 
 				private final Button addButton;
 
 				private final Button addPromptButton;
 
-				private PlayerBlacklistMenu() {
-					super(27, SettingsBlacklistMenu.this, settings.getPlayerBlacklist(), true);
+				private final Button playerListTypeButton;
 
-					this.setTitle("Player Blacklist");
+				private PlayerAlliesMenu() {
+					super(27, SettingsAlliesMenu.this, settings.getPlayerList(), true);
 
-					this.addButton = new ButtonMenu(new PlayerBlacklistMenu.PlayerSelectionMenu(), CompMaterial.ENDER_CHEST,
+					this.setTitle("Player " + (settings.isEnablePlayerWhitelist() ? "Whitelist" : "Blacklist"));
+
+					this.addButton = new ButtonMenu(new PlayerAlliesMenu.PlayerSelectionMenu(), CompMaterial.ENDER_CHEST,
 							"Add Players",
 							"Open this menu to add ",
-							"players to the blacklist",
-							"to prevent the turret",
-							"from targeting them.");
+							"players to the " + (settings.isEnablePlayerWhitelist() ? "whitelist" : "blacklist"));
 
 					this.addPromptButton = new ButtonConversation(new PlayerBlacklistPrompt(),
 							ItemCreator.of(CompMaterial.WRITABLE_BOOK, "Type a name",
 									"Click this button if you",
 									"would like to add a player",
-									"to the blacklist by typing ",
+									"to the " + (settings.isEnablePlayerWhitelist() ? "whitelist" : "blacklist") + " by typing ",
 									"his name, this means you can",
 									"also add offline players."));
+
+					this.playerListTypeButton = new Button() {
+						@Override
+						public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
+							final boolean isWhitelist = settings.isEnablePlayerWhitelist();
+
+							settings.enablePlayerWhitelist(!isWhitelist);
+							setTitle("&0Player " + (settings.isEnablePlayerWhitelist() ? "Whitelist" : "Blacklist"));
+							restartMenu("&eChanged to " + (isWhitelist ? "&fWhitelist" : "&0Blacklist"));
+						}
+
+						@Override
+						public ItemStack getItem() {
+							final boolean isWhitelist = settings.isEnablePlayerWhitelist();
+
+							return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, (isWhitelist ? "&fWhitelist" : "&8Blacklist"),
+									"Click to change to " + (!isWhitelist ? "&fwhitelist" : "&8blacklist")).make();
+						}
+					};
 				}
 
 				@Override
@@ -545,6 +596,8 @@ public final class SettingsMenu extends Menu {
 						return addButton.getItem();
 					if (slot == this.getBottomCenterSlot() + 1)
 						return addPromptButton.getItem();
+					if (slot == this.getBottomCenterSlot() + 3)
+						return playerListTypeButton.getItem();
 
 					return super.getItemAt(slot);
 				}
@@ -552,22 +605,22 @@ public final class SettingsMenu extends Menu {
 				@Override
 				protected String[] getInfo() {
 					return new String[]{
-							"Edit your player blacklist by",
+							"Edit your player " + (settings.isEnablePlayerWhitelist() ? "whitelist" : "blacklist") + " by",
 							"clicking the existing heads",
 							"to remove them or clicking",
 							"the 'Add Mob' button to add",
-							"players to your blacklist."
+							"players to your " + (settings.isEnablePlayerWhitelist() ? "whitelist" : "blacklist") + "."
 					};
 				}
 
 				@Override
 				public Menu newInstance() {
-					return new PlayerBlacklistMenu();
+					return new PlayerAlliesMenu();
 				}
 
 				private class PlayerSelectionMenu extends MenuPagged<Player> {
 					private PlayerSelectionMenu() {
-						super(18, PlayerBlacklistMenu.this, viewer.getWorld().getPlayers());
+						super(18, PlayerAlliesMenu.this, viewer.getWorld().getPlayers());
 
 						this.setTitle("Select a player");
 					}
@@ -577,14 +630,13 @@ public final class SettingsMenu extends Menu {
 						return ItemCreator.of(
 										CompMaterial.PLAYER_HEAD,
 										player.getName(),
-										(settings.getPlayerBlacklist().contains(player.getUniqueId()) ? "&aAlready blacklisted" : "Click to add"))
+										(settings.getPlayerList().contains(player.getUniqueId()) ? "&aAlready " + (settings.isEnablePlayerWhitelist() ? "whitelisted" : "blacklisted") : "Click to add"))
 								.skullOwner(player.getName()).make();
 					}
 
 					@Override
 					protected void onPageClick(final Player player, final Player item, final ClickType click) {
 						settings.addPlayerToBlacklist(item.getUniqueId());
-						System.out.println("Blacklist : " + settings.getPlayerBlacklist());
 						this.restartMenu("&aAdded " + player.getName());
 					}
 				}
@@ -594,7 +646,7 @@ public final class SettingsMenu extends Menu {
 
 				@Override
 				protected String getPrompt(final ConversationContext context) {
-					return "&6What player shouldn't be targeted by this turret? You can add more players to the blacklist by using the /turret blacklist add <player> command.";
+					return "&6What player shouldn't be targeted by this turret? You can add more players to the " + (settings.isEnablePlayerWhitelist() ? "whitelist" : "blacklist") + " by using the /turret blacklist add <player> command.";
 				}
 
 				@Override
@@ -613,7 +665,7 @@ public final class SettingsMenu extends Menu {
 				@Override
 				protected Prompt acceptValidatedInput(@NotNull final ConversationContext context, @NotNull final String input) {
 					settings.addPlayerToBlacklist(Bukkit.getOfflinePlayer(input).getUniqueId());
-					tellSuccess("You have added " + input + " to the blacklist!");
+					tellSuccess("You have added " + input + " to the " + (settings.isEnablePlayerWhitelist() ? "whitelist" : "blacklist") + "!");
 
 					return END_OF_CONVERSATION;
 				}

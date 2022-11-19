@@ -24,10 +24,12 @@ public class EntityUtil {
 		final TurretRegistry registry = TurretRegistry.getInstance();
 		final TurretData turretData = registry.getTurretByBlock(turret);
 
-		for (final Entity nearby : center.getWorld().getNearbyEntities(center, range3D, range3D, range3D))
+		for (final Entity nearby : center.getWorld().getNearbyEntities(center, range3D, range3D, range3D)) {
 			if (nearby instanceof LivingEntity && entityClass.isAssignableFrom(nearby.getClass()) && !(nearby instanceof ArmorStand))
-				if (!turretData.isPlayerBlacklisted(nearby.getUniqueId()) && !turretData.isMobBlacklisted(nearby.getType()))
+				if (((!turretData.isPlayerListedAsAlly(nearby.getUniqueId()) && !turretData.isPlayerWhitelistEnabled()) && (!turretData.isMobListedAsAlly(nearby.getType()) && !turretData.isMobWhitelistEnabled()))
+						|| ((turretData.isPlayerListedAsAlly(nearby.getUniqueId()) && turretData.isPlayerWhitelistEnabled()) || (turretData.isMobListedAsAlly(nearby.getType()) && turretData.isMobWhitelistEnabled())))
 					foundEntities.add(nearby);
+		}
 
 		foundEntities.sort(Comparator.comparingDouble(entity -> entity.getLocation().distance(center)));
 
