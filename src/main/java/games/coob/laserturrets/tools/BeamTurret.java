@@ -5,12 +5,12 @@ import org.mineacademy.fo.annotation.AutoRegister;
 import org.mineacademy.fo.menu.tool.Tool;
 
 @AutoRegister
-public final class ArrowUseTurretTool extends TurretTool {
+public final class BeamTurret extends TurretTool {
 
 	@Getter
-	private static final Tool instance = new ArrowUseTurretTool();
+	private static final Tool instance = new BeamTurret();
 
-	private ArrowUseTurretTool() {
-		super("arrow", true);
+	private BeamTurret() {
+		super("beam", true);
 	}
 }

@@ -2,6 +2,7 @@ package games.coob.laserturrets.tools;
 
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.sequence.Sequence;
+import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.StringUtil;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -47,9 +48,9 @@ public abstract class TurretTool extends VisualTool {
 		if (item == null)
 			item = ItemCreator.of(
 					getTurretMaterial(),
-					"&a" + StringUtil.capitalize(this.turretType) + " Turret Tool",
-					"&7Click blocks to",
-					"&7un/register a turret.",
+					"&a" + StringUtil.capitalize(this.turretType) + " Turret" + (this.oneUse ? "" : " Tool"),
+					this.oneUse ? "&7Click a block to" : "&7Click blocks to",
+					this.oneUse ? "&7place this turret." : "&7un/register turrets.",
 					this.oneUse ? "&61 use" : "").glow(true).make();
 
 		return item;
@@ -57,6 +58,14 @@ public abstract class TurretTool extends VisualTool {
 
 	@Override
 	protected void handleBlockClick(final Player player, final ClickType click, final Block block) {
+		final String type = this.turretType;
+		final TurretRegistry registry = TurretRegistry.getInstance();
+
+		if (registry.getTurretsOfType(type).size() >= TurretSettings.findTurretSettings(type).getTurretLimit()) {
+			Messenger.error(player, "You cannot create anymore turrets because the limit of " + type + " turrets has been reached. You can increase this limit in your turret settings. (Limit: " + TurretSettings.findTurretSettings(type).getTurretLimit() + ")");
+			return;
+		}
+
 		if (!block.getType().isSolid()) {
 			Messenger.error(player, "Turrets can only be created on solid blocks.");
 			return;
@@ -66,8 +75,6 @@ public abstract class TurretTool extends VisualTool {
 			return;
 
 		final boolean oneUse = this.item.getItemMeta().getLore().toString().contains("1 use");
-		final String type = this.turretType;
-		final TurretRegistry registry = TurretRegistry.getInstance();
 		final boolean isTurret = registry.isTurretOfType(block, type);
 
 		if (isTurret && !oneUse) {

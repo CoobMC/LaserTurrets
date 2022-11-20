@@ -3,9 +3,9 @@ package games.coob.laserturrets.menu;
 import games.coob.laserturrets.PlayerCache;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
-import games.coob.laserturrets.tools.ArrowUseTurretTool;
-import games.coob.laserturrets.tools.BeamUseTurretTool;
-import games.coob.laserturrets.tools.FireballUseTurretTool;
+import games.coob.laserturrets.tools.ArrowTurret;
+import games.coob.laserturrets.tools.BeamTurret;
+import games.coob.laserturrets.tools.FireballTurret;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
@@ -45,7 +45,7 @@ public class ShopMenu extends Menu {
 					return;
 				}
 
-				ArrowUseTurretTool.getInstance().give(player);
+				ArrowTurret.getInstance().give(player);
 				cache.takeCurrency(buyPrice, false);
 				restartMenu("&aPurchased Arrow Turret");
 			}
@@ -69,7 +69,7 @@ public class ShopMenu extends Menu {
 					return;
 				}
 
-				FireballUseTurretTool.getInstance().give(player);
+				FireballTurret.getInstance().give(player);
 				cache.takeCurrency(buyPrice, false);
 				restartMenu("&aPurchased a Fireball Turret");
 			}
@@ -93,7 +93,7 @@ public class ShopMenu extends Menu {
 					return;
 				}
 
-				BeamUseTurretTool.getInstance().give(player);
+				BeamTurret.getInstance().give(player);
 				cache.takeCurrency(buyPrice, false);
 				restartMenu("&aPurchased a Beam Turret");
 			}
