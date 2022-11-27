@@ -104,29 +104,10 @@ public final class SettingsMenu extends Menu {
 			this.setSize(9 * 4);
 			this.setTitle(StringUtil.capitalize(typeName) + " Turrets");
 
-			this.turretLimitButton = new Button() {
-				@Override
-				public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
-					final ItemStack itemStack = this.getItem();
-
-					if (click.isLeftClick()) {
-						itemStack.setAmount(itemStack.getAmount() + 1);
-						restartMenu();
-					} else if (click.isRightClick()) {
-						if (itemStack.getAmount() > 0) {
-							itemStack.setAmount(itemStack.getAmount() - 1);
-							restartMenu();
-						} else animateTitle("&cLimit cannot be negative");
-					}
-				}
-
-				@Override
-				public ItemStack getItem() {
-					return ItemCreator.of(CompMaterial.CRAFTING_TABLE, "&fTurret Limit",
-							"Limit the amount of " + typeName,
-							"turrets that can be created.").make();
-				}
-			};
+			this.turretLimitButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.CRAFTING_TABLE).name("&fTurret Limit")
+							.lore("Limit the amount of " + typeName, "turrets that can be created.", "", "Current limit: &9" + this.settings.getTurretLimit()),
+					"Type in an integer value between 0 and 100 (recommended value : 10-30).",
+					new RangedValue(0, 40), this.settings::getTurretLimit, this.settings::setTurretLimit);
 
 			this.levelEditButton = new ButtonMenu(new LevelMenu(1), CompMaterial.EXPERIENCE_BOTTLE,
 					"Level Menu",
@@ -195,7 +176,7 @@ public final class SettingsMenu extends Menu {
 
 				this.rangeButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.BOW).name("Turret Range")
 								.lore("Set the turrets range", "by clicking this button.", "", "Current: &9" + this.level.getRange()),
-						"Type in an integer value between 0 and 40 (recommend value : 15-20).",
+						"Type in an integer value between 0 and 40 (recommended value : 15-20).",
 						new RangedValue(0, 40), level::getRange, (Integer input) -> settings.setSettingsRange(this.level, input));
 
 
@@ -317,7 +298,6 @@ public final class SettingsMenu extends Menu {
 
 				if (level == null) {
 					level = settings.addLevel();
-					//level.setLevel(turretLevel);
 				}
 
 				return level;

@@ -219,7 +219,7 @@ public final class TurretListener implements Listener {
 		CompSound.ITEM_BREAK.play(location);
 
 		if (turretData.getCurrentHealth() <= 0 && !turretData.isBroken()) {
-			registry.setBroken(block, true);
+			registry.setBrokenAndFill(block, true);
 			CompParticle.EXPLOSION_LARGE.spawn(location.add(0.5, 1, 0.5), 2);
 			CompSound.EXPLODE.play(location);
 		}
@@ -237,7 +237,7 @@ public final class TurretListener implements Listener {
 		CompSound.ITEM_BREAK.play(location);
 
 		if (turretData.getCurrentHealth() <= 0 && !turretData.isBroken()) {
-			registry.setBroken(block, true);
+			registry.setBrokenAndFill(block, true);
 			CompSound.EXPLODE.play(location);
 			CompParticle.EXPLOSION_LARGE.spawn(location.add(0.5, 1, 0.5), 2);
 		}

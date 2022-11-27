@@ -1,10 +1,10 @@
 package games.coob.laserturrets.sequence;
 
-import games.coob.laserturrets.util.SimpleHologramStand;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
+import org.mineacademy.fo.model.SimpleHologramStand;
 
 /**
  * Represents a hologram stand that rotates up and down around a certain center rotation

@@ -14,6 +14,7 @@ public class LaserPointerTask extends BukkitRunnable {
 	@Override
 	public void run() {
 		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
+		
 		for (final TurretData turretData : turretRegistry.getRegisteredTurrets()) {
 			if (turretData.isBroken())
 				continue;

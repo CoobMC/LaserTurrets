@@ -53,7 +53,7 @@ public final class TurretCreationSequence extends Sequence {
 		CompParticle.EXPLOSION_LARGE.spawn(this.block.getLocation().add(0.5, 1, 0.5), 2);
 
 		final Block skullBlock = this.block.getRelative(BlockFace.UP);
-		games.coob.laserturrets.util.SkullCreator.blockWithBase64(skullBlock, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGNjNzI1NzhhNjBjMGViMWEzZmEzODFhYTYyMmEwYzkyNzZkYTdmOTU4YWU5YTBjNzFlZTQ4ZTc3MWZiMmNjNSJ9fX0=");
+		SkullCreator.blockWithBase64(skullBlock, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGNjNzI1NzhhNjBjMGViMWEzZmEzODFhYTYyMmEwYzkyNzZkYTdmOTU4YWU5YTBjNzFlZTQ4ZTc3MWZiMmNjNSJ9fX0=");
 
 		Common.runLater(() -> TurretRegistry.getInstance().register(this.player, this.block, this.type));
 		this.removeLast();

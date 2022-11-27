@@ -1,6 +1,7 @@
 package games.coob.laserturrets;
 
 import games.coob.laserturrets.database.TurretsDatabase;
+import games.coob.laserturrets.hook.VaultHook;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
@@ -22,21 +23,41 @@ import org.mineacademy.fo.plugin.SimplePlugin;
  */
 public final class LaserTurrets extends SimplePlugin {
 
+	//private static Economy econ = null;
+
 	/**
 	 * Automatically perform login ONCE when the plugin starts.
 	 */
 	@Override
 	protected void onPluginStart() {
 		Common.runLater(TurretRegistry::getInstance);
-
-		if (!Common.doesPluginExist("Vault") && Settings.CurrencySection.USE_VAULT) {
+		
+		if (!VaultHook.setupEconomy(getServer()) && Settings.CurrencySection.USE_VAULT) {
 			Common.log("[LaserTurrets] - Disabled due to no Vault dependency found!", getDescription().getName());
 			getServer().getPluginManager().disablePlugin(this);
+			return;
 		}
 
 		if (Settings.DatabaseSection.ENABLE_MYSQL)
 			TurretsDatabase.getInstance().connect(Settings.DatabaseSection.HOST, Settings.DatabaseSection.PORT, Settings.DatabaseSection.DATABASE, Settings.DatabaseSection.USER, Settings.DatabaseSection.PASSWORD);
 	}
+
+	/*private boolean setupEconomy() {
+		if (getServer().getPluginManager().getPlugin("Vault") == null) {
+			return false;
+		}
+		final RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+		if (rsp == null) {
+			return false;
+		}
+		econ = rsp.getProvider();
+
+		return true;
+	}
+
+	public static Economy getEconomy() {
+		return econ;
+	}*/
 
 	@Override
 	protected void onPluginReload() {

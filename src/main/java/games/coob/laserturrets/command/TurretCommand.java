@@ -14,12 +14,12 @@ import java.util.List;
 /**
  * A sample command belonging to a command group.
  */
-final class ToolsCommand extends SimpleSubCommand {
+final class TurretCommand extends SimpleSubCommand {
 
-	ToolsCommand() {
+	TurretCommand() {
 		super("turret|turrets");
 
-		setDescription("Give a tool to create an infinite amount of turrets or give a turret and place it wherever you would like.");
+		setDescription("Give a tool that can create an infinite amount of turrets or give a turret that can be placed directly.");
 		setUsage("<give_tool|give_turret> <turret_type> <player>");
 		setPermission(Permissions.Command.TOOL);
 	}

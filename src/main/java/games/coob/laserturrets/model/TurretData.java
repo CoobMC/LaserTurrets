@@ -32,7 +32,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 
 	private boolean broken;
 
-	private List<ItemStack> currentLoot = new ArrayList<>();
+	private List<ItemStack> currentLoot;
 
 	private Set<UUID> playerBlacklist = new HashSet<>();
 
@@ -70,20 +70,28 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 
 	public void setBroken(final boolean broken) {
 		this.broken = broken;
+	}
 
-		if (this.isBroken())
-			this.currentLoot = randomItemPercentageList(this.getLevel(this.currentLevel).getLootChances());
+	public void setBrokenAndFill(final boolean broken) {
+		this.broken = broken;
+
+		if (this.isBroken()) {
+			final List<Tuple<ItemStack, Double>> lootChances = this.turretLevels.get(this.currentLevel - 1).getLootChances();
+			this.currentLoot = randomItemPercentageList(lootChances);
+		}
 	}
 
 	private List<ItemStack> randomItemPercentageList(final List<Tuple<ItemStack, Double>> lootChanceList) {
 		final List<ItemStack> items = new ArrayList<>();
 
 		for (final Tuple<ItemStack, Double> lootChance : lootChanceList) {
-			final Random random = new Random();
-			final double randomPercentage = random.nextDouble();
+			if (lootChance != null) {
+				final Random random = new Random();
+				final double randomPercentage = random.nextDouble();
 
-			if (lootChance.getValue() >= randomPercentage)
-				items.add(lootChance.getKey());
+				if (lootChance.getValue() >= randomPercentage)
+					items.add(lootChance.getKey());
+			}
 		}
 
 		return items;
@@ -95,6 +103,10 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 
 	public void setCurrentLoot(final @Nullable List<ItemStack> items) {
 		this.currentLoot = items;
+	}
+
+	public void removeCurrentLoot(final ItemStack itemStack) {
+		this.getCurrentLoot().remove(itemStack);
 	}
 
 	public void addPlayerToBlacklist(final UUID uuid) {
@@ -196,13 +208,13 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		map.put("Owner", this.owner);
 		map.putIf("Player_Blacklist", this.playerBlacklist);
 		map.putIf("Mob_Blacklist", this.mobBlacklist);
+		map.putIf("Current_Loot", this.currentLoot);
 		map.put("Use_Player_Whitelist", this.playerWhitelistEnabled);
 		map.put("Use_Mob_Whitelist", this.mobWhitelistEnabled);
 		map.put("Current_Health", this.currentHealth);
 		map.put("Current_Level", this.currentLevel);
 		map.put("Destroyed", this.broken);
 		map.put("Levels", this.turretLevels);
-		map.putIf("Current_Loot", this.currentLoot);
 
 		return map;
 	}
@@ -216,13 +228,13 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		final UUID owner = map.getUUID("Owner");
 		final Set<UUID> blacklist = map.getSet("Player_Blacklist", UUID.class);
 		final Set<EntityType> entityTypes = map.getSet("Mob_Blacklist", EntityType.class);
+		final List<ItemStack> currentLoot = map.getList("Current_Loot", ItemStack.class);
 		final boolean playerWhitelist = map.getBoolean("Use_Player_Whitelist", false);
 		final boolean mobWhitelist = map.getBoolean("Use_Mob_Whitelist", false); // Add default value to load it if the key doesn't exist
+		final double currentHealth = map.getDouble("Current_Health");
 		final Integer level = map.getInteger("Current_Level");
 		final boolean destroyed = map.getBoolean("Destroyed", false);
 		final List<TurretLevel> levels = map.getList("Levels", TurretLevel.class, turretData);
-		final double currentHealth = map.getDouble("Current_Health");
-		final List<ItemStack> currentLoot = map.getList("Current_Loot", ItemStack.class);
 
 		final String[] split = hash.split(" \\| ");
 		final Location location = SerializeUtil.deserializeLocation(split[0]);
@@ -235,13 +247,13 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		turretData.setOwner(owner);
 		turretData.setPlayerBlacklist(blacklist);
 		turretData.setMobBlacklist(entityTypes);
+		turretData.setCurrentLoot(currentLoot);
 		turretData.setPlayerWhitelistEnabled(playerWhitelist);
 		turretData.setMobWhitelistEnabled(mobWhitelist);
 		turretData.setCurrentLevel(level);
 		turretData.setCurrentHealth(currentHealth);
 		turretData.setBroken(destroyed);
 		turretData.setTurretLevels(levels);
-		turretData.setCurrentLoot(currentLoot);
 
 		return turretData;
 	}
@@ -293,7 +305,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 			this.maxHealth = health;
 		}
 
-		public static TurretLevel deserialize(final SerializedMap map, final TurretData turretData) {
+		public static TurretLevel deserialize(final SerializedMap map, final TurretData turretData) { // TODO cannot deserialize because there are null values in the map
 			final double price = map.getDouble("Price");
 			final List<Tuple<ItemStack, Double>> lootChances = map.getTupleList("Loot_Chances", ItemStack.class, Double.class);
 			final int range = map.getInteger("Range");

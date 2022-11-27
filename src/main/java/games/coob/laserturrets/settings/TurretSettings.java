@@ -71,6 +71,12 @@ public class TurretSettings extends YamlConfig {
 		this.save();
 	}
 
+	public void setTurretLimit(final int turretLimit) {
+		this.turretLimit = turretLimit;
+
+		this.save();
+	}
+
 	public int getLevelsSize() {
 		return this.levels.size();
 	}
@@ -217,7 +223,6 @@ public class TurretSettings extends YamlConfig {
 		}
 
 		public static LevelData deserialize(final SerializedMap map) {
-			//	final int level = map.getInteger("Level");
 			final int range = map.getInteger("Range");
 			final int health = map.getInteger("Health");
 			final double price = map.getDouble("Price");
@@ -227,7 +232,6 @@ public class TurretSettings extends YamlConfig {
 
 			final LevelData levelData = new LevelData();
 
-			//levelData.setLevel(level);
 			levelData.setRange(range);
 			levelData.setPrice(price);
 			levelData.setHealth(health);

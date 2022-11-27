@@ -14,6 +14,7 @@ import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.settings.YamlConfig;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 public class TurretRegistry extends YamlConfig {
@@ -185,10 +186,10 @@ public class TurretRegistry extends YamlConfig {
 		this.save();
 	}
 
-	public void setBroken(final Block block, final boolean destroyed) {
+	public void setBrokenAndFill(final Block block, final boolean destroyed) {
 		for (final TurretData turretData : this.registeredTurrets) {
 			if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation())) {
-				turretData.setBroken(destroyed);
+				turretData.setBrokenAndFill(destroyed);
 
 				this.save();
 			}
@@ -215,8 +216,14 @@ public class TurretRegistry extends YamlConfig {
 		this.save();
 	}
 
-	public void setCurrentLoot(final TurretData turretData, final List<ItemStack> items) {
+	public void setCurrentLoot(final TurretData turretData, @Nullable final List<ItemStack> items) {
 		turretData.setCurrentLoot(items);
+
+		this.save();
+	}
+
+	public void removeCurrentLoot(final TurretData turretData, final ItemStack item) {
+		turretData.removeCurrentLoot(item);
 
 		this.save();
 	}

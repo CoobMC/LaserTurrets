@@ -7,7 +7,9 @@ import games.coob.laserturrets.settings.Settings;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.PlayerUtil;
 import org.mineacademy.fo.collection.StrictMap;
@@ -18,6 +20,7 @@ import org.mineacademy.fo.menu.button.ButtonMenu;
 import org.mineacademy.fo.menu.button.StartPosition;
 import org.mineacademy.fo.menu.button.annotation.Position;
 import org.mineacademy.fo.menu.model.ItemCreator;
+import org.mineacademy.fo.menu.model.MenuClickLocation;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompSound;
 
@@ -89,6 +92,24 @@ public class BrokenTurretMenu extends Menu {
 	}
 
 	@Override
+	protected String[] getInfo() {
+		final String[] strings = new String[]{
+				"This turret is destroyed",
+				"and you can claim its loot."
+		};
+
+		final String[] stringsOwner = new String[]{
+				"This turret is destroyed",
+				"You can claim loot from it,",
+				"Repair it or destroy it.",
+				"",
+				"&eBalance: " + PlayerCache.from(getViewer()).getCurrency(false) + " " + Settings.CurrencySection.CURRENCY_NAME
+		};
+
+		return this.viewMode == ViewMode.OWNER ? stringsOwner : strings;
+	}
+
+	@Override
 	public ItemStack getItemAt(final int slot) {
 		if (this.viewMode == ViewMode.OWNER) {
 			if (slot == this.getCenterSlot() + 2)
@@ -124,8 +145,10 @@ public class BrokenTurretMenu extends Menu {
 					if (turretData.getCurrentLoot() == null)
 						return;
 
+					final TurretRegistry registry = TurretRegistry.getInstance();
+
 					PlayerUtil.addItems(player.getInventory(), turretData.getCurrentLoot());
-					turretData.setCurrentLoot(null);
+					registry.setCurrentLoot(turretData, new ArrayList<>());
 					CompSound.LAVA_POP.play(player);
 					restartMenu("&aClaimed all turret loot");
 				}
@@ -135,6 +158,27 @@ public class BrokenTurretMenu extends Menu {
 					return ItemCreator.of(CompMaterial.FEATHER, "&aClaim all", "Click this button to", "claim all the items.").make();
 				}
 			};
+		}
+
+		@Override // TODO doesn't always work (Q&A) // TODO prevent players from moving items
+		protected boolean canEditItem(final MenuClickLocation location, final int slot, final ItemStack clicked, final ItemStack cursor, final InventoryAction action) {
+			return action != InventoryAction.PLACE_ALL || location != MenuClickLocation.MENU;
+		}
+
+		@Override
+		protected ItemStack onItemClick(final int slot, final ClickType clickType, @Nullable final ItemStack item) {
+			final TurretRegistry registry = TurretRegistry.getInstance();
+
+			if (this.turretData.getCurrentLoot() == null)
+				return item;
+
+			registry.removeCurrentLoot(this.turretData, item);
+
+			return item;
+		}
+
+		@Override
+		protected void onMenuClose(final StrictMap<Integer, ItemStack> items) {
 		}
 
 		@Override
@@ -147,12 +191,13 @@ public class BrokenTurretMenu extends Menu {
 			return slot < items.size() ? items.get(slot) : NO_ITEM;
 		}
 
-		@Override
+		/*@Override
 		protected void onMenuClose(final StrictMap<Integer, ItemStack> items) {
 			final TurretRegistry registry = TurretRegistry.getInstance();
 
 			registry.setCurrentLoot(this.turretData, new ArrayList<>(items.values()));
-		}
+			System.out.println("Items: " + items.values());
+		}*/
 
 		@Override
 		protected String[] getInfo() {
@@ -160,6 +205,11 @@ public class BrokenTurretMenu extends Menu {
 					"Claim loot from this broken",
 					"turret before anyone else does!"
 			};
+		}
+
+		@Override
+		public Menu newInstance() {
+			return new LootTurretMenu(this.turretData);
 		}
 	}
 

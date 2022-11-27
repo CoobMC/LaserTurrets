@@ -72,7 +72,7 @@ public final class TurretCommandGroup extends SimpleCommandGroup {
 		// Register a sample command for this group
 		registerSubcommand(new SettingsCommand());
 		registerSubcommand(new ShopCommand());
-		registerSubcommand(new ToolsCommand());
+		registerSubcommand(new TurretCommand());
 		registerSubcommand(new MenuCommand());
 		registerSubcommand(new CurrencyCommand());
 
