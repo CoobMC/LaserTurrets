@@ -4,6 +4,7 @@ import games.coob.laserturrets.menu.TurretsMenu;
 import games.coob.laserturrets.model.Permissions;
 import org.bukkit.entity.Player;
 import org.mineacademy.fo.command.SimpleSubCommand;
+import org.mineacademy.fo.settings.Lang;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ public final class MenuCommand extends SimpleSubCommand {
 		super("menu");
 
 		setPermission(Permissions.Command.MENU);
-		setDescription("This is the main menu that allows you to view all turrets and edit them specifically.");
+		setDescription(Lang.of("Turret_Commands.Menu_Description"));
 	}
 
 	// See SpawnEntityCommand for help and comments.

@@ -23,6 +23,7 @@ import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.menu.model.MenuClickLocation;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompSound;
+import org.mineacademy.fo.settings.Lang;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,8 @@ public class BrokenTurretMenu extends Menu {
 	private final Button lootTurretButton;
 
 	private final Button destroyButton;
+
+	private final String currencyName = Settings.CurrencySection.CURRENCY_NAME;
 
 	public BrokenTurretMenu(final TurretData turretData, final ViewMode viewMode) {
 		this.viewMode = viewMode;
@@ -55,19 +58,18 @@ public class BrokenTurretMenu extends Menu {
 				registry.setBroken(turretData, false);
 				cache.takeCurrency(price, false);
 				player.closeInventory();
-				Common.tell(player, "&aYou have successfully repaired this turret and it costed you " + price + " " + Settings.CurrencySection.CURRENCY_NAME + ".");
+				Common.tell(player, Lang.of("Broken_Turret_Menu.Repair_Button_Click_Message", "{price}", price, "{currencyName}", currencyName));
 			}
 
 			@Override
 			public ItemStack getItem() {
-				return ItemCreator.of(CompMaterial.DAMAGED_ANVIL, "&aRepair Turret",
-						"Click to repair this", "turret.", "",
-						"Cost: " + price).make();
+				return ItemCreator.of(CompMaterial.DAMAGED_ANVIL, Lang.of("Broken_Turret_Menu.Repair_Button_Title"),
+						Lang.ofArray("Broken_Turret_Menu.Repair_Button_Lore", "{price}", price, "{currencyName}", currencyName)).make();
 			}
 		};
 
-		this.lootTurretButton = new ButtonMenu(new LootTurretMenu(turretData), ItemCreator.of(CompMaterial.CHEST, "Turret Loot",
-				"Claim loot from this", "destroyed turret.").make());
+		this.lootTurretButton = new ButtonMenu(new LootTurretMenu(turretData), ItemCreator.of(CompMaterial.CHEST, Lang.of("Broken_Turret_Menu.Loot_Button_Title"),
+				Lang.ofArray("Broken_Turret_Menu.Loot_Button_Lore")).make());
 
 		this.destroyButton = new Button() {
 			final double earnings = turretData.getLevel(turretData.getCurrentLevel()).getPrice() / 2;
@@ -81,30 +83,22 @@ public class BrokenTurretMenu extends Menu {
 				registry.unregister(turretData.getLocation().getBlock());
 				cache.giveCurrency(this.earnings, false);
 				player.closeInventory();
-				Common.tell(player, "&6You have successfully destroyed this turret and you have earned " + this.earnings + " " + Settings.CurrencySection.CURRENCY_NAME + ".");
+				Common.tell(player, Lang.of("Broken_Turret_Menu.Destroy_Button_Click_Message", "{earnings}", this.earnings, "{currencyName}", currencyName));
 			}
 
 			@Override
 			public ItemStack getItem() {
-				return ItemCreator.of(CompMaterial.TNT, "&cDestroy Turret", "Click to destroy turret", "", "You'll earn " + this.earnings + " " + Settings.CurrencySection.CURRENCY_NAME + ".").make();
+				return ItemCreator.of(CompMaterial.TNT, Lang.of("Broken_Turret_Menu.Destroy_Button_Title"),
+						Lang.ofArray("Broken_Turret_Menu.Destroy_Button_Lore", "{earnings}", this.earnings, "{currencyName}", currencyName)).make();
 			}
 		};
 	}
 
 	@Override
 	protected String[] getInfo() {
-		final String[] strings = new String[]{
-				"This turret is destroyed",
-				"and you can claim its loot."
-		};
-
-		final String[] stringsOwner = new String[]{
-				"This turret is destroyed",
-				"You can claim loot from it,",
-				"Repair it or destroy it.",
-				"",
-				"&eBalance: " + PlayerCache.from(getViewer()).getCurrency(false) + " " + Settings.CurrencySection.CURRENCY_NAME
-		};
+		final double balance = PlayerCache.from(getViewer()).getCurrency(false);
+		final String[] strings = Lang.ofArray("Broken_Turret_Menu.Info_Button", "{balance}", balance, "{currencyName}", currencyName);
+		final String[] stringsOwner = Lang.ofArray("Broken_Turret_Menu.Info_Button_For_Owner", "{balance}", balance, "{currencyName}", currencyName);
 
 		return this.viewMode == ViewMode.OWNER ? stringsOwner : strings;
 	}
@@ -137,7 +131,7 @@ public class BrokenTurretMenu extends Menu {
 			this.turretData = turretData;
 
 			this.setSize(27);
-			this.setTitle("Turret Loot");
+			this.setTitle(Lang.of("Broken_Turret_Menu.Loot_Menu_Title"));
 
 			this.lootAllButton = new Button() {
 				@Override
@@ -150,17 +144,18 @@ public class BrokenTurretMenu extends Menu {
 					PlayerUtil.addItems(player.getInventory(), turretData.getCurrentLoot());
 					registry.setCurrentLoot(turretData, new ArrayList<>());
 					CompSound.LAVA_POP.play(player);
-					restartMenu("&aClaimed all turret loot");
+					restartMenu(Lang.of("Broken_Turret_Menu.Loot_All_Button_Animated_Message"));
 				}
 
 				@Override
 				public ItemStack getItem() {
-					return ItemCreator.of(CompMaterial.FEATHER, "&aClaim all", "Click this button to", "claim all the items.").make();
+					return ItemCreator.of(CompMaterial.FEATHER, Lang.of("Broken_Turret_Menu.Loot_All_Button_Title"),
+							Lang.ofArray("Broken_Turret_Menu.Loot_All_Button_Lore")).make();
 				}
 			};
 		}
 
-		@Override // TODO doesn't always work (Q&A) // TODO prevent players from moving items
+		@Override
 		protected boolean canEditItem(final MenuClickLocation location, final int slot, final ItemStack clicked, final ItemStack cursor, final InventoryAction action) {
 			return action != InventoryAction.PLACE_ALL || location != MenuClickLocation.MENU;
 		}
@@ -191,20 +186,9 @@ public class BrokenTurretMenu extends Menu {
 			return slot < items.size() ? items.get(slot) : NO_ITEM;
 		}
 
-		/*@Override
-		protected void onMenuClose(final StrictMap<Integer, ItemStack> items) {
-			final TurretRegistry registry = TurretRegistry.getInstance();
-
-			registry.setCurrentLoot(this.turretData, new ArrayList<>(items.values()));
-			System.out.println("Items: " + items.values());
-		}*/
-
 		@Override
 		protected String[] getInfo() {
-			return new String[]{
-					"Claim loot from this broken",
-					"turret before anyone else does!"
-			};
+			return Lang.ofArray("Broken_Turret_Menu.Loot_Menu_Info_Button");
 		}
 
 		@Override
@@ -215,8 +199,8 @@ public class BrokenTurretMenu extends Menu {
 
 	@RequiredArgsConstructor
 	private enum ViewMode {
-		OWNER("Repair Turret"),
-		PLAYER("Loot Turret");
+		OWNER(Lang.of("Broken_Turret_Menu.Menu_Title_For_Owner")),
+		PLAYER(Lang.of("Broken_Turret_Menu.Menu_Title"));
 
 		private final String menuTitle;
 	}

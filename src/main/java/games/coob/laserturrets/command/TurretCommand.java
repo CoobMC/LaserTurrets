@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.command.SimpleSubCommand;
+import org.mineacademy.fo.settings.Lang;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ final class TurretCommand extends SimpleSubCommand {
 	TurretCommand() {
 		super("turret|turrets");
 
-		setDescription("Give a tool that can create an infinite amount of turrets or give a turret that can be placed directly.");
+		setDescription(Lang.of("Turret_Commands.Turret_Description"));
 		setUsage("<give_tool|give_turret> <turret_type> <player>");
 		setPermission(Permissions.Command.TOOL);
 	}
@@ -37,7 +38,8 @@ final class TurretCommand extends SimpleSubCommand {
 			final String param = args[0];
 
 			if (args.length == 1)
-				returnTell("Wrong usage of command (/lt turret <tool/give> <player>).");
+				returnInvalidArgs();
+			//returnTell("Wrong usage of command (/lt turret <tool/give> <player>).");
 
 			final String type = args[1];
 
@@ -48,7 +50,7 @@ final class TurretCommand extends SimpleSubCommand {
 				final Player player = Bukkit.getPlayer(playerName);
 
 				if (player == null)
-					returnTell("The player '" + playerName + "' does not exist.");
+					returnTell(Lang.of("Turret_Commands.Player_Non_Existent"));
 
 				giveTurret(param, type, player);
 			}

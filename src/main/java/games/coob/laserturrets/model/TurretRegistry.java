@@ -1,6 +1,7 @@
 package games.coob.laserturrets.model;
 
 import games.coob.laserturrets.settings.TurretSettings;
+import games.coob.laserturrets.util.test.HologramUtil;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -8,10 +9,13 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.mineacademy.fo.Common;
 import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.constants.FoConstants;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
+import org.mineacademy.fo.remain.Remain;
+import org.mineacademy.fo.settings.Lang;
 import org.mineacademy.fo.settings.YamlConfig;
 
 import javax.annotation.Nullable;
@@ -43,7 +47,7 @@ public class TurretRegistry extends YamlConfig {
 		final TurretData turretData = new TurretData();
 		final String uniqueID = UUID.randomUUID().toString().substring(0, 4);
 
-		Valid.checkBoolean(!this.registeredTurrets.contains(turretData), block + " has already been registered");
+		Valid.checkBoolean(!this.registeredTurrets.contains(turretData), Lang.of("Tool.Already_Registered", "{location}", Common.shortLocation(block.getLocation())));
 
 		turretData.setLocation(block.getLocation());
 		turretData.setMaterial(CompMaterial.fromMaterial(block.getType()));
@@ -69,6 +73,11 @@ public class TurretRegistry extends YamlConfig {
 
 		turretData.setCurrentHealth(turretData.getLevel(1).getMaxHealth());
 		this.registeredTurrets.add(turretData);
+
+		final HologramUtil hologram = new HologramUtil(block.getLocation().clone().add(0, 0.5, 0), "Hello there");
+
+		for (final Player player1 : Remain.getOnlinePlayers())
+			hologram.display(player1);
 
 		this.save();
 	}

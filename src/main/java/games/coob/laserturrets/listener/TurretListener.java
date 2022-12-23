@@ -27,10 +27,12 @@ import org.bukkit.util.Vector;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.annotation.AutoRegister;
 import org.mineacademy.fo.menu.tool.Tool;
+import org.mineacademy.fo.model.Replacer;
 import org.mineacademy.fo.remain.CompAttribute;
 import org.mineacademy.fo.remain.CompParticle;
 import org.mineacademy.fo.remain.CompSound;
 import org.mineacademy.fo.remain.Remain;
+import org.mineacademy.fo.settings.Lang;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -160,7 +162,7 @@ public final class TurretListener implements Listener {
 				BrokenTurretMenu.openOwnerMenu(turretData, player);
 			else BrokenTurretMenu.openPlayerMenu(turretData, player);
 		} else {
-			if (turretData.getOwner().equals(player.getUniqueId()) || player.hasPermission("laserturrets.admin"))
+			if (turretData.getOwner().equals(player.getUniqueId()))
 				new UpgradeMenu(turretData, turretData.getCurrentLevel(), player).displayTo(player);
 		}
 	}
@@ -224,8 +226,10 @@ public final class TurretListener implements Listener {
 			CompSound.EXPLODE.play(location);
 		}
 
-		if (entity instanceof Player)
-			Remain.sendActionBar((Player) entity, turretData.getCurrentHealth() > 0 ? turretData.getCurrentHealth() + "&c❤" : "&cTurret is broken!");
+		if (entity instanceof Player) {
+			final String health = Replacer.replaceArray(Lang.of("Turret_Display.Action_Bar_Damage", "{health}", turretData.getCurrentHealth()));
+			Remain.sendActionBar((Player) entity, turretData.getCurrentHealth() > 0 ? health : Lang.of("Turret_Display.Action_Bar_Damage_But_Broken"));
+		}
 	}
 
 	private void damageTurret(final Block block, final double damage) {

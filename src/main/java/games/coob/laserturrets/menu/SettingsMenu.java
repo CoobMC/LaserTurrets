@@ -2,7 +2,7 @@ package games.coob.laserturrets.menu;
 
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
-import games.coob.laserturrets.util.StringUtil;
+import games.coob.laserturrets.util.TurretUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.conversations.ConversationContext;
@@ -13,6 +13,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.mineacademy.fo.ChatUtil;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.ItemUtil;
 import org.mineacademy.fo.collection.StrictMap;
@@ -30,6 +31,7 @@ import org.mineacademy.fo.model.RangedValue;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.Remain;
+import org.mineacademy.fo.settings.Lang;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -57,22 +59,19 @@ public final class SettingsMenu extends Menu {
 		this.viewer = player;
 
 		this.setSize(27);
-		this.setTitle("Turret Settings");
+		this.setTitle(Lang.of("Settings_Menu.Menu_Title"));
 
 		this.arrowSettingsButton = new ButtonMenu(new SettingsEditMenu("arrow"), CompMaterial.ARROW,
-				"Arrow Turret Settings",
-				"Edit the default settings",
-				"for arrow turrets.");
+				Lang.of("Settings_Menu.Arrow_Settings_Button_Title"),
+				Lang.ofArray("Settings_Menu.Arrow_Settings_Button_Title"));
 
 		this.fireballSettingsButton = new ButtonMenu(new SettingsEditMenu("fireball"), CompMaterial.FIRE_CHARGE,
-				"Fireball Turret Settings",
-				"Edit the default settings",
-				"for fireball turrets.");
+				Lang.of("Settings_Menu.Fireball_Settings_Button_Title"),
+				Lang.ofArray("Settings_Menu.Fireball_Settings_Button_Title"));
 
 		this.beamSettingsButton = new ButtonMenu(new SettingsEditMenu("beam"), CompMaterial.BLAZE_ROD,
-				"Beam Turret Settings",
-				"Edit the default settings",
-				"for beam turrets.");
+				Lang.of("Settings_Menu.Beam_Settings_Button_Title"),
+				Lang.ofArray("Settings_Menu.Beam_Settings_Button_Title"));
 	}
 
 	@Override
@@ -102,29 +101,25 @@ public final class SettingsMenu extends Menu {
 			this.settings = TurretSettings.findTurretSettings(typeName);
 
 			this.setSize(9 * 4);
-			this.setTitle(StringUtil.capitalize(typeName) + " Turrets");
+			this.setTitle(Lang.of("Settings_Menu.Edit_Menu_Title", "{turretType}", ChatUtil.capitalize(TurretUtil.getDisplayName(typeName))));
 
-			this.turretLimitButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.CRAFTING_TABLE).name("&fTurret Limit")
-							.lore("Limit the amount of " + typeName, "turrets that can be created.", "", "Current limit: &9" + this.settings.getTurretLimit()),
-					"Type in an integer value between 0 and 100 (recommended value : 10-30).",
+			this.turretLimitButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.CRAFTING_TABLE).name(Lang.of("Settings_Menu.Turret_Limit_Button_Title"))
+							.lore(Lang.ofArray("Settings_Menu.Turret_Limit_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName), "{limit}", this.settings.getTurretLimit())),
+					Lang.of("Settings_Menu.Turret_Limit_Prompt_Open_Message", "{turretType}", TurretUtil.getDisplayName(typeName), "{limit}", this.settings.getTurretLimit()),
 					new RangedValue(0, 40), this.settings::getTurretLimit, this.settings::setTurretLimit);
 
 			this.levelEditButton = new ButtonMenu(new LevelMenu(1), CompMaterial.EXPERIENCE_BOTTLE,
-					"Level Menu",
-					"Open this menu to upgrade",
-					"or downgrade the turret.");
+					Lang.of("Settings_Menu.Level_Edit_Button_Title"),
+					Lang.ofArray("Settings_Menu.Level_Edit_Button_Lore"));
 
 			this.alliesManagerButton = new ButtonMenu(new SettingsAlliesMenu(SettingsEditMenu.this, viewer), CompMaterial.KNOWLEDGE_BOOK,
-					"Turret Allies Manager",
-					"Click this button to edit",
-					"your turrets targets.");
+					Lang.of("Settings_Menu.Allies_Manager_Button_Title"),
+					Lang.ofArray("Settings_Menu.Allies_Manager_Button_Lore"));
 		}
 
 		@Override
 		protected String[] getInfo() {
-			return new String[]{
-					"Edit this turrets settings."
-			};
+			return Lang.ofArray("Settings_Menu.Edit_Menu_Info_Button");
 		}
 
 		@Override
@@ -171,12 +166,12 @@ public final class SettingsMenu extends Menu {
 				this.level = getOrMakeLevel(turretLevel);
 				this.turretLevel = turretLevel;
 
-				this.setTitle("Turret Level " + turretLevel);
+				this.setTitle(Lang.of("Settings_Menu.Level_Menu_Title", "{level}", turretLevel));
 				this.setSize(9 * 4);
 
-				this.rangeButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.BOW).name("Turret Range")
-								.lore("Set the turrets range", "by clicking this button.", "", "Current: &9" + this.level.getRange()),
-						"Type in an integer value between 0 and 40 (recommended value : 15-20).",
+				this.rangeButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.BOW).name(Lang.of("Settings_Menu.Range_Button_Title"))
+								.lore(Lang.ofArray("Settings_Menu.Range_Button_Lore", "{range}", this.level.getRange())),
+						Lang.of("Settings_Menu.Range_Prompt_Message", "{range}", this.level.getRange()),
 						new RangedValue(0, 40), level::getRange, (Integer input) -> settings.setSettingsRange(this.level, input));
 
 
@@ -186,38 +181,31 @@ public final class SettingsMenu extends Menu {
 						final boolean isEnabled = level.isLaserEnabled();
 
 						settings.setLaserEnabled(level, !isEnabled);
-						restartMenu((isEnabled ? "&cDisabled" : "&aEnabled") + " laser pointer");
+						restartMenu(Lang.of("Settings_Menu.Laser_Enabled_Button_Animated_Message", "{enabledOrDisabled}", isEnabled ? "&cDisabled" : "&aEnabled"));
 					}
 
 					@Override
 					public ItemStack getItem() {
 						final boolean isEnabled = level.isLaserEnabled();
 
-						return ItemCreator.of(isEnabled ? CompMaterial.GREEN_WOOL : CompMaterial.RED_WOOL, "Enabled/Disable Laser",
-								"Current: " + (isEnabled ? "&aenabled" : "&cdisabled"),
-								"",
-								"Click to enable or disable",
-								"lasers for this turret.").make();
+						return ItemCreator.of(isEnabled ? CompMaterial.GREEN_WOOL : CompMaterial.RED_WOOL, Lang.of("Settings_Menu.Laser_Enabled_Button_Title"),
+								Lang.ofArray("Settings_Menu.Laser_Enabled_Button_Lore", "{enabledOrDisabled}", isEnabled ? "&aenabled" : "&cdisabled")).make();
 					}
 				};
 
-				this.laserDamageButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.BLAZE_POWDER).name("Laser Damage")
-								.lore("Set the amount of damage", "lasers deal if they're enabled", "by clicking this button.", "", "Current: &9" + level.getLaserDamage()),
-						"Type in an integer value between 0.0 and 500.0.",
+				this.laserDamageButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.BLAZE_POWDER).name(Lang.of("Settings_Menu.Laser_Damage_Button_Title"))
+								.lore(Lang.ofArray("Settings_Menu.Laser_Damage_Button_Lore", "{damage}", this.level.getLaserDamage())),
+						Lang.of("Settings_Menu.Laser_Damage_Prompt_Message", "{damage}", this.level.getLaserDamage()),
 						new RangedValue(0.0, 500.0), this.level::getLaserDamage, (Double input) -> settings.setLaserDamage(this.level, input));
 
 				this.lootButton = new ButtonMenu(new LevelMenu.TurretLootChancesMenu(), CompMaterial.CHEST,
-						"Turret Loot",
-						"Open this menu to edit",
-						"the loot players get when",
-						"they destroy a turret.",
-						"You can also edit the drop",
-						"chance.");
+						Lang.of("Settings_Menu.Loot_Drop_Button_Title"),
+						Lang.ofArray("Settings_Menu.Loot_Drop_Button_Lore"));
 
-				this.healthButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.BLAZE_POWDER).name("Health")
-								.lore("Set the amount of health", "the turrets will have", "by clicking this button.", "", "Current: &9" + level.getHealth()),
-						"Type in an integer value between 0.0 and 500.0.",
-						new RangedValue(0.0, 500.0), this.level::getLaserDamage, (Double input) -> settings.setLaserDamage(this.level, input));
+				this.healthButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.BLAZE_POWDER).name(Lang.of("Settings_Menu.Health_Button_Title"))
+								.lore(Lang.ofArray("Settings_Menu.Health_Button_Lore", "{health}", this.level.getHealth())),
+						Lang.of("Settings_Menu.Health_Prompt_Message", "{health}", this.level.getHealth()),
+						new RangedValue(0.0, 500.0), this.level::getHealth, (Integer input) -> settings.setHealth(this.level, input));
 
 
 				this.previousLevelButton = new Button() {
@@ -234,7 +222,7 @@ public final class SettingsMenu extends Menu {
 					public ItemStack getItem() {
 						return ItemCreator
 								.of(this.aboveFirstLevel ? CompMaterial.LIME_DYE : CompMaterial.GRAY_DYE,
-										this.aboveFirstLevel ? "Edit previous level" : "This is the first level").make();
+										this.aboveFirstLevel ? Lang.of("Settings_Menu.Previous_Level_Button_Title_2") : Lang.of("Settings_Menu.Previous_Level_Button_Title_1")).make();
 					}
 				};
 
@@ -251,7 +239,7 @@ public final class SettingsMenu extends Menu {
 					@Override
 					public ItemStack getItem() {
 						return ItemCreator.of(nextLevelExists ? CompMaterial.LIME_DYE : CompMaterial.PURPLE_DYE,
-								nextLevelExists ? "Edit next level" : "Create a new level").make();
+								nextLevelExists ? Lang.of("Settings_Menu.Next_Level_Button_Title_2") : Lang.of("Settings_Menu.Next_Level_Button_Title_1")).make();
 					}
 				};
 
@@ -264,22 +252,20 @@ public final class SettingsMenu extends Menu {
 						final Menu previousMenu = new LevelMenu(turretLevel - 1);
 
 						previousMenu.displayTo(player);
-						Common.runLater(() -> previousMenu.animateTitle("&cRemoved level " + turretLevel));
+						Common.runLater(() -> previousMenu.animateTitle(Lang.of("Settings_Menu.Remove_Level_Button_Animated_Message", "{level}", turretLevel)));
 					}
 
 					@Override
 					public ItemStack getItem() {
-						return ItemCreator.of(CompMaterial.BARRIER, "&cRemove this level").make();
+						return ItemCreator.of(CompMaterial.BARRIER, Lang.of("Settings_Menu.Remove_Level_Button_Title", "{level}", turretLevel)).make();
 					}
 				};
 
 				this.priceButton = Button.makeDecimalPrompt(ItemCreator.of(
 								CompMaterial.SUNFLOWER,
-								"Edit Price",
-								"Current: " + this.level.getPrice() + " coins",
-								"",
-								"Edit the price for",
-								"this level."), "Enter the price for this level. (Current: " + this.level.getPrice() + " " + Settings.CurrencySection.CURRENCY_NAME + ")",
+								Lang.of("Settings_Menu.Price_Button_Title"),
+								Lang.ofArray("Settings_Menu.Price_Button_Lore", "{price}", this.level.getPrice(), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME)),
+						Lang.of("Settings_Menu.Price_Prompt_Message", "{price}", this.level.getPrice(), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME),
 						RangedValue.parse("0-100000"), (Double input) -> settings.setLevelPrice(this.level, input));
 			}
 
@@ -305,11 +291,7 @@ public final class SettingsMenu extends Menu {
 
 			@Override
 			protected String[] getInfo() {
-				return new String[]{
-						"You can edit each individual",
-						"level in this menu and set its",
-						"price."
-				};
+				return Lang.ofArray("Settings_Menu.Level_Menu_Info_Button");
 			}
 
 			@Override
@@ -323,7 +305,7 @@ public final class SettingsMenu extends Menu {
 					super(LevelMenu.this, true);
 
 					this.setSize(54);
-					this.setTitle("Place turret loot here");
+					this.setTitle(Lang.of("Settings_Menu.Turret_Loot_Menu_Title"));
 				}
 
 				@Override
@@ -381,24 +363,20 @@ public final class SettingsMenu extends Menu {
 
 				this.setViewer(player);
 				this.setSize(27);
-				this.setTitle("Turret Allies Manager");
+				this.setTitle(Lang.of("Settings_Menu.Allies_Menu_Title"));
 
 				this.mobBlacklistButton = new ButtonMenu(new MobAlliesMenu(), CompMaterial.CREEPER_HEAD,
-						"Mob " + (settings.isEnableMobWhitelist() ? "Whitelist" : "Blacklist"), "Edit your mob " + (settings.isEnableMobWhitelist() ? "whitelist" : "blacklist"));
+						Lang.of("Settings_Menu.Mob_Allies_Button_Title", "{listType}", settings.isEnableMobWhitelist() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))),
+						Lang.ofArray("Settings_Menu.Mob_Allies_Button_Lore", settings.isEnableMobWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")));
 
 				this.playerBlacklistButton = new ButtonMenu(new PlayerAlliesMenu(), CompMaterial.PLAYER_HEAD,
-						"Player " + (settings.isEnablePlayerWhitelist() ? "Whitelist" : "Blacklist"), "Edit your player " + (settings.isEnablePlayerWhitelist() ? "whitelist" : "blacklist"));
+						Lang.of("Settings_Menu.Player_Allies_Button_Title", "{listType}", settings.isEnablePlayerWhitelist() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))),
+						Lang.ofArray("Settings_Menu.Player_Allies_Button_Lore", "{listType}", settings.isEnablePlayerWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")));
 			}
 
 			@Override
 			protected String[] getInfo() {
-				return new String[]{
-						"&fWhitelisted&7 players/mobs are",
-						"the only targets of the turret.",
-						"",
-						"&8Blacklisted&7 players/mobs won't",
-						"get targeted by the turret."
-				};
+				return Lang.ofArray("Settings_Menu.Allies_Menu_Info_Button", "{listType}", settings.isEnablePlayerWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"));
 			}
 
 			@Override
@@ -415,12 +393,11 @@ public final class SettingsMenu extends Menu {
 				private MobAlliesMenu() {
 					super(27, SettingsAlliesMenu.this, settings.getMobList());
 
-					this.setTitle("Mob " + (settings.isEnableMobWhitelist() ? "Whitelist" : "Blacklist"));
+					this.setTitle(Lang.of("Settings_Menu.Mob_Allies_Menu_Title", "{listType}", settings.isEnableMobWhitelist() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))));
 
 					this.addButton = new ButtonMenu(new MobAlliesMenu.MobSelectionMenu(), CompMaterial.ENDER_CHEST,
-							"Add Mob",
-							"Open this menu to add",
-							"mobs to the " + (settings.isEnableMobWhitelist() ? "whitelist." : "blacklist."));
+							Lang.of("Settings_Menu.Mob_Add_Button_Title"),
+							Lang.ofArray("Settings_Menu.Mob_Add_Button_Lore", "{listType}", settings.isEnableMobWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")));
 
 					this.mobListTypeButton = new Button() {
 						@Override
@@ -428,16 +405,16 @@ public final class SettingsMenu extends Menu {
 							final boolean isWhitelist = settings.isEnableMobWhitelist();
 
 							settings.enableMobWhitelist(!isWhitelist);
-							setTitle("&0Mob " + (settings.isEnableMobWhitelist() ? "Whitelist" : "Blacklist"));
-							restartMenu("&eChanged to " + (isWhitelist ? "&fWhitelist" : "&0Blacklist"));
+							setTitle(Lang.of("Settings_Menu.Mob_List_Type_Button_Title", "{listType}", settings.isEnableMobWhitelist() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))));
+							restartMenu(Lang.of("Settings_Menu.Mob_List_Type_Animated_Message", "{listType}", isWhitelist ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist_Coloured")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist_Coloured"))));
 						}
 
 						@Override
 						public ItemStack getItem() {
 							final boolean isWhitelist = settings.isEnableMobWhitelist();
 
-							return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, (isWhitelist ? "&fWhitelist" : "&8Blacklist"),
-									"Click to change to " + (!isWhitelist ? "&fwhitelist" : "&8blacklist")).make();
+							return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, Lang.of("Settings_Menu.Mob_List_Type_Button_Title", "{listType}", isWhitelist ? "&fWhitelist" : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist_Coloured"))),
+									Lang.ofArray("Settings_Menu.Mob_List_Type_Button_Lore", "{listType}", !isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured"))).make();
 						}
 					};
 				}
@@ -445,13 +422,13 @@ public final class SettingsMenu extends Menu {
 				@Override
 				protected ItemStack convertToItemStack(final EntityType entityType) {
 					return ItemCreator.ofEgg(entityType, ItemUtil.bountifyCapitalized(entityType))
-							.lore("Click to remove").make();
+							.lore(Lang.ofArray("Settings_Menu.Mob_Egg_Lore", "{entityName}", entityType.name())).make();
 				}
 
 				@Override
 				protected void onPageClick(final Player player, final EntityType entityType, final ClickType clickType) {
 					settings.removeMobFromBlacklist(entityType);
-					this.animateTitle("&cRemoved " + entityType.name());
+					this.animateTitle(Lang.of("Settings_Menu.Mob_Egg_Animated_Message", "{entityName}", entityType.name()));
 				}
 
 				@Override
@@ -466,13 +443,7 @@ public final class SettingsMenu extends Menu {
 
 				@Override
 				protected String[] getInfo() {
-					return new String[]{
-							"Edit your mob " + (settings.isEnableMobWhitelist() ? "whitelist" : "blacklist") + " by",
-							"clicking the existing eggs",
-							"to remove them or clicking",
-							"the 'Add Mob' button to add",
-							"mobs to your " + (settings.isEnableMobWhitelist() ? "whitelist" : "blacklist") + "."
-					};
+					return Lang.ofArray("Settings_Menu.Mob_Allies_Info_Button", "{listType}", settings.isEnableMobWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"));
 				}
 
 				@Override
@@ -486,21 +457,21 @@ public final class SettingsMenu extends Menu {
 								.filter(EntityType::isAlive)
 								.collect(Collectors.toList()), true);
 
-						this.setTitle("Select a Mob");
+						this.setTitle(Lang.of("Settings_Menu.Mob_Selection_Menu_Title"));
 					}
 
 					@Override
 					protected ItemStack convertToItemStack(final EntityType entityType) {
 						return ItemCreator.ofEgg(entityType, ItemUtil.bountifyCapitalized(entityType))
 								.glow(settings.getMobList().contains(entityType))
-								.lore(settings.getMobList().contains(entityType) ? "&aAlready " + (settings.isEnableMobWhitelist() ? "whitelisted" : "blacklisted") : "Click to add")
+								.lore(settings.getMobList().contains(entityType) ? Lang.of("Settings_Menu.Mob_Already_Selected_Lore", "{listType}", settings.isEnableMobWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"), "{entityName}", entityType.name()) : Lang.of("Settings_Menu.Mob_Available_For_Selection_Lore", "{listType}", settings.isEnableMobWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"), "{entityName}", entityType.name()))
 								.make();
 					}
 
 					@Override
 					protected void onPageClick(final org.bukkit.entity.Player player, final EntityType entityType, final ClickType clickType) {
 						settings.addMobToBlacklist(entityType);
-						this.restartMenu("&aAdded " + entityType.name());
+						this.restartMenu(Lang.of("Settings_Menu.Mob_Selection_Animated_Message", "{listType}", settings.isEnableMobWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"), "{entityName}", entityType.name()));
 					}
 				}
 			}
@@ -516,20 +487,15 @@ public final class SettingsMenu extends Menu {
 				private PlayerAlliesMenu() {
 					super(27, SettingsAlliesMenu.this, settings.getPlayerList(), true);
 
-					this.setTitle("Player " + (settings.isEnablePlayerWhitelist() ? "Whitelist" : "Blacklist"));
+					this.setTitle(Lang.of("Settings_Menu.Player_List_Type_Menu_Title", "{listType}", settings.isEnablePlayerWhitelist() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))));
 
 					this.addButton = new ButtonMenu(new PlayerAlliesMenu.PlayerSelectionMenu(), CompMaterial.ENDER_CHEST,
-							"Add Players",
-							"Open this menu to add ",
-							"players to the " + (settings.isEnablePlayerWhitelist() ? "whitelist" : "blacklist"));
+							Lang.of("Settings_Menu.Player_Add_Button_Title", "{listType}", settings.isEnablePlayerWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")),
+							Lang.ofArray("Settings_Menu.Player_Add_Button_Lore", "{listType}", settings.isEnablePlayerWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")));
 
 					this.addPromptButton = new ButtonConversation(new PlayerBlacklistPrompt(),
-							ItemCreator.of(CompMaterial.WRITABLE_BOOK, "Type a name",
-									"Click this button if you",
-									"would like to add a player",
-									"to the " + (settings.isEnablePlayerWhitelist() ? "whitelist" : "blacklist") + " by typing ",
-									"his name, this means you can",
-									"also add offline players."));
+							ItemCreator.of(CompMaterial.WRITABLE_BOOK, Lang.of("Settings_Menu.Player_Add_Prompt_Button_Title"),
+									Lang.ofArray("Settings_Menu.Player_Add_Prompt_Button_Lore", "{listType}", settings.isEnablePlayerWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"))));
 
 					this.playerListTypeButton = new Button() {
 						@Override
@@ -537,16 +503,16 @@ public final class SettingsMenu extends Menu {
 							final boolean isWhitelist = settings.isEnablePlayerWhitelist();
 
 							settings.enablePlayerWhitelist(!isWhitelist);
-							setTitle("&0Player " + (settings.isEnablePlayerWhitelist() ? "Whitelist" : "Blacklist"));
-							restartMenu("&eChanged to " + (isWhitelist ? "&fWhitelist" : "&0Blacklist"));
+							setTitle(Lang.of("Settings_Menu.Player_List_Type_Menu_Title", "{listType}", settings.isEnablePlayerWhitelist() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))));
+							restartMenu(Lang.of("Settings_Menu.Player_List_Type_Menu_Animated_Message", "{listType}", isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured")));
 						}
 
 						@Override
 						public ItemStack getItem() {
 							final boolean isWhitelist = settings.isEnablePlayerWhitelist();
 
-							return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, (isWhitelist ? "&fWhitelist" : "&8Blacklist"),
-									"Click to change to " + (!isWhitelist ? "&fwhitelist" : "&8blacklist")).make();
+							return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, Lang.of("Settings_Menu.Player_List_Type_Button_Title", "{listType}", isWhitelist ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist_Coloured")) : Lang.of("Placeholders.Blacklist_Coloured")),
+									Lang.ofArray("Settings_Menu.Player_List_Type_Button_Lore", "{listType}", !isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured"))).make();
 						}
 					};
 				}
@@ -554,11 +520,12 @@ public final class SettingsMenu extends Menu {
 				@Override
 				protected ItemStack convertToItemStack(final UUID uuid) {
 					final Player player = Remain.getPlayerByUUID(uuid);
+					final boolean isWhitelist = settings.isEnablePlayerWhitelist();
 
 					return ItemCreator.of(
 									CompMaterial.PLAYER_HEAD,
 									player.getName(),
-									"Click to remove")
+									Lang.ofArray("Settings_Menu.Player_Head_Lore", "{playerName}", player.getName(), "{listType}", isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured")))
 							.skullOwner(player.getName()).make();
 				}
 
@@ -567,7 +534,7 @@ public final class SettingsMenu extends Menu {
 					final Player target = Remain.getPlayerByUUID(item);
 
 					settings.removePlayerFromBlacklist(target.getUniqueId());
-					this.restartMenu("&cRemoved " + target.getName());
+					this.restartMenu(Lang.of("Settings_Menu.Player_Head_Animated_Message", "{playerName}", target.getName()));
 				}
 
 				@Override
@@ -584,13 +551,7 @@ public final class SettingsMenu extends Menu {
 
 				@Override
 				protected String[] getInfo() {
-					return new String[]{
-							"Edit your player " + (settings.isEnablePlayerWhitelist() ? "whitelist" : "blacklist") + " by",
-							"clicking the existing heads",
-							"to remove them or clicking",
-							"the 'Add Mob' button to add",
-							"players to your " + (settings.isEnablePlayerWhitelist() ? "whitelist" : "blacklist") + "."
-					};
+					return Lang.ofArray("Settings_Menu.Player_Menu_Info_Button", "{listType}", settings.isEnablePlayerWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"));
 				}
 
 				@Override
@@ -602,7 +563,7 @@ public final class SettingsMenu extends Menu {
 					private PlayerSelectionMenu() {
 						super(18, PlayerAlliesMenu.this, viewer.getWorld().getPlayers());
 
-						this.setTitle("Select a player");
+						this.setTitle(Lang.of("Settings_Menu.Player_Selection_Menu_Title"));
 					}
 
 					@Override
@@ -610,14 +571,14 @@ public final class SettingsMenu extends Menu {
 						return ItemCreator.of(
 										CompMaterial.PLAYER_HEAD,
 										player.getName(),
-										(settings.getPlayerList().contains(player.getUniqueId()) ? "&aAlready " + (settings.isEnablePlayerWhitelist() ? "whitelisted" : "blacklisted") : "Click to add"))
+										(settings.getPlayerList().contains(player.getUniqueId()) ? Lang.of("Settings_Menu.Player_Already_Selected_Lore", "{listType}", settings.isEnablePlayerWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"), "{playerName}", player.getName()) : Lang.of("Settings_Menu.Player_Available_For_Selection_Lore", "{listType}", settings.isEnablePlayerWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"), "{playerName}", player.getName())))
 								.skullOwner(player.getName()).make();
 					}
 
 					@Override
 					protected void onPageClick(final Player player, final Player item, final ClickType click) {
 						settings.addPlayerToBlacklist(item.getUniqueId());
-						this.restartMenu("&aAdded " + player.getName());
+						this.restartMenu(Lang.of("Settings_Menu.Player_Selection_Animated_Message", "{listType}", settings.isEnablePlayerWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"), "{playerName}", player.getName()));
 					}
 				}
 			}
@@ -626,7 +587,7 @@ public final class SettingsMenu extends Menu {
 
 				@Override
 				protected String getPrompt(final ConversationContext context) {
-					return "&6What player shouldn't be targeted by this turret? You can add more players to the " + (settings.isEnablePlayerWhitelist() ? "whitelist" : "blacklist") + " by using the /turret blacklist add <player> command.";
+					return Lang.of("Settings_Menu.Player_Prompt_Message", "{listType}", settings.isEnablePlayerWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"));
 				}
 
 				@Override
@@ -638,14 +599,14 @@ public final class SettingsMenu extends Menu {
 
 				@Override
 				protected String getFailedValidationText(final ConversationContext context, final String invalidInput) {
-					return "Player '" + invalidInput + "' doesn't exist.";
+					return Lang.of("Settings_Menu.Player_Prompt_Invalid_Text", "{invalidPlayer}", invalidInput);
 				}
 
 				@org.jetbrains.annotations.Nullable
 				@Override
 				protected Prompt acceptValidatedInput(@NotNull final ConversationContext context, @NotNull final String input) {
 					settings.addPlayerToBlacklist(Bukkit.getOfflinePlayer(input).getUniqueId());
-					tellSuccess("You have added " + input + " to the " + (settings.isEnablePlayerWhitelist() ? "whitelist" : "blacklist") + "!");
+					tellSuccess(Lang.of("Settings_Menu.Player_Prompt_Success", "{playerName}", input, "{listType}", settings.isEnablePlayerWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")));
 
 					return END_OF_CONVERSATION;
 				}

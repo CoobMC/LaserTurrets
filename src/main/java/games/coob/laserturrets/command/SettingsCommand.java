@@ -4,13 +4,14 @@ import games.coob.laserturrets.menu.SettingsMenu;
 import games.coob.laserturrets.model.Permissions;
 import org.bukkit.entity.Player;
 import org.mineacademy.fo.command.SimpleSubCommand;
+import org.mineacademy.fo.settings.Lang;
 
 public class SettingsCommand extends SimpleSubCommand {
 	protected SettingsCommand() {
 		super("settings");
 
 		setPermission(Permissions.Command.SETTINGS);
-		setDescription("Edit your default turret settings in a settings menu.");
+		setDescription(Lang.of("Turret_Commands.Settings_Description"));
 	}
 
 	@Override

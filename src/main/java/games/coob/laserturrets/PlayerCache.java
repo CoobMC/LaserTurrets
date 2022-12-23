@@ -6,11 +6,12 @@ import lombok.Getter;
 import lombok.Setter;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.entity.Player;
-import org.mineacademy.fo.Common;
 import org.mineacademy.fo.MathUtil;
+import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.constants.FoConstants;
 import org.mineacademy.fo.remain.Remain;
+import org.mineacademy.fo.settings.Lang;
 import org.mineacademy.fo.settings.YamlConfig;
 
 import javax.annotation.Nullable;
@@ -76,7 +77,7 @@ public final class PlayerCache extends YamlConfig {
 	/* ------------------------------------------------------------------------------- */
 
 	public void giveCurrency(final double amount, final boolean displayMessage) {
-		Valid.checkBoolean(amount >= 0, "Currency cannot be negative");
+		Valid.checkBoolean(amount >= 0, "Your balance cannot be negative");
 
 		if (amount == 0)
 			return;
@@ -93,15 +94,14 @@ public final class PlayerCache extends YamlConfig {
 			save();
 		}
 
-		final double currencyAmount = isUsingVault ? formatCurrency(economy.getBalance(player)) : formatCurrency(getCurrency());
+		final double totalAmount = isUsingVault ? formatCurrency(economy.getBalance(player)) : formatCurrency(getCurrency());
 
 		if (displayMessage)
-			Common.tell(player, "&aGave " + this.playerName + " &e" + amount + " &a" + currencyName + " and now has a total of &e" + currencyAmount + " &a" + currencyName + ".");
-
+			Messenger.success(player, Lang.of("Turret_Commands.Balance_Give", "{currencyName}", currencyName, "{playerName}", this.playerName, "{totalAmount}", totalAmount, "{amount}", amount));
 	}
 
 	public void takeCurrency(final double amount, final boolean displayMessage) {
-		Valid.checkBoolean(amount >= 0, "Currency cannot be negative");
+		Valid.checkBoolean(amount >= 0, Lang.of("Turret_Commands.Balance_Cannot_Be_Negative"));
 
 		final Player player = toPlayer();
 		final boolean isUsingVault = Settings.CurrencySection.USE_VAULT;
@@ -115,14 +115,14 @@ public final class PlayerCache extends YamlConfig {
 			save();
 		}
 
-		final double currencyAmount = isUsingVault ? formatCurrency(economy.getBalance(player)) : formatCurrency(getCurrency());
+		final double totalAmount = isUsingVault ? formatCurrency(economy.getBalance(player)) : formatCurrency(getCurrency());
 
 		if (displayMessage)
-			Common.tell(player, "&aTook &e" + amount + " &a" + currencyName + " from " + playerName + " who now has a total of &e" + currencyAmount + " &a" + currencyName + ".");
+			Messenger.success(player, Lang.of("Turret_Commands.Balance_Take", "{currencyName}", currencyName, "{playerName}", this.playerName, "{totalAmount}", totalAmount, "{amount}", amount));
 	}
 
 	public void setCurrency(final double amount, final boolean displayMessage) {
-		Valid.checkBoolean(amount >= 0, "Currency cannot be negative");
+		Valid.checkBoolean(amount >= 0, Lang.of("Turret_Commands.Balance_Cannot_Be_Negative"));
 
 		final Player player = toPlayer();
 		final boolean isUsingVault = Settings.CurrencySection.USE_VAULT;
@@ -140,7 +140,7 @@ public final class PlayerCache extends YamlConfig {
 		final double currencyAmount = isUsingVault ? formatCurrency(economy.getBalance(player)) : formatCurrency(getCurrency());
 
 		if (displayMessage)
-			Common.tell(player, "&Set " + this.playerName + "'s amount of " + currencyName + " to &e" + currencyAmount + "&a.");
+			Messenger.success(player, Lang.of("Turret_Commands.Balance_Set", "{currencyName}", currencyName, "{playerName}", this.playerName, "{amount}", currencyAmount));
 	}
 
 	public double getCurrency(final boolean displayMessage) {
@@ -151,7 +151,7 @@ public final class PlayerCache extends YamlConfig {
 		final double currencyAmount = isUsingVault ? formatCurrency(economy.getBalance(player)) : formatCurrency(getCurrency());
 
 		if (displayMessage)
-			Common.tell(player, "&a" + playerName + " has &e" + currencyAmount + " &a" + currencyName + ".");
+			Messenger.success(player, games.coob.laserturrets.util.Lang.of("Turret_Commands.Balance_Get", "{currencyName}", currencyName, "{playerName}", this.playerName, "{amount}", currencyAmount));
 
 		return currencyAmount;
 	}

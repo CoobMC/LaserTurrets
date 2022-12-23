@@ -14,6 +14,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mineacademy.fo.ChatUtil;
 import org.mineacademy.fo.ItemUtil;
 import org.mineacademy.fo.conversation.SimplePrompt;
 import org.mineacademy.fo.menu.Menu;
@@ -23,8 +24,10 @@ import org.mineacademy.fo.menu.button.ButtonConversation;
 import org.mineacademy.fo.menu.button.ButtonMenu;
 import org.mineacademy.fo.menu.button.annotation.Position;
 import org.mineacademy.fo.menu.model.ItemCreator;
+import org.mineacademy.fo.model.Replacer;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.Remain;
+import org.mineacademy.fo.settings.Lang;
 
 import java.util.Arrays;
 import java.util.List;
@@ -51,24 +54,18 @@ public class AlliesMenu extends Menu {
 
 		this.setViewer(player);
 		this.setSize(27);
-		this.setTitle("Manage Allies");
+		this.setTitle(Lang.of("Manage_Allies_Menu.Main_Title"));
 
 		this.mobBlacklistButton = new ButtonMenu(new MobBlacklistMenu(), CompMaterial.CREEPER_HEAD,
-				"Mob " + (turretData.isMobWhitelistEnabled() ? "Whitelist" : "Blacklist"), "", "Edit your mob " + (turretData.isMobWhitelistEnabled() ? "whitelist" : "blacklist"));
+				Lang.of("Manage_Allies_Menu.Mob_Allies_Title", "{listType}", turretData.isMobWhitelistEnabled() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))), Lang.ofArray("Manage_Allies_Menu.Mob_Allies_Lore", "{listType}", turretData.isMobWhitelistEnabled() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")));
 
 		this.playerBlacklistButton = new ButtonMenu(new PlayerBlacklistMenu(), CompMaterial.PLAYER_HEAD,
-				"Player " + (turretData.isPlayerWhitelistEnabled() ? "Whitelist" : "Blacklist"), "", "Edit your player " + (turretData.isPlayerWhitelistEnabled() ? "whitelist" : "blacklist"));
+				Lang.of("Manage_Allies_Menu.Player_Allies_Title", "{listType}", turretData.isPlayerWhitelistEnabled() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))), Lang.ofArray("Manage_Allies_Menu.Player_Allies_Lore", "{listType}", turretData.isPlayerWhitelistEnabled() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")));
 	}
 
 	@Override
 	protected String[] getInfo() {
-		return new String[]{
-				"&fWhitelisted&7 players/mobs are",
-				"the only targets of the turret.",
-				"",
-				"&8Blacklisted&7 players/mobs won't",
-				"get targeted by the turret."
-		};
+		return Lang.ofArray("Manage_Allies_Menu.Main_Info");
 	}
 
 	@Override
@@ -85,13 +82,11 @@ public class AlliesMenu extends Menu {
 		private MobBlacklistMenu() {
 			super(27, AlliesMenu.this, turretData.getMobBlacklist());
 
-			this.setTitle("Mob " + (turretData.isMobWhitelistEnabled() ? "Whitelist" : "Blacklist"));
+			this.setTitle(Replacer.replaceArray(Lang.of("Manage_Allies_Menu.Mob_Allies_Title"), "{listType}", turretData.isMobWhitelistEnabled() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))));
 
 			this.addButton = new ButtonMenu(new MobBlacklistMenu.MobSelectionMenu(), CompMaterial.ENDER_CHEST,
-					"Add Mob",
-					"",
-					"Open this menu to add ",
-					"mobs to the " + (turretData.isMobWhitelistEnabled() ? "whitelist" : "blacklist"));
+					Lang.of("Manage_Allies_Menu.Mob_Add_Button_Title"),
+					Lang.ofArray("Manage_Allies_Menu.Mob_Add_Button_Lore", "{listType}", turretData.isMobWhitelistEnabled() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")));
 
 			this.mobListTypeButton = new Button() {
 				@Override
@@ -100,16 +95,16 @@ public class AlliesMenu extends Menu {
 					final boolean isWhitelist = turretData.isMobWhitelistEnabled();
 
 					registry.enableMobWhitelist(turretData, !isWhitelist);
-					setTitle("&0Mob " + (turretData.isMobWhitelistEnabled() ? "Whitelist" : "Blacklist"));
-					restartMenu("Changed to " + (isWhitelist ? "&fwhitelist" : "&8blacklist"));
+					setTitle(Lang.of("Manage_Allies_Menu.Mob_List_Type_Menu_Title", "{listType}", turretData.isMobWhitelistEnabled() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))));
+					restartMenu(Lang.of("Manage_Allies_Menu.Mob_List_Type_Menu_Animated_Message", "{listType}", isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured")));
 				}
 
 				@Override
 				public ItemStack getItem() {
 					final boolean isWhitelist = turretData.isMobWhitelistEnabled();
 
-					return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, (isWhitelist ? "&fWhitelist" : "&8Blacklist"),
-							"Click to change to " + (!isWhitelist ? "&fwhitelist" : "&8blacklist")).make();
+					return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, Lang.of("Manage_Allies_Menu.Mob_List_Type_Button_Title", "{listType}", isWhitelist ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist_Coloured")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist_Coloured"))),
+							Lang.ofArray("Manage_Allies_Menu.Mob_List_Type_Button_Lore", "{listType}", !isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured"))).make();
 				}
 			};
 		}
@@ -117,13 +112,13 @@ public class AlliesMenu extends Menu {
 		@Override
 		protected ItemStack convertToItemStack(final EntityType entityType) {
 			return ItemCreator.ofEgg(entityType, ItemUtil.bountifyCapitalized(entityType))
-					.lore("Click to remove").make();
+					.lore(Lang.ofArray("Manage_Allies_Menu.Mob_Egg_Lore", "{entityName}", entityType.name())).make();
 		}
 
 		@Override
 		protected void onPageClick(final Player player, final EntityType entityType, final ClickType clickType) {
 			TurretRegistry.getInstance().removeMobFromBlacklist(turretData, entityType);
-			this.restartMenu("&cRemoved " + entityType.name());
+			this.restartMenu(Lang.of("Manage_Allies_Menu.Mob_Egg_Animated_Message", "{entityName}", entityType.name()));
 		}
 
 		@Override
@@ -143,13 +138,7 @@ public class AlliesMenu extends Menu {
 
 		@Override
 		protected String[] getInfo() {
-			return new String[]{
-					"Manage your mob " + (turretData.isMobWhitelistEnabled() ? "whitelist" : "blacklist") + " by",
-					"clicking the existing eggs",
-					"to remove them or clicking",
-					"the 'Add Mob' button to add",
-					"mobs to your selection."
-			};
+			return Lang.ofArray("Manage_Allies_Menu.Mob_Menu_Info_Button", "{listType}", turretData.isMobWhitelistEnabled() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"));
 		}
 
 		@Override
@@ -163,21 +152,21 @@ public class AlliesMenu extends Menu {
 						.filter(EntityType::isAlive)
 						.collect(Collectors.toList()));
 
-				this.setTitle("Select a Mob");
+				this.setTitle(Lang.of("Manage_Allies_Menu.Mob_Selection_Menu_Title"));
 			}
 
 			@Override
 			protected ItemStack convertToItemStack(final EntityType entityType) {
 				return ItemCreator.ofEgg(entityType, ItemUtil.bountifyCapitalized(entityType))
 						.glow(turretData.getMobBlacklist().contains(entityType))
-						.lore(turretData.getMobBlacklist().contains(entityType) ? "&aAlready in the " + (turretData.isMobWhitelistEnabled() ? "whitelist" : "blacklist") : "Click to add")
+						.lore(turretData.getMobBlacklist().contains(entityType) ? Lang.ofArray("Manage_Allies_Menu.Mob_Already_Selected_Lore", "{listType}", turretData.isMobWhitelistEnabled() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"), "{entityName}", entityType.name()) : Lang.ofArray("Manage_Allies_Menu.Mob_Available_For_Selection_Lore", "{listType}", turretData.isMobWhitelistEnabled() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"), "{entityName}", entityType.name()))
 						.make();
 			}
 
 			@Override
 			protected void onPageClick(final org.bukkit.entity.Player player, final EntityType entityType, final ClickType clickType) {
 				TurretRegistry.getInstance().addMobToBlacklist(turretData, entityType);
-				this.restartMenu("&aAdded " + entityType.name());
+				this.restartMenu(Lang.of("Manage_Allies_Menu.Mob_Selection_Animated_Message", "{entityName}", entityType.name()));
 			}
 
 			@Override
@@ -203,22 +192,15 @@ public class AlliesMenu extends Menu {
 		private PlayerBlacklistMenu() {
 			super(27, AlliesMenu.this, turretData.getPlayerBlacklist());
 
-			this.setTitle("Player " + (turretData.isPlayerWhitelistEnabled() ? "Whitelist" : "Blacklist"));
+			this.setTitle(Lang.of("Manage_Allies_Menu.Player_Allies_Title", "{listType}", (turretData.isPlayerWhitelistEnabled() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist")))));
 
 			this.addButton = new ButtonMenu(new PlayerSelectionMenu(), CompMaterial.ENDER_CHEST,
-					"Add Players",
-					"",
-					"Open this menu to add ",
-					"players to the " + (turretData.isPlayerWhitelistEnabled() ? "whitelist" : "blacklist"));
+					Lang.of("Manage_Allies_Menu.Player_Add_Button_Title"),
+					Lang.ofArray("Manage_Allies_Menu.Player_Add_Button_Lore", "{listType}", turretData.isPlayerWhitelistEnabled() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")));
 
 			this.addPromptButton = new ButtonConversation(new PlayerBlacklistPrompt(),
-					ItemCreator.of(CompMaterial.WRITABLE_BOOK, "Type a name",
-							"",
-							"Click this button if you",
-							"would like to add a player",
-							"to the " + (turretData.isPlayerWhitelistEnabled() ? "whitelist" : "blacklist") + " by typing ",
-							"his name, this means you can",
-							"also add offline players."));
+					ItemCreator.of(CompMaterial.WRITABLE_BOOK, Lang.of("Manage_Allies_Menu.Player_Add_Prompt_Button_Title"),
+							Lang.ofArray("Manage_Allies_Menu.Player_Add_Prompt_Button_Lore", "{listType}", turretData.isPlayerWhitelistEnabled() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"))));
 
 			this.playerListTypeButton = new Button() {
 				@Override
@@ -227,16 +209,16 @@ public class AlliesMenu extends Menu {
 					final boolean isWhitelist = turretData.isPlayerWhitelistEnabled();
 
 					registry.enablePlayerWhitelist(turretData, !isWhitelist);
-					setTitle("&0Player " + (turretData.isPlayerWhitelistEnabled() ? "Whitelist" : "Blacklist"));
-					restartMenu("Changed to " + (isWhitelist ? "&fwhitelist" : "&8blacklist"));
+					setTitle(Lang.of("Manage_Allies_Menu.Player_List_Type_Menu_Title", "{listType}", turretData.isPlayerWhitelistEnabled() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))));
+					restartMenu(Lang.of("Manage_Allies_Menu.Player_List_Type_Menu_Animated_Message", "{listType}", isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured")));
 				}
 
 				@Override
 				public ItemStack getItem() {
 					final boolean isWhitelist = turretData.isPlayerWhitelistEnabled();
 
-					return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, (isWhitelist ? "&fWhitelist" : "&8Blacklist"),
-							"Click to change to " + (!isWhitelist ? "&fwhitelist" : "&8blacklist")).make();
+					return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, Lang.of("Manage_Allies_Menu.Player_List_Type_Button_Title", "{listType}", isWhitelist ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist_Coloured")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist_Coloured"))),
+							Lang.ofArray("Manage_Allies_Menu.Player_List_Type_Button_Lore", "{listType}", !isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured"))).make();
 				}
 			};
 		}
@@ -248,7 +230,7 @@ public class AlliesMenu extends Menu {
 			return ItemCreator.of(
 							CompMaterial.PLAYER_HEAD,
 							player.getName(),
-							"Click to remove")
+							Lang.ofArray("Manage_Allies_Menu.Player_Head_Lore", "{playerName}", player.getName()))
 					.skullOwner(player.getName()).make();
 		}
 
@@ -257,7 +239,7 @@ public class AlliesMenu extends Menu {
 			final Player target = Remain.getPlayerByUUID(item);
 
 			TurretRegistry.getInstance().removePlayerFromBlacklist(turretData, target.getUniqueId());
-			this.restartMenu("&cRemoved " + target.getName());
+			this.restartMenu(Lang.of("Manage_Allies_Menu.Player_Head_Animated_Message", "{playerName}", target.getName()));
 		}
 
 		@Override
@@ -279,13 +261,7 @@ public class AlliesMenu extends Menu {
 
 		@Override
 		protected String[] getInfo() {
-			return new String[]{
-					"Edit your player " + (turretData.isPlayerWhitelistEnabled() ? "whitelist" : "blacklist") + " by",
-					"clicking the existing heads",
-					"to remove them or clicking",
-					"the 'Add Mob' button to add",
-					"players to your " + (turretData.isPlayerWhitelistEnabled() ? "whitelist" : "blacklist") + "."
-			};
+			return Lang.ofArray("Manage_Allies_Menu.Player_Menu_Info_Button", "{listType}", turretData.isPlayerWhitelistEnabled() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"));
 		}
 
 		@Override
@@ -297,7 +273,7 @@ public class AlliesMenu extends Menu {
 			private PlayerSelectionMenu() {
 				super(18, AlliesMenu.PlayerBlacklistMenu.this, compileWorldPlayers(turretData));
 
-				this.setTitle("Select a player");
+				this.setTitle(Lang.of("Manage_Allies_Menu.Player_Selection_Menu_Title"));
 			}
 
 			@Override
@@ -305,14 +281,14 @@ public class AlliesMenu extends Menu {
 				return ItemCreator.of(
 								CompMaterial.PLAYER_HEAD,
 								player.getName(),
-								(turretData.getPlayerBlacklist().contains(player.getUniqueId()) ? "&aAlready " + (turretData.isPlayerWhitelistEnabled() ? "whitelisted" : "blacklisted") : "Click to add"))
+								turretData.getPlayerBlacklist().contains(player.getUniqueId()) ? Lang.ofArray("Manage_Allies_Menu.Player_Already_Selected_Lore", "{listType}", turretData.isMobWhitelistEnabled() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"), "{playerName}", player.getName()) : Lang.ofArray("Manage_Allies_Menu.Player_Available_For_Selection_Lore", "{listType}", turretData.isMobWhitelistEnabled() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"), "{playerName}", player.getName()))
 						.skullOwner(player.getName()).make();
 			}
 
 			@Override
 			protected void onPageClick(final Player player, final Player item, final ClickType click) {
 				TurretRegistry.getInstance().addPlayerToBlacklist(turretData, item.getUniqueId());
-				this.restartMenu("&aAdded " + player.getName());
+				this.restartMenu(Lang.of("Manage_Allies_Menu.Player_Selection_Animated_Message", "{playerName}", player.getName()));
 			}
 
 			@Override
@@ -331,7 +307,7 @@ public class AlliesMenu extends Menu {
 
 		@Override
 		protected String getPrompt(final ConversationContext context) {
-			return "&6What player shouldn't be targeted by this turret? You can add more players to the " + (turretData.isPlayerWhitelistEnabled() ? "whitelist" : "blacklist") + " by using the /turret blacklist add <player> command.";
+			return Lang.of("Manage_Allies_Menu.Player_Prompt_Message", "{listType}", turretData.isPlayerWhitelistEnabled() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"));
 		}
 
 		@Override
@@ -343,7 +319,7 @@ public class AlliesMenu extends Menu {
 
 		@Override
 		protected String getFailedValidationText(final ConversationContext context, final String invalidInput) {
-			return "Player '" + invalidInput + "' doesn't exist.";
+			return Lang.of("Manage_Allies_Menu.Player_Prompt_Invalid_Text", "{invalidPlayer}", invalidInput);
 		}
 
 		@Nullable
@@ -352,7 +328,7 @@ public class AlliesMenu extends Menu {
 			final TurretRegistry registry = TurretRegistry.getInstance();
 
 			registry.addPlayerToBlacklist(turretData, Bukkit.getOfflinePlayer(input).getUniqueId());
-			tellSuccess("You have added " + input + " to the " + (turretData.isPlayerWhitelistEnabled() ? "whitelist" : "blacklist") + "!");
+			tellSuccess(Lang.of("Manage_Allies_Menu.Player_Prompt_Success", "{playerName}", input, "{listType}", turretData.isPlayerWhitelistEnabled() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")));
 
 			return END_OF_CONVERSATION;
 		}

@@ -125,6 +125,12 @@ public class TurretSettings extends YamlConfig {
 		this.save();
 	}
 
+	public void setHealth(final LevelData levelData, final int health) {
+		levelData.setHealth(health);
+
+		this.save();
+	}
+
 	public void setLootChances(final LevelData levelData, final List<Tuple<ItemStack, Double>> lootChances) {
 		levelData.setLootChances(lootChances);
 

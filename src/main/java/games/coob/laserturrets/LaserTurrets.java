@@ -31,7 +31,11 @@ public final class LaserTurrets extends SimplePlugin {
 	@Override
 	protected void onPluginStart() {
 		Common.runLater(TurretRegistry::getInstance);
-		
+
+		for (final String type : getTypes()) {
+			TurretSettings.createSettings(type);
+		}
+
 		if (!VaultHook.setupEconomy(getServer()) && Settings.CurrencySection.USE_VAULT) {
 			Common.log("[LaserTurrets] - Disabled due to no Vault dependency found!", getDescription().getName());
 			getServer().getPluginManager().disablePlugin(this);
@@ -82,10 +86,6 @@ public final class LaserTurrets extends SimplePlugin {
 	 */
 	@Override
 	protected void onReloadablesStart() {
-		for (final String type : getTypes()) {
-			TurretSettings.createSettings(type);
-		}
-
 		//
 		// Add your own plugin parts to load automatically here
 		// Please see @AutoRegister for parts you do not have to register manually

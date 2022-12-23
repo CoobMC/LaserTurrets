@@ -8,7 +8,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.SerializeUtil;
-import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.collection.SerializedMap;
 import org.mineacademy.fo.model.ConfigSerializable;
 import org.mineacademy.fo.model.Tuple;
@@ -181,9 +180,9 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 	}
 
 	public void removeLevel(final int level) {
-		Valid.checkBoolean(getLevels() >= level, "Cannot remove level " + level + " because the turret only has " + getLevels() + " levels.");
-
-		turretLevels.remove(level - 1);
+		//Valid.checkBoolean(getLevels() >= level, "Cannot remove level " + level + " because the turret only has " + getLevels() + " levels.");
+		if (getLevels() < level) // TODO
+			turretLevels.remove(level - 1);
 	}
 
 	public void setTurretLevels(final List<TurretData.TurretLevel> levels) {

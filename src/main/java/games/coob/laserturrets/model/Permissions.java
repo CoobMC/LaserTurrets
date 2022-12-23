@@ -27,7 +27,7 @@ public final class Permissions {
 		public static final String MENU = "turret.command.menu";
 
 		@Permission("Get, set,  give or take a specific amount of the currency from players.")
-		public static final String CURRENCY = "turret.command.currency";
+		public static final String CURRENCY = "turret.command.balance";
 
 		@Permission("Executes a command to open the portal menu.")
 		public static final String SHOP = "turret.command.shop";

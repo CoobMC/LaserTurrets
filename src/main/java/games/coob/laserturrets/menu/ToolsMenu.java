@@ -5,10 +5,11 @@ import games.coob.laserturrets.tools.BeamTurretTool;
 import games.coob.laserturrets.tools.FireballTurretTool;
 import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.menu.MenuTools;
+import org.mineacademy.fo.settings.Lang;
 
 public class ToolsMenu extends MenuTools {
 	public ToolsMenu() {
-		this.setTitle("Turret Tools");
+		this.setTitle(Lang.of("Tools_Menu.Menu_Title"));
 	}
 
 	@Override
@@ -20,11 +21,6 @@ public class ToolsMenu extends MenuTools {
 
 	@Override
 	protected String[] getInfo() {
-		return new String[]{
-				"Click a tool to get it!",
-				"You can then register turrets",
-				"by clicking blocks with these",
-				"tools."
-		};
+		return Lang.ofArray("Tools_Menu.Info_Button");
 	}
 }

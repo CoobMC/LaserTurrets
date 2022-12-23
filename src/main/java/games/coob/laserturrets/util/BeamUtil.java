@@ -1,4 +1,4 @@
-package games.coob.laserturrets.model;
+package games.coob.laserturrets.util;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -30,7 +30,7 @@ import java.util.function.Supplier;
  * @version 2.3.0
  * @see <a href="https://github.com/SkytAsul/GuardianBeam">GitHub repository</a>
  */
-public abstract class Beam {
+public abstract class BeamUtil {
 
 	protected final int distanceSquared;
 	protected final int duration;
@@ -49,7 +49,7 @@ public abstract class Beam {
 
 	private List<Runnable> executeEnd = new ArrayList<>(1);
 
-	protected Beam(final Location start, final Location end, final int duration, final int distance) {
+	protected BeamUtil(final Location start, final Location end, final int duration, final int distance) {
 		if (!Packets.enabled)
 			throw new IllegalStateException("The beam has been disabled. An error has occurred during initialization.");
 		if (start.getWorld() != end.getWorld())
@@ -64,9 +64,9 @@ public abstract class Beam {
 	 * Adds a runnable to execute when the beam reaches its final duration
 	 *
 	 * @param runnable action to execute
-	 * @return this {@link Beam} instance
+	 * @return this {@link BeamUtil} instance
 	 */
-	public Beam executeEnd(final Runnable runnable) {
+	public BeamUtil executeEnd(final Runnable runnable) {
 		executeEnd.add(runnable);
 		return this;
 	}
@@ -74,9 +74,9 @@ public abstract class Beam {
 	/**
 	 * Makes the duration provided in the constructor passed as ticks and not seconds
 	 *
-	 * @return this {@link Beam} instance
+	 * @return this {@link BeamUtil} instance
 	 */
-	public Beam durationInTicks() {
+	public BeamUtil durationInTicks() {
 		durationInTicks = true;
 		return this;
 	}
@@ -86,7 +86,7 @@ public abstract class Beam {
 	 * <p>
 	 * It will make the beam visible for nearby players and start the countdown to the final duration.
 	 * <p>
-	 * Once finished, it will destroy the beam and execute all runnables passed with {@link Beam#executeEnd}.
+	 * Once finished, it will destroy the beam and execute all runnables passed with {@link BeamUtil#executeEnd}.
 	 *
 	 * @param plugin plugin used to start the task
 	 */
@@ -141,7 +141,7 @@ public abstract class Beam {
 	/**
 	 * Stops this beam.
 	 * <p>
-	 * This will destroy the beam for every player and start execute all runnables passed with {@link Beam#executeEnd}
+	 * This will destroy the beam for every player and start execute all runnables passed with {@link BeamUtil#executeEnd}
 	 */
 	public void stop() {
 		if (main == null) throw new IllegalStateException("Task not started");
@@ -268,7 +268,7 @@ public abstract class Beam {
 				getEnd().distanceSquared(location) <= distanceSquared;
 	}
 
-	public static class GuardianBeam extends Beam {
+	public static class GuardianBeam extends BeamUtil {
 		private static AtomicInteger teamID = new AtomicInteger(ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE));
 
 		private Object createGuardianPacket;
@@ -302,7 +302,7 @@ public abstract class Beam {
 		 * @param duration Duration of beam in seconds (<i>-1 if infinite</i>)
 		 * @param distance Distance where beam will be visible (<i>-1 if infinite</i>)
 		 * @throws ReflectiveOperationException if a reflection exception occurred during beam creation
-		 * @see Beam#start(Plugin) to start the beam
+		 * @see BeamUtil#start(Plugin) to start the beam
 		 * @see #durationInTicks() to make the duration in ticks
 		 * @see #executeEnd(Runnable) to add Runnable-s to execute when the beam will stop
 		 * @see #GuardianBeam(Location, LivingEntity, int, int) to create a beam which follows an entity
@@ -326,7 +326,7 @@ public abstract class Beam {
 		 * @param duration  Duration of beam in seconds (<i>-1 if infinite</i>)
 		 * @param distance  Distance where beam will be visible (<i>-1 if infinite</i>)
 		 * @throws ReflectiveOperationException if a reflection exception occurred during beam creation
-		 * @see Beam#start(Plugin) to start the beam
+		 * @see BeamUtil#start(Plugin) to start the beam
 		 * @see #durationInTicks() to make the duration in ticks
 		 * @see #executeEnd(Runnable) to add Runnable-s to execute when the beam will stop
 		 * @see #GuardianBeam(Location, Location, int, int) to create a beam with a specific end location
@@ -606,6 +606,7 @@ public abstract class Beam {
 
 				final Class<?> dataWatcherClass = getNMSClass("network.syncher", "DataWatcher");
 				watcherConstructor = dataWatcherClass.getDeclaredConstructor(entityClass);
+				
 				if (version >= 18) {
 					watcherSet = dataWatcherClass.getDeclaredMethod("b", watcherObject1.getClass(), Object.class);
 					watcherRegister = dataWatcherClass.getDeclaredMethod("a", watcherObject1.getClass(), Object.class);

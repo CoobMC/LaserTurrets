@@ -74,7 +74,7 @@ public final class TurretCommandGroup extends SimpleCommandGroup {
 		registerSubcommand(new ShopCommand());
 		registerSubcommand(new TurretCommand());
 		registerSubcommand(new MenuCommand());
-		registerSubcommand(new CurrencyCommand());
+		registerSubcommand(new BalanceCommand());
 
 		// Register the premade commands from Foundation
 		registerSubcommand(new DebugCommand("turret.command.debug"));

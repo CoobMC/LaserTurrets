@@ -2,20 +2,20 @@ package games.coob.laserturrets.command;
 
 import games.coob.laserturrets.PlayerCache;
 import games.coob.laserturrets.model.Permissions;
-import games.coob.laserturrets.settings.Settings;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.mineacademy.fo.command.SimpleSubCommand;
+import org.mineacademy.fo.settings.Lang;
 
 import java.util.List;
 
-public class CurrencyCommand extends SimpleSubCommand {
-	protected CurrencyCommand() {
+public class BalanceCommand extends SimpleSubCommand {
+	protected BalanceCommand() {
 		super("currency");
 
 		setMinArguments(1);
 		setPermission(Permissions.Command.CURRENCY);
-		setDescription("Get, set,  give or take " + Settings.CurrencySection.CURRENCY_NAME + " from players.");
+		setDescription(Lang.of("Turret_Commands.Balance_Description"));
 		setUsage("<get, set, give, take> <player> <amount>");
 	}
 
@@ -27,7 +27,7 @@ public class CurrencyCommand extends SimpleSubCommand {
 		final Player player = Bukkit.getPlayer(name);
 
 		if (player == null)
-			returnTell("The player '" + name + "' does not exist.");
+			returnTell(Lang.of("Turret_Commands.Player_Non_Existent", "{invalidPlayer}", name));
 
 		final PlayerCache cache = PlayerCache.from(player);
 
@@ -35,7 +35,7 @@ public class CurrencyCommand extends SimpleSubCommand {
 			cache.getCurrency(true);
 
 		if (args.length < 3 && !param.equals("get"))
-			returnTell("Wrong usage of command (/lt currency <get/set/give/take> <player> <amount>).");
+			returnUsage();
 
 		else if (args.length == 3) {
 			final String number = args[2];
@@ -50,7 +50,7 @@ public class CurrencyCommand extends SimpleSubCommand {
 				else if ("take".equals(param))
 					cache.takeCurrency(amount, true);
 			} catch (final NumberFormatException e) {
-				returnTell("'" + number + "' is not a valid number.");
+				returnTell(Lang.of("Turret_Commands.Invalid_Number"));
 			}
 		}
 	}

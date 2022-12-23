@@ -3,7 +3,7 @@ package games.coob.laserturrets.menu;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.Settings;
-import games.coob.laserturrets.util.StringUtil;
+import games.coob.laserturrets.util.TurretUtil;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
@@ -12,6 +12,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.mineacademy.fo.ChatUtil;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.collection.StrictMap;
@@ -28,6 +29,7 @@ import org.mineacademy.fo.menu.model.MenuClickLocation;
 import org.mineacademy.fo.model.RangedValue;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
+import org.mineacademy.fo.settings.Lang;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,29 +53,20 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 		this.turretType = turretType;
 		this.player = player;
 
-		this.setTitle(turretType.typeName + " Turrets");
+		this.setTitle(Lang.of("Turrets_Menu.Menu_Title", "{turretType}", TurretUtil.getDisplayName(turretType.typeName)));
 		this.setSize(9 * 3);
 
 		this.changeTypeButton = new ButtonConversation(new EditMenuTypePrompt(),
-				ItemCreator.of(CompMaterial.BEACON, "Change View Type",
-						"Click this button to view",
-						"turrets of a different type."));
+				ItemCreator.of(CompMaterial.BEACON, Lang.of("Turrets_Menu.Change_Turret_Type_Button_Title"),
+						Lang.ofArray("Turrets_Menu.Change_Turret_Type_Button_Lore")));
 
-		this.settingsButton = new ButtonMenu(new SettingsMenu(this, player), CompMaterial.ANVIL, "Settings",
-				"Click this button to edit",
-				"your turret settings for a",
-				"specific type.");
+		this.settingsButton = new ButtonMenu(new SettingsMenu(this, player), CompMaterial.ANVIL, Lang.of("Turrets_Menu.Settings_Button_Title"),
+				Lang.ofArray("Turrets_Menu.Settings_Button_Lore"));
 	}
 
 	@Override
 	protected String[] getInfo() {
-		return new String[]{
-				"In this menu, you can",
-				"view all turrets of a",
-				"specific type. You can",
-				"also edit each individual",
-				"turret by clicking them."
-		};
+		return Lang.ofArray("Turrets_Menu.Info_Button");
 	}
 
 	private static List<TurretData> compileTurrets(final TurretType viewMode) {
@@ -84,18 +77,13 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 	protected ItemStack convertToItemStack(final TurretData turretData) {
 		final int level = turretData.getCurrentLevel();
 		final String id = turretData.getId();
-		final String type = StringUtil.capitalize(turretData.getType());
-		final List<String> lore = new ArrayList<>();
-
-		lore.add("Level: " + level);
-		lore.add("Type: " + type);
-		lore.add("");
-		lore.add("Click to edit this turret");
+		final String type = ChatUtil.capitalize(TurretUtil.getDisplayName(turretData.getType()));
+		final String[] lore = Lang.ofArray("Turrets_Menu.Turrets_Lore", "{level}", level, "{turretType}", type);
 
 		if (this.turretType.typeName.equals("All"))
-			return ItemCreator.of(turretData.getMaterial()).name("&b" + type + " Turret &8" + id).lore(lore).makeMenuTool();
+			return ItemCreator.of(turretData.getMaterial()).name(Lang.of("Turrets_Menu.Turrets_Title", "{turretType}", type, "{turretId}", id)).lore(lore).makeMenuTool();
 		else if (type.equalsIgnoreCase(this.turretType.typeName))
-			return ItemCreator.of(turretData.getMaterial()).name("&f" + type + " Turret &7" + id).lore(lore).makeMenuTool();
+			return ItemCreator.of(turretData.getMaterial()).name(Lang.of("Turrets_Menu.Turrets_Title", "{turretType}", type, "{turretId}", id)).lore(lore).makeMenuTool();
 
 		return NO_ITEM;
 	}
@@ -133,7 +121,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 		@Override
 		protected String getPrompt(final ConversationContext ctx) {
-			return "&6Enter one of the following turret types (all, arrow, fireball, beam)";
+			return Lang.of("Turrets_Menu.Edit_Turret_View_Type_Prompt_Message");
 		}
 
 		@Override
@@ -143,7 +131,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 		@Override
 		protected String getFailedValidationText(final ConversationContext context, final String invalidInput) {
-			return "Type " + invalidInput + " does not exist, choose one of the following (all, arrow, fireball, beam).";
+			return Lang.of("Turrets_Menu.Edit_Turret_View_Type_Prompt_Invalid_Text", "{invalidType}", invalidInput);
 		}
 
 		@Override
@@ -169,31 +157,28 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 			super(parent, true);
 
 			this.setSize(9 * 4);
-			this.setTitle(StringUtil.capitalize(turretData.getType()) + " Turret &8" + turretData.getId());
+			this.setTitle(Lang.of("Turrets_Menu.Turret_Edit_Menu_Title", "{turretType}", ChatUtil.capitalize(TurretUtil.getDisplayName(turretData.getType())), "{turretId}", turretData.getId()));
 
 
 			this.levelEditButton = new ButtonMenu(new LevelMenu(turretData.getCurrentLevel()), CompMaterial.EXPERIENCE_BOTTLE,
-					"Level Menu",
-					"Open this menu to upgrade",
-					"or downgrade the turret.");
+					Lang.of("Turrets_Menu.Level_Edit_Button_Title"),
+					Lang.ofArray("Turrets_Menu.Level_Edit_Button_Lore"));
 
 			this.blacklistButton = new ButtonMenu(new AlliesMenu(TurretEditMenu.this, turretData, player), CompMaterial.KNOWLEDGE_BOOK,
-					"Turret Blacklist",
-					"Click this button to edit",
-					"your turrets blacklist.");
+					Lang.of("Turrets_Menu.Allies_Button_Title"),
+					Lang.ofArray("Turrets_Menu.Allies_Button_Lore"));
 
-			this.teleportButton = Button.makeSimple(CompMaterial.ENDER_EYE, "Teleport", "Click to visit turret", player1 -> {
-				player1.teleport(turretData.getLocation());
+			this.teleportButton = Button.makeSimple(CompMaterial.ENDER_EYE, Lang.of("Turrets_Menu.Teleport_Button_Title"),
+					Lang.of("Turrets_Menu.Teleport_Button_Lore"), player1 -> {
+						player1.teleport(turretData.getLocation());
 
-				Messenger.success(player1, "&aYou have successfully teleported to the " + turretData.getType() + " turret with the id of &2" + turretData.getId() + "&a.");
-			});
+						Messenger.success(player1, Lang.of("Turrets_Menu.Teleport_Success_Message", "{turretType}", TurretUtil.getDisplayName(turretData.getType()), "{turretId}", turretData.getId()));
+					});
 		}
 
 		@Override
 		protected String[] getInfo() {
-			return new String[]{
-					"Edit this turrets settings."
-			};
+			return Lang.ofArray("Turrets_Menu.Turret_Edit_Menu_Info_Button", "{turretType}", TurretUtil.getDisplayName(turretData.getType()), "{turretId}", turretData.getId());
 		}
 
 		@Override
@@ -225,6 +210,8 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 			@Position(32)
 			private final Button nextLevelButton;
 
+			private final Button removeLevelButton;
+
 			@Position(31)
 			private final Button priceButton;
 
@@ -237,12 +224,12 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 				this.turretLevel = turretLevel;
 				this.level = getOrMakeLevel(turretLevel);
 
-				this.setTitle("Turret Level " + turretLevel);
+				this.setTitle(Lang.of("Turrets_Menu.Level_Menu_Title", "{level}", turretLevel));
 				this.setSize(9 * 4);
 
-				this.rangeButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.BOW).name("Turret Range")
-								.lore("Set the turrets range", "by clicking this button.", "", "Current: &9" + turretData.getLevel(turretLevel).getRange()),
-						"Type in an integer value between 1 and 40 (recommend value : 15-20)",
+				this.rangeButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.BOW).name(Lang.of("Turrets_Menu.Range_Button_Title"))
+								.lore(Lang.ofArray("Turrets_Menu.Range_Button_Lore", "{range}", turretData.getLevel(turretLevel).getRange())),
+						Lang.of("Turrets_Menu.Range_Prompt_Message", "{range}", turretData.getLevel(turretLevel).getRange()),
 						new RangedValue(1, 40), () -> turretData.getLevel(turretLevel).getRange(), (Integer input) -> registry.setRange(turretData, turretLevel, input));
 
 
@@ -253,33 +240,26 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 						final boolean isEnabled = turretData.getLevel(turretLevel).isLaserEnabled();
 
 						registry.setLaserEnabled(turretData, turretLevel, !isEnabled);
-						restartMenu((isEnabled ? "&cDisabled" : "&aEnabled") + " laser pointer");
+						restartMenu((Lang.of("Turrets_Menu.Laser_Enabled_Button_Animated_Message", "{enableOrDisabled}", isEnabled ? ChatUtil.capitalize(Lang.of("Placeholders.Enabled")) : ChatUtil.capitalize(Lang.of("Placeholders.Disabled")))));
 					}
 
 					@Override
 					public ItemStack getItem() {
 						final boolean isEnabled = turretData.getLevel(turretLevel).isLaserEnabled();
 
-						return ItemCreator.of(isEnabled ? CompMaterial.GREEN_WOOL : CompMaterial.RED_WOOL, "Enabled/Disable Laser",
-								"Current: " + (isEnabled ? "&aenabled" : "&cdisabled"),
-								"",
-								"Click to enable or disable",
-								"lasers for this turret.").make();
+						return ItemCreator.of(isEnabled ? CompMaterial.GREEN_WOOL : CompMaterial.RED_WOOL, Lang.of("Turrets_Menu.Laser_Enabled_Button_Title"),
+								Lang.ofArray("Turrets_Menu.Laser_Enabled_Button_Lore", "{enableOrDisabled}", isEnabled ? Lang.of("Placeholders.Enabled") : Lang.of("Placeholders.Disabled"))).make();
 					}
 				};
 
-				this.laserDamageButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.BLAZE_POWDER).name("Laser Damage")
-								.lore("Set the amount of damage", "lasers deal if they're enabled", "by clicking this button.", "", "Current: &9" + turretData.getLevel(turretLevel).getLaserDamage()),
-						"Type in an integer value between 1 and 40 (recommended value: 15-20)",
-						new RangedValue(1, 40), () -> turretData.getLevel(turretLevel).getLaserDamage(), (Double input) -> registry.setLaserDamage(turretData, turretLevel, input));
+				this.laserDamageButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.BLAZE_POWDER).name(Lang.of("Turrets_Menu.Laser_Damage_Button_Title"))
+								.lore(Lang.ofArray("Turrets_Menu.Laser_Damage_Button_Lore", "{damage}", turretData.getLevel(turretLevel).getLaserDamage())),
+						Lang.of("Turrets_Menu.Laser_Damage_Prompt_Message", "{damage}", turretData.getLevel(turretLevel).getLaserDamage()),
+						new RangedValue(0.0, 500.0), () -> turretData.getLevel(turretLevel).getLaserDamage(), (Double input) -> registry.setLaserDamage(turretData, turretLevel, input));
 
 				this.lootButton = new ButtonMenu(new LevelMenu.TurretLootChancesMenu(), CompMaterial.CHEST,
-						"Turret Loot",
-						"Open this menu to edit",
-						"the loot players get when",
-						"they destroy a turret.",
-						"You can also edit the drop",
-						"chance.");
+						Lang.of("Turrets_Menu.Loot_Drop_Button_Title"),
+						Lang.ofArray("Turrets_Menu.Loot_Drop_Button_Lore"));
 
 				this.previousLevelButton = new Button() {
 
@@ -295,7 +275,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 					public ItemStack getItem() {
 						return ItemCreator
 								.of(aboveFirstLevel ? CompMaterial.LIME_DYE : CompMaterial.GRAY_DYE,
-										aboveFirstLevel ? "Edit previous level" : "This is the first level").make();
+										aboveFirstLevel ? Lang.of("Turrets_Menu.Previous_Level_Button_Title_2") : Lang.of("Turrets_Menu.Previous_Level_Button_Title_1")).make();
 					}
 				};
 
@@ -315,17 +295,33 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 					@Override
 					public ItemStack getItem() {
 						return ItemCreator.of(nextLevelExists ? CompMaterial.LIME_DYE : CompMaterial.PURPLE_DYE,
-								nextLevelExists ? "Edit next level" : "Create a new level").make();
+								nextLevelExists ? Lang.of("Turrets_Menu.Next_Level_Button_Title_2") : Lang.of("Turrets_Menu.Next_Level_Button_Title_1")).make();
+					}
+				};
+
+				this.removeLevelButton = new Button() {
+
+					@Override
+					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
+						turretData.removeLevel(turretLevel);
+
+						final Menu previousMenu = new LevelMenu(turretLevel - 1);
+
+						previousMenu.displayTo(player);
+						Common.runLater(() -> previousMenu.animateTitle(Lang.of("Turrets_Menu.Remove_Level_Button_Animated_Message", "{level}", turretLevel)));
+					}
+
+					@Override
+					public ItemStack getItem() {
+						return ItemCreator.of(CompMaterial.BARRIER, Lang.of("Turrets_Menu.Remove_Level_Button_Title", "{level}", turretLevel)).make();
 					}
 				};
 
 				this.priceButton = Button.makeDecimalPrompt(ItemCreator.of(
 								CompMaterial.SUNFLOWER,
-								"Edit Price",
-								"Current: " + this.level.getPrice() + " coins",
-								"",
-								"Edit the price for",
-								"this level."), "Enter the price for this level. (Current: " + this.level.getPrice() + " " + Settings.CurrencySection.CURRENCY_NAME + ")",
+								Lang.of("Turrets_Menu.Price_Button_Title"),
+								Lang.ofArray("Turrets_Menu.Price_Button_Lore", "{price}", this.level.getPrice(), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME)),
+						Lang.of("Turrets_Menu.Price_Prompt_Message", "{price}", this.level.getPrice(), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME),
 						this.getTitle(), RangedValue.parse("0-100000"), () -> turretData.getLevel(turretLevel).getPrice(), (Double input) -> registry.setLevelPrice(turretData, turretLevel, input));
 			}
 
@@ -340,11 +336,17 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 			@Override
 			protected String[] getInfo() {
-				return new String[]{
-						"You can edit each individual",
-						"level in this menu and set its",
-						"price."
-				};
+				return Lang.ofArray("Turrets_Menu.Level_Menu_Info_Button");
+			}
+
+			@Override
+			public ItemStack getItemAt(final int slot) {
+				final boolean nextLevelExists = this.turretLevel < turretData.getLevels() || turretData.getLevels() == 0;
+
+				if (!nextLevelExists && slot == 34)
+					return this.removeLevelButton.getItem();
+
+				return NO_ITEM;
 			}
 
 			@Override
@@ -358,7 +360,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 					super(LevelMenu.this);
 
 					this.setSize(54);
-					this.setTitle("Place turret loot here");
+					this.setTitle(Lang.of("Turrets_Menu.Turret_Loot_Menu_Title"));
 				}
 
 				@Override
@@ -407,10 +409,10 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 	@RequiredArgsConstructor
 	private enum TurretType {
-		ALL("All", TurretRegistry.getInstance().getRegisteredTurrets()),
-		ARROW("Arrow", TurretRegistry.getInstance().getTurretsOfType("arrow")),
-		FIREBALL("Fireball", TurretRegistry.getInstance().getTurretsOfType("fireball")),
-		BEAM("Beam", TurretRegistry.getInstance().getTurretsOfType("beam"));
+		ALL(ChatUtil.capitalize(Lang.of("Placeholders.All")), TurretRegistry.getInstance().getRegisteredTurrets()),
+		ARROW(ChatUtil.capitalize(Lang.of("Placeholders.Arrow")), TurretRegistry.getInstance().getTurretsOfType("arrow")),
+		FIREBALL(ChatUtil.capitalize(Lang.of("Placeholders.Fireball")), TurretRegistry.getInstance().getTurretsOfType("fireball")),
+		BEAM(ChatUtil.capitalize(Lang.of("Placeholders.Beam")), TurretRegistry.getInstance().getTurretsOfType("beam"));
 
 		private final String typeName;
 		private final Set<TurretData> turretTypeList;
