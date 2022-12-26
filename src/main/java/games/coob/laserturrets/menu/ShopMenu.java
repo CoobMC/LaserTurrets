@@ -6,6 +6,7 @@ import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.tools.ArrowTurret;
 import games.coob.laserturrets.tools.BeamTurret;
 import games.coob.laserturrets.tools.FireballTurret;
+import games.coob.laserturrets.util.Lang;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
@@ -14,7 +15,6 @@ import org.mineacademy.fo.menu.button.Button;
 import org.mineacademy.fo.menu.button.annotation.Position;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.remain.CompMaterial;
-import org.mineacademy.fo.settings.Lang;
 
 public class ShopMenu extends Menu {
 

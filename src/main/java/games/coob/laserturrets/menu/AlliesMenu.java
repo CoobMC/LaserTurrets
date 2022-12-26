@@ -2,6 +2,8 @@ package games.coob.laserturrets.menu;
 
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.util.Lang;
+import games.coob.laserturrets.util.TurretUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -14,7 +16,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mineacademy.fo.ChatUtil;
 import org.mineacademy.fo.ItemUtil;
 import org.mineacademy.fo.conversation.SimplePrompt;
 import org.mineacademy.fo.menu.Menu;
@@ -27,7 +28,6 @@ import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.model.Replacer;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.Remain;
-import org.mineacademy.fo.settings.Lang;
 
 import java.util.Arrays;
 import java.util.List;
@@ -57,10 +57,10 @@ public class AlliesMenu extends Menu {
 		this.setTitle(Lang.of("Manage_Allies_Menu.Main_Title"));
 
 		this.mobBlacklistButton = new ButtonMenu(new MobBlacklistMenu(), CompMaterial.CREEPER_HEAD,
-				Lang.of("Manage_Allies_Menu.Mob_Allies_Title", "{listType}", turretData.isMobWhitelistEnabled() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))), Lang.ofArray("Manage_Allies_Menu.Mob_Allies_Lore", "{listType}", turretData.isMobWhitelistEnabled() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")));
+				Lang.of("Manage_Allies_Menu.Mob_Allies_Title", "{listType}", turretData.isMobWhitelistEnabled() ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist"))), Lang.ofArray("Manage_Allies_Menu.Mob_Allies_Lore", "{listType}", turretData.isMobWhitelistEnabled() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")));
 
 		this.playerBlacklistButton = new ButtonMenu(new PlayerBlacklistMenu(), CompMaterial.PLAYER_HEAD,
-				Lang.of("Manage_Allies_Menu.Player_Allies_Title", "{listType}", turretData.isPlayerWhitelistEnabled() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))), Lang.ofArray("Manage_Allies_Menu.Player_Allies_Lore", "{listType}", turretData.isPlayerWhitelistEnabled() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")));
+				Lang.of("Manage_Allies_Menu.Player_Allies_Title", "{listType}", turretData.isPlayerWhitelistEnabled() ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist"))), Lang.ofArray("Manage_Allies_Menu.Player_Allies_Lore", "{listType}", turretData.isPlayerWhitelistEnabled() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")));
 	}
 
 	@Override
@@ -82,7 +82,7 @@ public class AlliesMenu extends Menu {
 		private MobBlacklistMenu() {
 			super(27, AlliesMenu.this, turretData.getMobBlacklist());
 
-			this.setTitle(Replacer.replaceArray(Lang.of("Manage_Allies_Menu.Mob_Allies_Title"), "{listType}", turretData.isMobWhitelistEnabled() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))));
+			this.setTitle(Replacer.replaceArray(Lang.of("Manage_Allies_Menu.Mob_Allies_Title"), "{listType}", turretData.isMobWhitelistEnabled() ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist"))));
 
 			this.addButton = new ButtonMenu(new MobBlacklistMenu.MobSelectionMenu(), CompMaterial.ENDER_CHEST,
 					Lang.of("Manage_Allies_Menu.Mob_Add_Button_Title"),
@@ -95,7 +95,7 @@ public class AlliesMenu extends Menu {
 					final boolean isWhitelist = turretData.isMobWhitelistEnabled();
 
 					registry.enableMobWhitelist(turretData, !isWhitelist);
-					setTitle(Lang.of("Manage_Allies_Menu.Mob_List_Type_Menu_Title", "{listType}", turretData.isMobWhitelistEnabled() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))));
+					setTitle(Lang.of("Manage_Allies_Menu.Mob_List_Type_Menu_Title", "{listType}", turretData.isMobWhitelistEnabled() ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist"))));
 					restartMenu(Lang.of("Manage_Allies_Menu.Mob_List_Type_Menu_Animated_Message", "{listType}", isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured")));
 				}
 
@@ -103,7 +103,7 @@ public class AlliesMenu extends Menu {
 				public ItemStack getItem() {
 					final boolean isWhitelist = turretData.isMobWhitelistEnabled();
 
-					return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, Lang.of("Manage_Allies_Menu.Mob_List_Type_Button_Title", "{listType}", isWhitelist ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist_Coloured")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist_Coloured"))),
+					return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, Lang.of("Manage_Allies_Menu.Mob_List_Type_Button_Title", "{listType}", isWhitelist ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist_Coloured")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist_Coloured"))),
 							Lang.ofArray("Manage_Allies_Menu.Mob_List_Type_Button_Lore", "{listType}", !isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured"))).make();
 				}
 			};
@@ -192,7 +192,7 @@ public class AlliesMenu extends Menu {
 		private PlayerBlacklistMenu() {
 			super(27, AlliesMenu.this, turretData.getPlayerBlacklist());
 
-			this.setTitle(Lang.of("Manage_Allies_Menu.Player_Allies_Title", "{listType}", (turretData.isPlayerWhitelistEnabled() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist")))));
+			this.setTitle(Lang.of("Manage_Allies_Menu.Player_Allies_Title", "{listType}", (turretData.isPlayerWhitelistEnabled() ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist")))));
 
 			this.addButton = new ButtonMenu(new PlayerSelectionMenu(), CompMaterial.ENDER_CHEST,
 					Lang.of("Manage_Allies_Menu.Player_Add_Button_Title"),
@@ -209,7 +209,7 @@ public class AlliesMenu extends Menu {
 					final boolean isWhitelist = turretData.isPlayerWhitelistEnabled();
 
 					registry.enablePlayerWhitelist(turretData, !isWhitelist);
-					setTitle(Lang.of("Manage_Allies_Menu.Player_List_Type_Menu_Title", "{listType}", turretData.isPlayerWhitelistEnabled() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))));
+					setTitle(Lang.of("Manage_Allies_Menu.Player_List_Type_Menu_Title", "{listType}", turretData.isPlayerWhitelistEnabled() ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist"))));
 					restartMenu(Lang.of("Manage_Allies_Menu.Player_List_Type_Menu_Animated_Message", "{listType}", isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured")));
 				}
 
@@ -217,7 +217,7 @@ public class AlliesMenu extends Menu {
 				public ItemStack getItem() {
 					final boolean isWhitelist = turretData.isPlayerWhitelistEnabled();
 
-					return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, Lang.of("Manage_Allies_Menu.Player_List_Type_Button_Title", "{listType}", isWhitelist ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist_Coloured")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist_Coloured"))),
+					return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, Lang.of("Manage_Allies_Menu.Player_List_Type_Button_Title", "{listType}", isWhitelist ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist_Coloured")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist_Coloured"))),
 							Lang.ofArray("Manage_Allies_Menu.Player_List_Type_Button_Lore", "{listType}", !isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured"))).make();
 				}
 			};

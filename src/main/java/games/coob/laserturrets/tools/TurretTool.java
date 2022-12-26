@@ -3,24 +3,25 @@ package games.coob.laserturrets.tools;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.TurretSettings;
+import games.coob.laserturrets.util.Lang;
+import games.coob.laserturrets.util.TurretUtil;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.mineacademy.fo.ChatUtil;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.menu.tool.Tool;
 import org.mineacademy.fo.plugin.SimplePlugin;
 import org.mineacademy.fo.remain.CompMaterial;
-import org.mineacademy.fo.settings.Lang;
 import org.mineacademy.fo.visual.VisualTool;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Handles tools that click within an arena.
@@ -52,7 +53,7 @@ public abstract class TurretTool extends VisualTool {
 		if (item == null)
 			item = ItemCreator.of(
 							getTurretMaterial(),
-							this.oneUse ? Lang.of("Tool.Title_Infinite_Use_Tool", "{turretType}", ChatUtil.capitalize(this.displayName)) : Lang.of("Tool.Title_1_Use_Tool", "{turretType}", ChatUtil.capitalize(this.displayName)),
+							this.oneUse ? Lang.of("Tool.Title_Infinite_Use_Tool", "{turretType}", TurretUtil.capitalizeWord(this.displayName)) : Lang.of("Tool.Title_1_Use_Tool", "{turretType}", TurretUtil.capitalizeWord(this.displayName)),
 							this.oneUse ? Lang.ofArray("Tool.Lore_1_Use_Tool") : Lang.ofArray("Tool.Lore_Infinite_Use_Tool"))
 					.glow(true).make();
 
@@ -74,28 +75,33 @@ public abstract class TurretTool extends VisualTool {
 			return;
 		}
 
+		if (registry.isRegistered(block) && !Objects.equals(registry.getTurretByBlock(block).getType(), this.turretType)) {
+			Messenger.error(player, Lang.of("Tool.Block_Is_Already_Turret"));
+			return;
+		}
+
 		if (block.hasMetadata("IsCreating"))
 			return;
 
-		final boolean oneUse = this.item.getItemMeta().getLore().toString().contains("1 use");
+		final boolean oneUse = this.oneUse/*this.item.getItemMeta().getLore().toString().contains("1 use")*/;
 		final boolean isTurret = registry.isTurretOfType(block, type);
 
 		if (isTurret && !oneUse) {
 			registry.unregister(block);
-			Messenger.success(player, Lang.of("Tool.Unregistered_Turret", "{turretType}", this.displayName, "{location}", Common.shortLocation(block.getLocation())));
+			Messenger.success(player, Lang.of("Tool.Unregistered_Turret_Message", "{turretType}", this.displayName, "{location}", Common.shortLocation(block.getLocation())));
 		} else if (!isTurret) {
 			if (oneUse)
 				player.getInventory().removeItem(this.item);
 
 			block.setMetadata("IsCreating", new FixedMetadataValue(SimplePlugin.getInstance(), ""));
 			Sequence.TURRET_CREATION(player, block, type).start(block.getLocation());
-			Messenger.success(player, Lang.of("Tool.Registered_Turret", "{turretType}", this.displayName, "{location}", Common.shortLocation(block.getLocation())));
+			Messenger.success(player, Lang.of("Tool.Registered_Turret_Message", "{turretType}", this.displayName, "{location}", Common.shortLocation(block.getLocation())));
 		}
 	}
 
 	@Override
 	protected List<Location> getVisualizedPoints(final Player player) {
-		if (!oneUse /*this.item.getItemMeta().getLore().toString().contains("1 use")*/) // TODO
+		if (!this.oneUse)
 			return TurretRegistry.getInstance().getTurretLocationsOfType(this.turretType);
 
 		return new ArrayList<>();
@@ -103,8 +109,8 @@ public abstract class TurretTool extends VisualTool {
 
 	@Override
 	protected String getBlockName(final Block block, final Player player) {
-		if (!oneUse /*this.item.getItemMeta().getLore().toString().contains("1 use")*/) // TODO
-			return Lang.of("Tool.Registered_Turret", "{turretType}", ChatUtil.capitalize(this.displayName));
+		if (!this.oneUse)
+			return Lang.of("Tool.Registered_Turret_Hologram", "{turretType}", TurretUtil.capitalizeWord(this.displayName));
 
 		return null;
 	}

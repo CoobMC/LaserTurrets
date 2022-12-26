@@ -6,10 +6,8 @@ import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
-import games.coob.laserturrets.task.ArrowTask;
-import games.coob.laserturrets.task.BeamTask;
-import games.coob.laserturrets.task.FireballTask;
-import games.coob.laserturrets.task.LaserPointerTask;
+import games.coob.laserturrets.task.*;
+import games.coob.laserturrets.util.SimpleHologram;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.plugin.SimplePlugin;
@@ -21,7 +19,7 @@ import org.mineacademy.fo.plugin.SimplePlugin;
  * <p>
  * It uses Foundation for fast and efficient development process.
  */
-public final class LaserTurrets extends SimplePlugin {
+public final class LaserTurrets extends SimplePlugin { // TODO update hologram lines if messages file was modified
 
 	//private static Economy econ = null;
 
@@ -67,6 +65,7 @@ public final class LaserTurrets extends SimplePlugin {
 	protected void onPluginReload() {
 		TurretRegistry.getInstance().save();
 		Sequence.reload();
+		SimpleHologram.deleteAll();
 	}
 
 	@Override
@@ -90,9 +89,14 @@ public final class LaserTurrets extends SimplePlugin {
 		// Add your own plugin parts to load automatically here
 		// Please see @AutoRegister for parts you do not have to register manually
 		//
+		//for (final TurretData turretData : TurretRegistry.getInstance().getRegisteredTurrets())
+			/*if (turretData.getHologram() != null)
+				turretData.getHologram().setLore(Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getPlayerByUUID(turretData.getOwner()).getName(), "{level}", turretData.getCurrentLevel(), "{health}", turretData.getCurrentHealth()));*/
+
 		Common.runTimer(20, new ArrowTask());
 		Common.runTimer(25, new FireballTask());
 		Common.runTimer(2, new LaserPointerTask());
+		Common.runTimer(20, new HologramTask());
 
 		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_9))
 			Common.runTimer(30, new BeamTask());

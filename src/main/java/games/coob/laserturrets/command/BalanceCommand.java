@@ -2,10 +2,10 @@ package games.coob.laserturrets.command;
 
 import games.coob.laserturrets.PlayerCache;
 import games.coob.laserturrets.model.Permissions;
+import games.coob.laserturrets.util.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.mineacademy.fo.command.SimpleSubCommand;
-import org.mineacademy.fo.settings.Lang;
 
 import java.util.List;
 

@@ -1,9 +1,9 @@
 package games.coob.laserturrets.tools;
 
+import games.coob.laserturrets.util.Lang;
 import lombok.Getter;
 import org.mineacademy.fo.annotation.AutoRegister;
 import org.mineacademy.fo.menu.tool.Tool;
-import org.mineacademy.fo.settings.Lang;
 
 @AutoRegister
 public final class FireballTurret extends TurretTool {

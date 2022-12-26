@@ -2,9 +2,9 @@ package games.coob.laserturrets.command;
 
 import games.coob.laserturrets.menu.ShopMenu;
 import games.coob.laserturrets.model.Permissions;
+import games.coob.laserturrets.util.Lang;
 import org.bukkit.entity.Player;
 import org.mineacademy.fo.command.SimpleSubCommand;
-import org.mineacademy.fo.settings.Lang;
 
 public final class ShopCommand extends SimpleSubCommand {
 

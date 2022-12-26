@@ -1,6 +1,7 @@
 package games.coob.laserturrets.model;
 
 import games.coob.laserturrets.settings.TurretSettings;
+import games.coob.laserturrets.util.SimpleHologram;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -8,12 +9,14 @@ import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.SerializeUtil;
+import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.collection.SerializedMap;
 import org.mineacademy.fo.model.ConfigSerializable;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.util.*;
 
 @Getter
@@ -46,6 +49,8 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 	private double currentHealth;
 
 	private int currentLevel;
+
+	private SimpleHologram hologram;
 
 	public void setLocation(final Location location) {
 		this.location = location;
@@ -94,6 +99,10 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		}
 
 		return items;
+	}
+
+	public void setHologram(final SimpleHologram hologram) {
+		this.hologram = hologram;
 	}
 
 	public void setCurrentLevel(final int level) {
@@ -180,9 +189,8 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 	}
 
 	public void removeLevel(final int level) {
-		//Valid.checkBoolean(getLevels() >= level, "Cannot remove level " + level + " because the turret only has " + getLevels() + " levels.");
-		if (getLevels() < level) // TODO
-			turretLevels.remove(level - 1);
+		Valid.checkBoolean(getLevels() >= level, "Cannot remove level " + level + " because the turret only has " + getLevels() + " levels.");
+		this.turretLevels.remove(level - 1);
 	}
 
 	public void setTurretLevels(final List<TurretData.TurretLevel> levels) {
@@ -213,12 +221,13 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		map.put("Current_Health", this.currentHealth);
 		map.put("Current_Level", this.currentLevel);
 		map.put("Destroyed", this.broken);
+		map.put("Hologram", this.hologram);
 		map.put("Levels", this.turretLevels);
 
 		return map;
 	}
 
-	public static TurretData deserialize(final SerializedMap map) {
+	public static TurretData deserialize(final SerializedMap map) throws IOException {
 		final TurretData turretData = new TurretData();
 
 		final String hash = map.getString("Block");
@@ -233,6 +242,8 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		final double currentHealth = map.getDouble("Current_Health");
 		final Integer level = map.getInteger("Current_Level");
 		final boolean destroyed = map.getBoolean("Destroyed", false);
+		final SimpleHologram hologram = map.get("Hologram", SimpleHologram.class);
+
 		final List<TurretLevel> levels = map.getList("Levels", TurretLevel.class, turretData);
 
 		final String[] split = hash.split(" \\| ");
@@ -252,6 +263,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		turretData.setCurrentLevel(level);
 		turretData.setCurrentHealth(currentHealth);
 		turretData.setBroken(destroyed);
+		turretData.setHologram(hologram);
 		turretData.setTurretLevels(levels);
 
 		return turretData;
@@ -304,7 +316,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 			this.maxHealth = health;
 		}
 
-		public static TurretLevel deserialize(final SerializedMap map, final TurretData turretData) { // TODO cannot deserialize because there are null values in the map
+		public static TurretLevel deserialize(final SerializedMap map, final TurretData turretData) {
 			final double price = map.getDouble("Price");
 			final List<Tuple<ItemStack, Double>> lootChances = map.getTupleList("Loot_Chances", ItemStack.class, Double.class);
 			final int range = map.getInteger("Range");

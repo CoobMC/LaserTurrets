@@ -7,6 +7,8 @@ import games.coob.laserturrets.menu.UpgradeMenu;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.Settings;
+import games.coob.laserturrets.util.Lang;
+import games.coob.laserturrets.util.TurretUtil;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -25,14 +27,13 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 import org.mineacademy.fo.Common;
+import org.mineacademy.fo.MathUtil;
 import org.mineacademy.fo.annotation.AutoRegister;
 import org.mineacademy.fo.menu.tool.Tool;
-import org.mineacademy.fo.model.Replacer;
 import org.mineacademy.fo.remain.CompAttribute;
 import org.mineacademy.fo.remain.CompParticle;
 import org.mineacademy.fo.remain.CompSound;
 import org.mineacademy.fo.remain.Remain;
-import org.mineacademy.fo.settings.Lang;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +81,7 @@ public final class TurretListener implements Listener {
 
 			if (turretRegistry.isRegistered(block)) {
 				blockList.add(block);
-				damageTurret(block, 40);
+				damageTurretQuiet(block, 40);
 			} else if (turretRegistry.isRegistered(blockUnder))
 				blockList.add(block);
 		}
@@ -99,7 +100,7 @@ public final class TurretListener implements Listener {
 
 			if (turretRegistry.isRegistered(block)) {
 				blockList.add(block);
-				damageTurret(block, 40);
+				damageTurretQuiet(block, 40);
 			} else if (turretRegistry.isRegistered(blockUnder))
 				blockList.add(block);
 		}
@@ -215,30 +216,22 @@ public final class TurretListener implements Listener {
 			Common.runLater(20, () -> cache.setTurretHit(false));
 		}
 
-		final Location location = block.getLocation().clone();
-
-		registry.setTurretHealth(block, turretData.getCurrentHealth() - damage);
-		CompSound.ITEM_BREAK.play(location);
-
-		if (turretData.getCurrentHealth() <= 0 && !turretData.isBroken()) {
-			registry.setBrokenAndFill(block, true);
-			CompParticle.EXPLOSION_LARGE.spawn(location.add(0.5, 1, 0.5), 2);
-			CompSound.EXPLODE.play(location);
-		}
+		damageTurretQuiet(block, damage);
 
 		if (entity instanceof Player) {
-			final String health = Replacer.replaceArray(Lang.of("Turret_Display.Action_Bar_Damage", "{health}", turretData.getCurrentHealth()));
+			final String health = Lang.of("Turret_Display.Action_Bar_Damage", "{health}", turretData.getCurrentHealth());
 			Remain.sendActionBar((Player) entity, turretData.getCurrentHealth() > 0 ? health : Lang.of("Turret_Display.Action_Bar_Damage_But_Broken"));
 		}
 	}
 
-	private void damageTurret(final Block block, final double damage) {
+	private void damageTurretQuiet(final Block block, final double damage) {
 		final TurretRegistry registry = TurretRegistry.getInstance();
 		final TurretData turretData = registry.getTurretByBlock(block);
 		final Location location = block.getLocation().clone();
 
 		registry.setTurretHealth(block, turretData.getCurrentHealth() - damage);
 		CompSound.ITEM_BREAK.play(location);
+		turretData.getHologram().setLore(Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getPlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth()));
 
 		if (turretData.getCurrentHealth() <= 0 && !turretData.isBroken()) {
 			registry.setBrokenAndFill(block, true);

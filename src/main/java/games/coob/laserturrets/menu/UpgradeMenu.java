@@ -4,11 +4,11 @@ import games.coob.laserturrets.PlayerCache;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.Settings;
+import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.TurretUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
-import org.mineacademy.fo.ChatUtil;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.MathUtil;
 import org.mineacademy.fo.menu.Menu;
@@ -17,7 +17,7 @@ import org.mineacademy.fo.menu.button.ButtonMenu;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompSound;
-import org.mineacademy.fo.settings.Lang;
+import org.mineacademy.fo.remain.Remain;
 
 public class UpgradeMenu extends Menu {
 
@@ -31,7 +31,7 @@ public class UpgradeMenu extends Menu {
 
 	public UpgradeMenu(final TurretData turretData, final int turretLevel, final Player player) {
 		this.setSize(27);
-		this.setTitle(Lang.of("Upgrade_Menu.Menu_Title", "{turretType}", ChatUtil.capitalize(TurretUtil.getDisplayName(turretData.getType())), "{level}", turretLevel));
+		this.setTitle(Lang.of("Upgrade_Menu.Menu_Title", "{turretType}", TurretUtil.capitalizeWord(TurretUtil.getDisplayName(turretData.getType())), "{level}", turretLevel));
 		this.setViewer(player);
 
 		this.turretData = turretData;
@@ -65,6 +65,8 @@ public class UpgradeMenu extends Menu {
 							newMenu.displayTo(player);
 							Common.runLater(() -> newMenu.animateTitle(Lang.of("Upgrade_Menu.Upgrade_Animated_Message", "{nextLevel}", nextLevel)));
 						});
+
+						turretData.getHologram().setLore(Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getPlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth()));
 					}
 				}
 			}

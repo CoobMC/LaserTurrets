@@ -2,6 +2,7 @@ package games.coob.laserturrets;
 
 import games.coob.laserturrets.hook.VaultHook;
 import games.coob.laserturrets.settings.Settings;
+import games.coob.laserturrets.util.Lang;
 import lombok.Getter;
 import lombok.Setter;
 import net.milkbowl.vault.economy.Economy;
@@ -11,7 +12,6 @@ import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.constants.FoConstants;
 import org.mineacademy.fo.remain.Remain;
-import org.mineacademy.fo.settings.Lang;
 import org.mineacademy.fo.settings.YamlConfig;
 
 import javax.annotation.Nullable;

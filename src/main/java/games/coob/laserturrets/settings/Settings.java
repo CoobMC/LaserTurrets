@@ -1,6 +1,6 @@
 package games.coob.laserturrets.settings;
 
-import org.mineacademy.fo.settings.Lang;
+import games.coob.laserturrets.util.Lang;
 import org.mineacademy.fo.settings.SimpleSettings;
 import org.mineacademy.fo.settings.YamlStaticConfig;
 

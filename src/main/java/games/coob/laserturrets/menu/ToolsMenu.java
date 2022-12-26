@@ -3,9 +3,9 @@ package games.coob.laserturrets.menu;
 import games.coob.laserturrets.tools.ArrowTurretTool;
 import games.coob.laserturrets.tools.BeamTurretTool;
 import games.coob.laserturrets.tools.FireballTurretTool;
+import games.coob.laserturrets.util.Lang;
 import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.menu.MenuTools;
-import org.mineacademy.fo.settings.Lang;
 
 public class ToolsMenu extends MenuTools {
 	public ToolsMenu() {

@@ -1,7 +1,9 @@
 package games.coob.laserturrets.model;
 
 import games.coob.laserturrets.settings.TurretSettings;
-import games.coob.laserturrets.util.test.HologramUtil;
+import games.coob.laserturrets.util.Lang;
+import games.coob.laserturrets.util.SimpleHologram;
+import games.coob.laserturrets.util.TurretUtil;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -10,12 +12,12 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.Common;
+import org.mineacademy.fo.MathUtil;
 import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.constants.FoConstants;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.Remain;
-import org.mineacademy.fo.settings.Lang;
 import org.mineacademy.fo.settings.YamlConfig;
 
 import javax.annotation.Nullable;
@@ -72,18 +74,26 @@ public class TurretRegistry extends YamlConfig {
 		}
 
 		turretData.setCurrentHealth(turretData.getLevel(1).getMaxHealth());
+		turretData.setHologram(createHologram(turretData));
 		this.registeredTurrets.add(turretData);
-
-		final HologramUtil hologram = new HologramUtil(block.getLocation().clone().add(0, 0.5, 0), "Hello there");
-
-		for (final Player player1 : Remain.getOnlinePlayers())
-			hologram.display(player1);
 
 		this.save();
 	}
 
+	private SimpleHologram createHologram(final TurretData turretData) {
+		final SimpleHologram hologram = new SimpleHologram(turretData.getLocation().clone().add(0.5, 0, 0.5));
+
+		hologram.setLore(Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getPlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth()));
+
+		return hologram;
+	}
+
 	public void unregister(final Block block) {
 		final TurretData turretData = getTurretByBlock(block);
+
+		if (turretData.getHologram() != null)
+			turretData.getHologram().remove();
+
 		block.getRelative(BlockFace.UP).setType(CompMaterial.AIR.getMaterial());
 		this.registeredTurrets.remove(turretData);
 
@@ -171,6 +181,12 @@ public class TurretRegistry extends YamlConfig {
 
 	public void createLevel(final TurretData turretData) {
 		turretData.createLevel(turretData.getType());
+
+		this.save();
+	}
+
+	public void removeLevel(final TurretData turretData, final int level) {
+		turretData.removeLevel(level);
 
 		this.save();
 	}

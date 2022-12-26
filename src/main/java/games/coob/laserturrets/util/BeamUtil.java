@@ -27,7 +27,7 @@ import java.util.function.Supplier;
  * <b>1.9 -> 1.19</b>
  *
  * @author SkytAsul
- * @version 2.3.0
+ * @version 2.3.1
  * @see <a href="https://github.com/SkytAsul/GuardianBeam">GitHub repository</a>
  */
 public abstract class BeamUtil {
@@ -433,9 +433,14 @@ public abstract class BeamUtil {
 				correctEnd.subtract(0, 0.5, 0);
 
 				final Vector corrective = correctEnd.toVector().subtract(getCorrectStart().toVector()).normalize();
-				correctEnd.subtract(corrective);
 
+				if (Double.isNaN(corrective.getX())) corrective.setX(0);
+				if (Double.isNaN(corrective.getY())) corrective.setY(0);
+				if (Double.isNaN(corrective.getZ())) corrective.setZ(0);
+				// coordinates can be NaN when start and end are stricly equals
+				correctEnd.subtract(corrective);
 			}
+
 			return correctEnd;
 		}
 
@@ -541,6 +546,7 @@ public abstract class BeamUtil {
 		private static Method watcherSet;
 		private static Method watcherRegister;
 		private static Method watcherDirty;
+		private static Method watcherPack;
 
 		private static Constructor<?> blockPositionConstructor;
 
@@ -606,7 +612,7 @@ public abstract class BeamUtil {
 
 				final Class<?> dataWatcherClass = getNMSClass("network.syncher", "DataWatcher");
 				watcherConstructor = dataWatcherClass.getDeclaredConstructor(entityClass);
-				
+
 				if (version >= 18) {
 					watcherSet = dataWatcherClass.getDeclaredMethod("b", watcherObject1.getClass(), Object.class);
 					watcherRegister = dataWatcherClass.getDeclaredMethod("a", watcherObject1.getClass(), Object.class);
@@ -614,11 +620,15 @@ public abstract class BeamUtil {
 					watcherSet = getMethod(dataWatcherClass, "set");
 					watcherRegister = getMethod(dataWatcherClass, "register");
 				}
-				if (version >= 15) watcherDirty = getMethod(dataWatcherClass, "markDirty");
+				if (version >= 15)
+					watcherDirty = getMethod(dataWatcherClass, "markDirty");
+				if (version > 19 || (version == 19 && versionMinor >= 3))
+					watcherPack = dataWatcherClass.getDeclaredMethod("b");
+
 				packetSpawnNormal = getNMSClass("network.protocol.game", "PacketPlayOutSpawnEntity").getDeclaredConstructor(version < 17 ? new Class<?>[0] : new Class<?>[]{getNMSClass("world.entity", "Entity")});
 				packetSpawnLiving = version >= 19 ? packetSpawnNormal : getNMSClass("network.protocol.game", "PacketPlayOutSpawnEntityLiving").getDeclaredConstructor(version < 17 ? new Class<?>[0] : new Class<?>[]{getNMSClass("world.entity", "EntityLiving")});
 				packetRemove = getNMSClass("network.protocol.game", "PacketPlayOutEntityDestroy").getDeclaredConstructor(version == 17 && versionMinor == 0 ? int.class : int[].class);
-				packetMetadata = getNMSClass("network.protocol.game", "PacketPlayOutEntityMetadata").getDeclaredConstructor(int.class, dataWatcherClass, boolean.class);
+				packetMetadata = getNMSClass("network.protocol.game", "PacketPlayOutEntityMetadata").getDeclaredConstructor(version < 19 || (version == 19 && versionMinor < 3) ? new Class<?>[]{int.class, dataWatcherClass, boolean.class} : new Class<?>[]{int.class, List.class});
 				packetTeleport = getNMSClass("network.protocol.game", "PacketPlayOutEntityTeleport").getDeclaredConstructor(version < 17 ? new Class<?>[0] : new Class<?>[]{entityClass});
 				packetTeam = getNMSClass("network.protocol.game", "PacketPlayOutScoreboardTeam");
 
@@ -796,7 +806,11 @@ public abstract class BeamUtil {
 		}
 
 		private static Object createPacketMetadata(final int entityId, final Object watcher) throws ReflectiveOperationException {
-			return packetMetadata.newInstance(entityId, watcher, false);
+			if (version < 19 || (version == 19 && versionMinor < 3)) {
+				return packetMetadata.newInstance(entityId, watcher, false);
+			} else {
+				return packetMetadata.newInstance(entityId, watcherPack.invoke(watcher));
+			}
 		}
 
 		private static void tryWatcherSet(final Object watcher, final Object watcherObject, final Object watcherData) throws ReflectiveOperationException {
@@ -858,7 +872,23 @@ public abstract class BeamUtil {
 					return Packets.versionMinor < 2 ? "aa" : "Z";
 				}
 			},
-			V1_19(19, "Z", "b", "e", "c", "d", 89, 38, "N", "aM", "w", "a", "g"),
+			
+			V1_19(19, "Z", "b", "e", "c", "d", 89, 38, null, null, "w", "a", "g") {
+				@Override
+				public int getGuardianID() {
+					return versionMinor < 3 ? 38 : 39;
+				}
+
+				@Override
+				public String getSquidTypeName() {
+					return versionMinor < 3 ? "aM" : "aN";
+				}
+
+				@Override
+				public String getGuardianTypeName() {
+					return versionMinor < 3 ? "N" : "O";
+				}
+			},
 			;
 
 			private final int major;

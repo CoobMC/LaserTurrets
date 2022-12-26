@@ -3,6 +3,7 @@ package games.coob.laserturrets.menu;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.Settings;
+import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.TurretUtil;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.conversations.ConversationContext;
@@ -12,7 +13,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.mineacademy.fo.ChatUtil;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.collection.StrictMap;
@@ -29,7 +29,6 @@ import org.mineacademy.fo.menu.model.MenuClickLocation;
 import org.mineacademy.fo.model.RangedValue;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
-import org.mineacademy.fo.settings.Lang;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +52,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 		this.turretType = turretType;
 		this.player = player;
 
-		this.setTitle(Lang.of("Turrets_Menu.Menu_Title", "{turretType}", TurretUtil.getDisplayName(turretType.typeName)));
+		this.setTitle(Lang.of("Turrets_Menu.Menu_Title", "{turretType}", TurretUtil.capitalizeWord(TurretUtil.getDisplayName(turretType.typeName))));
 		this.setSize(9 * 3);
 
 		this.changeTypeButton = new ButtonConversation(new EditMenuTypePrompt(),
@@ -77,10 +76,10 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 	protected ItemStack convertToItemStack(final TurretData turretData) {
 		final int level = turretData.getCurrentLevel();
 		final String id = turretData.getId();
-		final String type = ChatUtil.capitalize(TurretUtil.getDisplayName(turretData.getType()));
+		final String type = TurretUtil.capitalizeWord(TurretUtil.getDisplayName(turretData.getType()));
 		final String[] lore = Lang.ofArray("Turrets_Menu.Turrets_Lore", "{level}", level, "{turretType}", type);
 
-		if (this.turretType.typeName.equals("All"))
+		if (this.turretType.typeName.equalsIgnoreCase("all"))
 			return ItemCreator.of(turretData.getMaterial()).name(Lang.of("Turrets_Menu.Turrets_Title", "{turretType}", type, "{turretId}", id)).lore(lore).makeMenuTool();
 		else if (type.equalsIgnoreCase(this.turretType.typeName))
 			return ItemCreator.of(turretData.getMaterial()).name(Lang.of("Turrets_Menu.Turrets_Title", "{turretType}", type, "{turretId}", id)).lore(lore).makeMenuTool();
@@ -157,7 +156,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 			super(parent, true);
 
 			this.setSize(9 * 4);
-			this.setTitle(Lang.of("Turrets_Menu.Turret_Edit_Menu_Title", "{turretType}", ChatUtil.capitalize(TurretUtil.getDisplayName(turretData.getType())), "{turretId}", turretData.getId()));
+			this.setTitle(Lang.of("Turrets_Menu.Turret_Edit_Menu_Title", "{turretType}", TurretUtil.capitalizeWord(TurretUtil.getDisplayName(turretData.getType())), "{turretId}", turretData.getId()));
 
 
 			this.levelEditButton = new ButtonMenu(new LevelMenu(turretData.getCurrentLevel()), CompMaterial.EXPERIENCE_BOTTLE,
@@ -240,7 +239,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 						final boolean isEnabled = turretData.getLevel(turretLevel).isLaserEnabled();
 
 						registry.setLaserEnabled(turretData, turretLevel, !isEnabled);
-						restartMenu((Lang.of("Turrets_Menu.Laser_Enabled_Button_Animated_Message", "{enableOrDisabled}", isEnabled ? ChatUtil.capitalize(Lang.of("Placeholders.Enabled")) : ChatUtil.capitalize(Lang.of("Placeholders.Disabled")))));
+						restartMenu((Lang.of("Turrets_Menu.Laser_Enabled_Button_Animated_Message", "{enabledOrDisabled}", isEnabled ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Enabled")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Disabled")))));
 					}
 
 					@Override
@@ -248,7 +247,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 						final boolean isEnabled = turretData.getLevel(turretLevel).isLaserEnabled();
 
 						return ItemCreator.of(isEnabled ? CompMaterial.GREEN_WOOL : CompMaterial.RED_WOOL, Lang.of("Turrets_Menu.Laser_Enabled_Button_Title"),
-								Lang.ofArray("Turrets_Menu.Laser_Enabled_Button_Lore", "{enableOrDisabled}", isEnabled ? Lang.of("Placeholders.Enabled") : Lang.of("Placeholders.Disabled"))).make();
+								Lang.ofArray("Turrets_Menu.Laser_Enabled_Button_Lore", "{enabledOrDisabled}", isEnabled ? Lang.of("Placeholders.Enabled") : Lang.of("Placeholders.Disabled"))).make();
 					}
 				};
 
@@ -303,7 +302,8 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 					@Override
 					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
-						turretData.removeLevel(turretLevel);
+						//turretData.removeLevel(turretLevel);
+						TurretRegistry.getInstance().removeLevel(turretData, turretLevel);
 
 						final Menu previousMenu = new LevelMenu(turretLevel - 1);
 
@@ -409,10 +409,10 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 	@RequiredArgsConstructor
 	private enum TurretType {
-		ALL(ChatUtil.capitalize(Lang.of("Placeholders.All")), TurretRegistry.getInstance().getRegisteredTurrets()),
-		ARROW(ChatUtil.capitalize(Lang.of("Placeholders.Arrow")), TurretRegistry.getInstance().getTurretsOfType("arrow")),
-		FIREBALL(ChatUtil.capitalize(Lang.of("Placeholders.Fireball")), TurretRegistry.getInstance().getTurretsOfType("fireball")),
-		BEAM(ChatUtil.capitalize(Lang.of("Placeholders.Beam")), TurretRegistry.getInstance().getTurretsOfType("beam"));
+		ALL("all", TurretRegistry.getInstance().getRegisteredTurrets()),
+		ARROW("arrow", TurretRegistry.getInstance().getTurretsOfType("arrow")),
+		FIREBALL("fireball", TurretRegistry.getInstance().getTurretsOfType("fireball")),
+		BEAM("beam", TurretRegistry.getInstance().getTurretsOfType("beam"));
 
 		private final String typeName;
 		private final Set<TurretData> turretTypeList;

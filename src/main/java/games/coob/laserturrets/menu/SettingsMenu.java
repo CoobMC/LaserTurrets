@@ -2,6 +2,7 @@ package games.coob.laserturrets.menu;
 
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
+import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.TurretUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -13,7 +14,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.mineacademy.fo.ChatUtil;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.ItemUtil;
 import org.mineacademy.fo.collection.StrictMap;
@@ -31,7 +31,6 @@ import org.mineacademy.fo.model.RangedValue;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.Remain;
-import org.mineacademy.fo.settings.Lang;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -101,7 +100,7 @@ public final class SettingsMenu extends Menu {
 			this.settings = TurretSettings.findTurretSettings(typeName);
 
 			this.setSize(9 * 4);
-			this.setTitle(Lang.of("Settings_Menu.Edit_Menu_Title", "{turretType}", ChatUtil.capitalize(TurretUtil.getDisplayName(typeName))));
+			this.setTitle(Lang.of("Settings_Menu.Edit_Menu_Title", "{turretType}", TurretUtil.capitalizeWord(TurretUtil.getDisplayName(typeName))));
 
 			this.turretLimitButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.CRAFTING_TABLE).name(Lang.of("Settings_Menu.Turret_Limit_Button_Title"))
 							.lore(Lang.ofArray("Settings_Menu.Turret_Limit_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName), "{limit}", this.settings.getTurretLimit())),
@@ -366,11 +365,11 @@ public final class SettingsMenu extends Menu {
 				this.setTitle(Lang.of("Settings_Menu.Allies_Menu_Title"));
 
 				this.mobBlacklistButton = new ButtonMenu(new MobAlliesMenu(), CompMaterial.CREEPER_HEAD,
-						Lang.of("Settings_Menu.Mob_Allies_Button_Title", "{listType}", settings.isEnableMobWhitelist() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))),
+						Lang.of("Settings_Menu.Mob_Allies_Button_Title", "{listType}", settings.isEnableMobWhitelist() ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist"))),
 						Lang.ofArray("Settings_Menu.Mob_Allies_Button_Lore", settings.isEnableMobWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")));
 
 				this.playerBlacklistButton = new ButtonMenu(new PlayerAlliesMenu(), CompMaterial.PLAYER_HEAD,
-						Lang.of("Settings_Menu.Player_Allies_Button_Title", "{listType}", settings.isEnablePlayerWhitelist() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))),
+						Lang.of("Settings_Menu.Player_Allies_Button_Title", "{listType}", settings.isEnablePlayerWhitelist() ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist"))),
 						Lang.ofArray("Settings_Menu.Player_Allies_Button_Lore", "{listType}", settings.isEnablePlayerWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")));
 			}
 
@@ -393,7 +392,7 @@ public final class SettingsMenu extends Menu {
 				private MobAlliesMenu() {
 					super(27, SettingsAlliesMenu.this, settings.getMobList());
 
-					this.setTitle(Lang.of("Settings_Menu.Mob_Allies_Menu_Title", "{listType}", settings.isEnableMobWhitelist() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))));
+					this.setTitle(Lang.of("Settings_Menu.Mob_Allies_Menu_Title", "{listType}", settings.isEnableMobWhitelist() ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist"))));
 
 					this.addButton = new ButtonMenu(new MobAlliesMenu.MobSelectionMenu(), CompMaterial.ENDER_CHEST,
 							Lang.of("Settings_Menu.Mob_Add_Button_Title"),
@@ -405,15 +404,15 @@ public final class SettingsMenu extends Menu {
 							final boolean isWhitelist = settings.isEnableMobWhitelist();
 
 							settings.enableMobWhitelist(!isWhitelist);
-							setTitle(Lang.of("Settings_Menu.Mob_List_Type_Button_Title", "{listType}", settings.isEnableMobWhitelist() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))));
-							restartMenu(Lang.of("Settings_Menu.Mob_List_Type_Animated_Message", "{listType}", isWhitelist ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist_Coloured")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist_Coloured"))));
+							setTitle(Lang.of("Settings_Menu.Mob_List_Type_Button_Title", "{listType}", settings.isEnableMobWhitelist() ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist"))));
+							restartMenu(Lang.of("Settings_Menu.Mob_List_Type_Animated_Message", "{listType}", isWhitelist ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist_Coloured")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist_Coloured"))));
 						}
 
 						@Override
 						public ItemStack getItem() {
 							final boolean isWhitelist = settings.isEnableMobWhitelist();
 
-							return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, Lang.of("Settings_Menu.Mob_List_Type_Button_Title", "{listType}", isWhitelist ? "&fWhitelist" : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist_Coloured"))),
+							return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, Lang.of("Settings_Menu.Mob_List_Type_Button_Title", "{listType}", isWhitelist ? "&fWhitelist" : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist_Coloured"))),
 									Lang.ofArray("Settings_Menu.Mob_List_Type_Button_Lore", "{listType}", !isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured"))).make();
 						}
 					};
@@ -487,7 +486,7 @@ public final class SettingsMenu extends Menu {
 				private PlayerAlliesMenu() {
 					super(27, SettingsAlliesMenu.this, settings.getPlayerList(), true);
 
-					this.setTitle(Lang.of("Settings_Menu.Player_List_Type_Menu_Title", "{listType}", settings.isEnablePlayerWhitelist() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))));
+					this.setTitle(Lang.of("Settings_Menu.Player_List_Type_Menu_Title", "{listType}", settings.isEnablePlayerWhitelist() ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist"))));
 
 					this.addButton = new ButtonMenu(new PlayerAlliesMenu.PlayerSelectionMenu(), CompMaterial.ENDER_CHEST,
 							Lang.of("Settings_Menu.Player_Add_Button_Title", "{listType}", settings.isEnablePlayerWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")),
@@ -503,7 +502,7 @@ public final class SettingsMenu extends Menu {
 							final boolean isWhitelist = settings.isEnablePlayerWhitelist();
 
 							settings.enablePlayerWhitelist(!isWhitelist);
-							setTitle(Lang.of("Settings_Menu.Player_List_Type_Menu_Title", "{listType}", settings.isEnablePlayerWhitelist() ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist")) : ChatUtil.capitalize(Lang.of("Placeholders.Blacklist"))));
+							setTitle(Lang.of("Settings_Menu.Player_List_Type_Menu_Title", "{listType}", settings.isEnablePlayerWhitelist() ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist"))));
 							restartMenu(Lang.of("Settings_Menu.Player_List_Type_Menu_Animated_Message", "{listType}", isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured")));
 						}
 
@@ -511,7 +510,7 @@ public final class SettingsMenu extends Menu {
 						public ItemStack getItem() {
 							final boolean isWhitelist = settings.isEnablePlayerWhitelist();
 
-							return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, Lang.of("Settings_Menu.Player_List_Type_Button_Title", "{listType}", isWhitelist ? ChatUtil.capitalize(Lang.of("Placeholders.Whitelist_Coloured")) : Lang.of("Placeholders.Blacklist_Coloured")),
+							return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, Lang.of("Settings_Menu.Player_List_Type_Button_Title", "{listType}", isWhitelist ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist_Coloured")) : Lang.of("Placeholders.Blacklist_Coloured")),
 									Lang.ofArray("Settings_Menu.Player_List_Type_Button_Lore", "{listType}", !isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured"))).make();
 						}
 					};

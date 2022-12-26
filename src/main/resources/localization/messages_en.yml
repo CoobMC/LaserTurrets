@@ -101,6 +101,11 @@ Turret_Commands:
 Turret_Display:
   Action_Bar_Damage: "{health} &c❤"
   Action_Bar_Damage_But_Broken: "&cTurret is broken!"
+  # Placeholders : {owner}, {turretType}, {level}, {health}
+  Hologram:
+    - "&6{turretType} Turret"
+    - "Health: {health}"
+    - "Level: {level}"
 
 # -------------------------------------------------------------------------------------------------
 # Messages that are displayed in the Manage Allies menu
@@ -601,8 +606,10 @@ Tool:
     - "&61 use"
   Turret_Limit_Reached: "You cannot create anymore turrets because the limit of {turretType} turrets has been reached. You can increase this limit in your turret settings. (Limit: {turretLimit})"
   Turret_Cannot_Be_Placed: "Turrets can only be created on solid blocks."
-  Registered_Turret: "Successfully &aregistered &7the {turretType} turret at {location}."
-  Unregistered_Turret: "Successfully &cunregistered &7the {turretType} turret at {location}."
+  Block_Is_Already_Turret: "This block is already a turret."
+  Registered_Turret_Message: "Successfully &aregistered &7the {turretType} turret at {location}."
+  Registered_Turret_Hologram: "&aRegistered {turretType} Turret"
+  Unregistered_Turret_Message: "Successfully &cunregistered &7the {turretType} turret at {location}."
 
 # -------------------------------------------------------------------------------------------------
 # Edit message values from the placeholders used in this plugin (the placeholders are capitalized in titles so no need to capitalize the words here)

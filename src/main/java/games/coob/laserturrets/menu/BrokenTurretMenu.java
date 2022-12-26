@@ -4,6 +4,7 @@ import games.coob.laserturrets.PlayerCache;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.Settings;
+import games.coob.laserturrets.util.Lang;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -23,7 +24,6 @@ import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.menu.model.MenuClickLocation;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompSound;
-import org.mineacademy.fo.settings.Lang;
 
 import java.util.ArrayList;
 import java.util.List;
