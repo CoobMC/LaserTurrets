@@ -34,6 +34,24 @@ public final class Settings extends SimpleSettings {
 				"Example.Uncommented_Section");
 	}
 
+	public static class TurretSection {
+		public static Boolean DISPLAY_HOLOGRAM;
+		public static Boolean DISPLAY_ACTION_BAR;
+
+		/*
+		 * Automatically called method when we load settings.yml to load values in this subclass
+		 */
+		private static void init() {
+
+			// A convenience method to instruct the loader to prepend all paths with Example so you
+			// do not have to call "Example.Key1", "Example.Key2" all the time, only "Key1" and "Key2".
+			setPathPrefix("Turret");
+
+			DISPLAY_HOLOGRAM = getBoolean("Display_Holograms");
+			DISPLAY_ACTION_BAR = getBoolean("Display_Action_Bar");
+		}
+	}
+
 	public static class CurrencySection {
 		public static String CURRENCY_NAME;
 		public static Double DEFAULT_CURRENCY;

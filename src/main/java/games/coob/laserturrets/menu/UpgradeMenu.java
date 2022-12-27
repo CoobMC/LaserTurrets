@@ -17,7 +17,6 @@ import org.mineacademy.fo.menu.button.ButtonMenu;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompSound;
-import org.mineacademy.fo.remain.Remain;
 
 public class UpgradeMenu extends Menu {
 
@@ -66,7 +65,7 @@ public class UpgradeMenu extends Menu {
 							Common.runLater(() -> newMenu.animateTitle(Lang.of("Upgrade_Menu.Upgrade_Animated_Message", "{nextLevel}", nextLevel)));
 						});
 
-						turretData.getHologram().setLore(Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getPlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth()));
+						turretData.getHologram().update(turretData);
 					}
 				}
 			}

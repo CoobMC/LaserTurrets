@@ -8,7 +8,6 @@ import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.util.Lang;
-import games.coob.laserturrets.util.TurretUtil;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -27,7 +26,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 import org.mineacademy.fo.Common;
-import org.mineacademy.fo.MathUtil;
 import org.mineacademy.fo.annotation.AutoRegister;
 import org.mineacademy.fo.menu.tool.Tool;
 import org.mineacademy.fo.remain.CompAttribute;
@@ -218,7 +216,7 @@ public final class TurretListener implements Listener {
 
 		damageTurretQuiet(block, damage);
 
-		if (entity instanceof Player) {
+		if (entity instanceof Player && Settings.TurretSection.DISPLAY_ACTION_BAR) {
 			final String health = Lang.of("Turret_Display.Action_Bar_Damage", "{health}", turretData.getCurrentHealth());
 			Remain.sendActionBar((Player) entity, turretData.getCurrentHealth() > 0 ? health : Lang.of("Turret_Display.Action_Bar_Damage_But_Broken"));
 		}
@@ -231,7 +229,7 @@ public final class TurretListener implements Listener {
 
 		registry.setTurretHealth(block, turretData.getCurrentHealth() - damage);
 		CompSound.ITEM_BREAK.play(location);
-		turretData.getHologram().setLore(Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getPlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth()));
+		turretData.getHologram().update(turretData);
 
 		if (turretData.getCurrentHealth() <= 0 && !turretData.isBroken()) {
 			registry.setBrokenAndFill(block, true);

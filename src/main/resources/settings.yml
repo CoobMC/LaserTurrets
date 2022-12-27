@@ -4,6 +4,16 @@
 #
 # For support join our discord server: https://discord.gg/2rgvQbHsSW
 #
+#
+# -------------------------------------------------------------------------------------------------
+# Edit your turret global settings for the display (the messages can be modified in the messages file)
+# -------------------------------------------------------------------------------------------------
+Turret:
+  # Display holograms above turrets
+  Display_Holograms: true
+  # Display an action bar when a player damages a turret
+  Display_Action_Bar: true
+
 # -------------------------------------------------------------------------------------------------
 # Edit your currency settings
 # -------------------------------------------------------------------------------------------------

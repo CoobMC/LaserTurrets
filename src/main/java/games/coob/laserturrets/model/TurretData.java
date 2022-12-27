@@ -1,7 +1,7 @@
 package games.coob.laserturrets.model;
 
 import games.coob.laserturrets.settings.TurretSettings;
-import games.coob.laserturrets.util.SimpleHologram;
+import games.coob.laserturrets.util.Hologram;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +50,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 
 	private int currentLevel;
 
-	private SimpleHologram hologram;
+	private Hologram hologram;
 
 	public void setLocation(final Location location) {
 		this.location = location;
@@ -101,7 +101,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		return items;
 	}
 
-	public void setHologram(final SimpleHologram hologram) {
+	public void setHologram(final Hologram hologram) {
 		this.hologram = hologram;
 	}
 
@@ -242,8 +242,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		final double currentHealth = map.getDouble("Current_Health");
 		final Integer level = map.getInteger("Current_Level");
 		final boolean destroyed = map.getBoolean("Destroyed", false);
-		final SimpleHologram hologram = map.get("Hologram", SimpleHologram.class);
-
+		final Hologram hologram = map.get("Hologram", Hologram.class);
 		final List<TurretLevel> levels = map.getList("Levels", TurretLevel.class, turretData);
 
 		final String[] split = hash.split(" \\| ");

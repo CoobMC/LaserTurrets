@@ -63,6 +63,7 @@
             <url>https://repository.apache.org/content/repositories/snapshots/</url>
         </pluginRepository>
     </pluginRepositories>
+
     <dependencies>
         <!-- We do not need to import Spigot API since it is made available through Foundation below.
             If you want to code for another MC version, import it above Foundation as per https://www.spigotmc.org/wiki/spigot-maven/ -->

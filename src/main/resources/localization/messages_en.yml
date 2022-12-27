@@ -104,8 +104,8 @@ Turret_Display:
   # Placeholders : {owner}, {turretType}, {level}, {health}
   Hologram:
     - "&6{turretType} Turret"
-    - "Health: {health}"
-    - "Level: {level}"
+    - "Health: &9{health}"
+    - "Level: &2{level}"
 
 # -------------------------------------------------------------------------------------------------
 # Messages that are displayed in the Manage Allies menu

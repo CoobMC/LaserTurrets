@@ -1,8 +1,8 @@
 package games.coob.laserturrets.model;
 
 import games.coob.laserturrets.settings.TurretSettings;
+import games.coob.laserturrets.util.Hologram;
 import games.coob.laserturrets.util.Lang;
-import games.coob.laserturrets.util.SimpleHologram;
 import games.coob.laserturrets.util.TurretUtil;
 import lombok.Getter;
 import org.bukkit.Location;
@@ -80,10 +80,10 @@ public class TurretRegistry extends YamlConfig {
 		this.save();
 	}
 
-	private SimpleHologram createHologram(final TurretData turretData) {
-		final SimpleHologram hologram = new SimpleHologram(turretData.getLocation().clone().add(0.5, 0, 0.5));
+	private Hologram createHologram(final TurretData turretData) {
+		final Hologram hologram = new Hologram(turretData.getLocation().clone().add(0.5, 0.5, 0.5));
 
-		hologram.setLore(Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getPlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth()));
+		hologram.setLore(Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth()));
 
 		return hologram;
 	}
