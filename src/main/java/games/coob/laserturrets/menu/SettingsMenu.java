@@ -27,6 +27,7 @@ import org.mineacademy.fo.menu.button.ButtonMenu;
 import org.mineacademy.fo.menu.button.annotation.Position;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.menu.model.MenuClickLocation;
+import org.mineacademy.fo.menu.model.SkullCreator;
 import org.mineacademy.fo.model.RangedValue;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
@@ -62,15 +63,15 @@ public final class SettingsMenu extends Menu {
 
 		this.arrowSettingsButton = new ButtonMenu(new SettingsEditMenu("arrow"), CompMaterial.ARROW,
 				Lang.of("Settings_Menu.Arrow_Settings_Button_Title"),
-				Lang.ofArray("Settings_Menu.Arrow_Settings_Button_Title"));
+				Lang.ofArray("Settings_Menu.Arrow_Settings_Button_Lore"));
 
 		this.fireballSettingsButton = new ButtonMenu(new SettingsEditMenu("fireball"), CompMaterial.FIRE_CHARGE,
 				Lang.of("Settings_Menu.Fireball_Settings_Button_Title"),
-				Lang.ofArray("Settings_Menu.Fireball_Settings_Button_Title"));
+				Lang.ofArray("Settings_Menu.Fireball_Settings_Button_Lore"));
 
 		this.beamSettingsButton = new ButtonMenu(new SettingsEditMenu("beam"), CompMaterial.BLAZE_ROD,
 				Lang.of("Settings_Menu.Beam_Settings_Button_Title"),
-				Lang.ofArray("Settings_Menu.Beam_Settings_Button_Title"));
+				Lang.ofArray("Settings_Menu.Beam_Settings_Button_Lore"));
 	}
 
 	@Override
@@ -84,14 +85,17 @@ public final class SettingsMenu extends Menu {
 
 		private final TurretSettings settings;
 
-		@Position(11)
+		@Position(10)
 		private final Button levelEditButton;
 
-		@Position(13)
+		@Position(12)
 		private final Button alliesManagerButton;
 
-		@Position(15)
+		@Position(14)
 		private final Button turretLimitButton;
+
+		@Position(16)
+		private final Button headTextureButton;
 
 		private SettingsEditMenu(final String typeName) {
 			super(SettingsMenu.this, true);
@@ -104,7 +108,7 @@ public final class SettingsMenu extends Menu {
 
 			this.turretLimitButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.CRAFTING_TABLE).name(Lang.of("Settings_Menu.Turret_Limit_Button_Title"))
 							.lore(Lang.ofArray("Settings_Menu.Turret_Limit_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName), "{limit}", this.settings.getTurretLimit())),
-					Lang.of("Settings_Menu.Turret_Limit_Prompt_Open_Message", "{turretType}", TurretUtil.getDisplayName(typeName), "{limit}", this.settings.getTurretLimit()),
+					Lang.of("Settings_Menu.Turret_Limit_Prompt_Message", "{turretType}", TurretUtil.getDisplayName(typeName), "{limit}", this.settings.getTurretLimit()),
 					new RangedValue(0, 40), this.settings::getTurretLimit, this.settings::setTurretLimit);
 
 			this.levelEditButton = new ButtonMenu(new LevelMenu(1), CompMaterial.EXPERIENCE_BOTTLE,
@@ -114,6 +118,11 @@ public final class SettingsMenu extends Menu {
 			this.alliesManagerButton = new ButtonMenu(new SettingsAlliesMenu(SettingsEditMenu.this, viewer), CompMaterial.KNOWLEDGE_BOOK,
 					Lang.of("Settings_Menu.Allies_Manager_Button_Title"),
 					Lang.ofArray("Settings_Menu.Allies_Manager_Button_Lore"));
+
+			this.headTextureButton = new ButtonConversation(new HeadTexturePrompt(),
+					ItemCreator.of(SkullCreator.itemFromBase64(this.settings.getBase64Texture()))
+							.name(Lang.of("Settings_Menu.Head_Texture_Button_Title", "{turretType}", TurretUtil.getDisplayName(typeName)))
+							.lore(Lang.ofArray("Settings_Menu.Head_Texture_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName))));
 		}
 
 		@Override
@@ -124,6 +133,35 @@ public final class SettingsMenu extends Menu {
 		@Override
 		public Menu newInstance() {
 			return new SettingsEditMenu(this.typeName);
+		}
+
+		private final class HeadTexturePrompt extends SimplePrompt {
+
+			private HeadTexturePrompt() {
+				super(true);
+			}
+
+			@Override
+			protected String getPrompt(final ConversationContext ctx) {
+				return Lang.of("Settings_Menu.Head_Texture_Prompt_Message", "{turretType}", TurretUtil.getDisplayName(typeName));
+			}
+
+			@Override
+			protected boolean isInputValid(final ConversationContext context, final String input) {
+				return TurretUtil.isBase64ValueValid(input);
+			}
+
+			@Override
+			protected String getFailedValidationText(final ConversationContext context, final String invalidInput) {
+				return Lang.of("Settings_Menu.Head_Texture_Prompt_Invalid_Text", "{invalidType}", invalidInput);
+			}
+
+			@Override
+			protected Prompt acceptValidatedInput(@NotNull final ConversationContext context, @NotNull final String input) {
+				settings.setBase64Texture(input);
+
+				return Prompt.END_OF_CONVERSATION;
+			}
 		}
 
 		private class LevelMenu extends Menu {

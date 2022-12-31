@@ -108,10 +108,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 	public Menu newInstance() {
 		return new TurretsMenu(this.player, this.turretType);
 	}
-
-	/**
-	 * The prompt to give a new kit a name
-	 */
+	
 	private final class EditMenuTypePrompt extends SimplePrompt {
 
 		private EditMenuTypePrompt() {

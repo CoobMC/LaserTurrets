@@ -16,7 +16,6 @@ import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.util.*;
 
 @Getter
@@ -227,7 +226,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		return map;
 	}
 
-	public static TurretData deserialize(final SerializedMap map) throws IOException {
+	public static TurretData deserialize(final SerializedMap map) {
 		final TurretData turretData = new TurretData();
 
 		final String hash = map.getString("Block");
@@ -242,12 +241,11 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		final double currentHealth = map.getDouble("Current_Health");
 		final Integer level = map.getInteger("Current_Level");
 		final boolean destroyed = map.getBoolean("Destroyed", false);
-		final Hologram hologram = map.get("Hologram", Hologram.class);
-		final List<TurretLevel> levels = map.getList("Levels", TurretLevel.class, turretData);
-
 		final String[] split = hash.split(" \\| ");
 		final Location location = SerializeUtil.deserializeLocation(split[0]);
 		final CompMaterial material = CompMaterial.valueOf(split[1]);
+		final Hologram hologram = map.get("Hologram", Hologram.class, new Hologram(location.clone().add(0.5, 0.8, 0.5)));
+		final List<TurretLevel> levels = map.getList("Levels", TurretLevel.class, turretData);
 
 		turretData.setMaterial(material);
 		turretData.setLocation(location);

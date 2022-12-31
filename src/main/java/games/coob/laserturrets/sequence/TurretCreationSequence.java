@@ -1,6 +1,7 @@
 package games.coob.laserturrets.sequence;
 
 import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.settings.TurretSettings;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -34,7 +35,8 @@ public final class TurretCreationSequence extends Sequence {
 	protected void onStart() {
 		this.getLastLocation().add(0.5, 1.2, 0.5);
 
-		final ItemStack item = ItemCreator.of(SkullCreator.itemFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGNjNzI1NzhhNjBjMGViMWEzZmEzODFhYTYyMmEwYzkyNzZkYTdmOTU4YWU5YTBjNzFlZTQ4ZTc3MWZiMmNjNSJ9fX0=")).make();
+		final TurretSettings turretSettings = TurretSettings.findTurretSettings(this.type);
+		final ItemStack item = ItemCreator.of(SkullCreator.itemFromBase64(turretSettings.getBase64Texture())).make();
 
 		this.lightning();
 		this.glowingStand(item);
@@ -52,8 +54,10 @@ public final class TurretCreationSequence extends Sequence {
 	private void onFinish() {
 		CompParticle.EXPLOSION_LARGE.spawn(this.block.getLocation().add(0.5, 1, 0.5), 2);
 
+		final TurretSettings turretSettings = TurretSettings.findTurretSettings(this.type);
 		final Block skullBlock = this.block.getRelative(BlockFace.UP);
-		SkullCreator.blockWithBase64(skullBlock, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGNjNzI1NzhhNjBjMGViMWEzZmEzODFhYTYyMmEwYzkyNzZkYTdmOTU4YWU5YTBjNzFlZTQ4ZTc3MWZiMmNjNSJ9fX0=");
+		
+		SkullCreator.blockWithBase64(skullBlock, turretSettings.getBase64Texture());
 
 		Common.runLater(() -> TurretRegistry.getInstance().register(this.player, this.block, this.type));
 		this.removeLast();

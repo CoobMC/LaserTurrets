@@ -97,15 +97,14 @@ Turret_Commands:
 # -------------------------------------------------------------------------------------------------
 # Messages that are displayed when interacting with the turret (damage, un/registration, destruction, etc)
 # -------------------------------------------------------------------------------------------------
-
 Turret_Display:
   Action_Bar_Damage: "{health} &c❤"
   Action_Bar_Damage_But_Broken: "&cTurret is broken!"
   # Placeholders : {owner}, {turretType}, {level}, {health}
   Hologram:
     - "&6{turretType} Turret"
-    - "Health: &9{health}"
-    - "Level: &2{level}"
+    - "Health: &c{health}"
+    - "Level: &9{level}"
 
 # -------------------------------------------------------------------------------------------------
 # Messages that are displayed in the Manage Allies menu
@@ -238,7 +237,13 @@ Settings_Menu:
     - "Limit the amount of {turretType} turrets that can be created."
     - ""
     - "Current limit: &9{limit}"
-  Turret_Limit_Prompt_Open_Message: "Type in an integer value between 0 and 100 (recommended value : 10-30)."
+  Turret_Limit_Prompt_Message: "Type in an integer value between 0 and 100 (recommended value : 10-30)."
+  Head_Texture_Button_Title: Turret Head Texture
+  Head_Texture_Button_Lore:
+    - "Edit the base 64 head texture"
+    - "value of this turret."
+  Head_Texture_Prompt_Message: "Insert a base64 head texture value for {turretType} turrets. Website: &bhttps://minecraft-heads.com/custom-heads"
+  Head_Texture_Prompt_Invalid_Text: "The &e'{invalidType}' &cbase64 value is invalid."
   Level_Edit_Button_Title: "Level Menu"
   Level_Edit_Button_Lore:
     - "Open this menu to upgrade"

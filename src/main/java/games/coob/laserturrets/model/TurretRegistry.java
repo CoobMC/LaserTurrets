@@ -81,11 +81,17 @@ public class TurretRegistry extends YamlConfig {
 	}
 
 	private Hologram createHologram(final TurretData turretData) {
-		final Hologram hologram = new Hologram(turretData.getLocation().clone().add(0.5, 0.5, 0.5));
+		final String[] lore = Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth());
+		final int lines = lore.length;
+		final Hologram hologram = new Hologram(turretData.getLocation().clone().add(0.5, getYForLines(lines), 0.5));
 
-		hologram.setLore(Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth()));
+		hologram.setLore(lore);
 
 		return hologram;
+	}
+
+	private double getYForLines(final int numberOfLines) {
+		return numberOfLines / 6.0;
 	}
 
 	public void unregister(final Block block) {

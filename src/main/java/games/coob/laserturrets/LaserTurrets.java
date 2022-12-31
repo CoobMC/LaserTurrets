@@ -19,7 +19,7 @@ import org.mineacademy.fo.plugin.SimplePlugin;
  * <p>
  * It uses Foundation for fast and efficient development process.
  */
-public final class LaserTurrets extends SimplePlugin {
+public final class LaserTurrets extends SimplePlugin { // TODO create a command that updates the head texture of all turrets
 
 	/**
 	 * Automatically perform login ONCE when the plugin starts.

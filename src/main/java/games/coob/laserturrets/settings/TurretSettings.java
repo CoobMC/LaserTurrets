@@ -27,6 +27,8 @@ public class TurretSettings extends YamlConfig {
 
 	private boolean enablePlayerWhitelist;
 
+	private String base64Texture;
+
 	private int turretLimit;
 
 	private TurretSettings(final String turretType) {
@@ -52,6 +54,7 @@ public class TurretSettings extends YamlConfig {
 		this.mobList = this.getSet("Mob_Blacklist", EntityType.class);
 		this.enableMobWhitelist = this.getBoolean("Use_Mob_Whitelist");
 		this.enablePlayerWhitelist = this.getBoolean("Use_Player_Whitelist");
+		this.base64Texture = this.getString("Head_Texture");
 		this.levels = this.getList("Levels", LevelData.class);
 	}
 
@@ -62,6 +65,7 @@ public class TurretSettings extends YamlConfig {
 		this.set("Mob_Blacklist", this.mobList);
 		this.set("Use_Player_Whitelist", this.enablePlayerWhitelist);
 		this.set("Use_Mob_Whitelist", this.enableMobWhitelist);
+		this.set("Head_Texture", this.base64Texture);
 		this.set("Levels", this.levels);
 	}
 
@@ -77,6 +81,12 @@ public class TurretSettings extends YamlConfig {
 		this.save();
 	}
 
+	public void setBase64Texture(final String texture) {
+		this.base64Texture = texture;
+
+		this.save();
+	}
+
 	public int getLevelsSize() {
 		return this.levels.size();
 	}
@@ -85,7 +95,6 @@ public class TurretSettings extends YamlConfig {
 		final List<LevelData> levels = this.levels;
 		final LevelData level = new LevelData();
 
-		//level.setLevel(levels.size() + 1);
 		level.setLevelSettings(levels.get(levels.size() - 1), level);
 		levels.add(level);
 		this.save();

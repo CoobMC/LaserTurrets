@@ -4,6 +4,7 @@ Turret_Settings:
   Mob_Blacklist: [ ]
   Use_Player_Whitelist: false
   Use_Mob_Whitelist: false
+  Head_Texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGNjNzI1NzhhNjBjMGViMWEzZmEzODFhYTYyMmEwYzkyNzZkYTdmOTU4YWU5YTBjNzFlZTQ4ZTc3MWZiMmNjNSJ9fX0="
   Levels:
     - Level: 1
       Range: 15

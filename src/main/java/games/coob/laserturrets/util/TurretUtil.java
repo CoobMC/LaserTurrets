@@ -1,5 +1,7 @@
 package games.coob.laserturrets.util;
 
+import org.mineacademy.fo.menu.model.SkullCreator;
+
 public class TurretUtil {
 	public static String getDisplayName(final String turretType) {
 		switch (turretType) {
@@ -26,5 +28,15 @@ public class TurretUtil {
 		else capitalizedWord = word.substring(0, 1).toUpperCase() + word.substring(1);
 
 		return capitalizedWord;
+	}
+
+	public static boolean isBase64ValueValid(final String value) {
+		try {
+			SkullCreator.itemFromBase64(value);
+		} catch (final StringIndexOutOfBoundsException e) {
+			return false;
+		}
+
+		return true;
 	}
 }

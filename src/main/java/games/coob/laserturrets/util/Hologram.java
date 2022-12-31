@@ -16,6 +16,7 @@ import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.collection.SerializedMap;
 import org.mineacademy.fo.model.ConfigSerializable;
+import org.mineacademy.fo.remain.CompProperty;
 import org.mineacademy.fo.remain.Remain;
 
 import java.util.*;
@@ -141,9 +142,9 @@ public class Hologram implements ConfigSerializable {
 	private Entity createEntity() {
 		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_11)) {
 			final Consumer<ArmorStand> consumer = armorStand -> {
-				armorStand.setGravity(false);
 				armorStand.setVisible(false);
 				armorStand.setMarker(true);
+				CompProperty.GRAVITY.apply(armorStand, true);
 				armorStand.setCollidable(false);
 				armorStand.setSmall(true);
 			};
@@ -152,7 +153,7 @@ public class Hologram implements ConfigSerializable {
 		} else {
 			final ArmorStand armorStand = this.getLastTeleportLocation().getWorld().spawn(this.getLastTeleportLocation(), ArmorStand.class);
 
-			armorStand.setGravity(false);
+			CompProperty.GRAVITY.apply(armorStand, true);
 			armorStand.setVisible(false);
 			armorStand.setMarker(true);
 			armorStand.setSmall(true);
