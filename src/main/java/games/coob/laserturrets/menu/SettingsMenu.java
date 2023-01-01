@@ -170,29 +170,30 @@ public final class SettingsMenu extends Menu {
 
 			private final int turretLevel;
 
-			@Position(10)
+			@Position(11)
 			private final Button rangeButton;
 
-			@Position(12)
+			@Position(13)
 			private final Button laserEnabledButton;
 
-			@Position(14)
+			@Position(15)
 			private final Button laserDamageButton;
 
-			@Position(16)
+			@Position(21)
 			private final Button lootButton;
 
-			private final Button healthButton; // TODO
+			@Position(23)
+			private final Button healthButton;
 
-			@Position(30)
+			@Position(39)
 			private final Button previousLevelButton;
 
-			@Position(32)
+			@Position(41)
 			private final Button nextLevelButton;
 
 			private final Button removeLevelButton;
 
-			@Position(31)
+			@Position(40)
 			private final Button priceButton;
 
 			public LevelMenu(final int turretLevel) {
@@ -204,7 +205,7 @@ public final class SettingsMenu extends Menu {
 				this.turretLevel = turretLevel;
 
 				this.setTitle(Lang.of("Settings_Menu.Level_Menu_Title", "{level}", turretLevel));
-				this.setSize(9 * 4);
+				this.setSize(9 * 5);
 
 				this.rangeButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.BOW).name(Lang.of("Settings_Menu.Range_Button_Title"))
 								.lore(Lang.ofArray("Settings_Menu.Range_Button_Lore", "{range}", this.level.getRange())),
@@ -239,10 +240,10 @@ public final class SettingsMenu extends Menu {
 						Lang.of("Settings_Menu.Loot_Drop_Button_Title"),
 						Lang.ofArray("Settings_Menu.Loot_Drop_Button_Lore"));
 
-				this.healthButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.BLAZE_POWDER).name(Lang.of("Settings_Menu.Health_Button_Title"))
+				this.healthButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.DIAMOND_CHESTPLATE).name(Lang.of("Settings_Menu.Health_Button_Title"))
 								.lore(Lang.ofArray("Settings_Menu.Health_Button_Lore", "{health}", this.level.getHealth())),
 						Lang.of("Settings_Menu.Health_Prompt_Message", "{health}", this.level.getHealth()),
-						new RangedValue(0.0, 500.0), this.level::getHealth, (Integer input) -> settings.setHealth(this.level, input));
+						new RangedValue(0.0, 5000.0), this.level::getHealth, (Double input) -> settings.setHealth(this.level, input));
 
 
 				this.previousLevelButton = new Button() {

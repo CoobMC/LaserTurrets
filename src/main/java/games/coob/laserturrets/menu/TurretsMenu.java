@@ -108,7 +108,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 	public Menu newInstance() {
 		return new TurretsMenu(this.player, this.turretType);
 	}
-	
+
 	private final class EditMenuTypePrompt extends SimplePrompt {
 
 		private EditMenuTypePrompt() {
@@ -188,27 +188,30 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 			private final TurretData.TurretLevel level;
 
-			@Position(10)
+			@Position(11)
 			private final Button rangeButton;
 
-			@Position(12)
+			@Position(13)
 			private final Button laserEnabledButton;
 
-			@Position(14)
+			@Position(15)
 			private final Button laserDamageButton;
 
-			@Position(16)
+			@Position(21)
 			private final Button lootButton;
 
-			@Position(30)
+			@Position(23)
+			private final Button healthButton;
+
+			@Position(39)
 			private final Button previousLevelButton;
 
-			@Position(32)
+			@Position(41)
 			private final Button nextLevelButton;
 
 			private final Button removeLevelButton;
 
-			@Position(31)
+			@Position(40)
 			private final Button priceButton;
 
 			public LevelMenu(final int turretLevel) {
@@ -221,7 +224,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 				this.level = getOrMakeLevel(turretLevel);
 
 				this.setTitle(Lang.of("Turrets_Menu.Level_Menu_Title", "{level}", turretLevel));
-				this.setSize(9 * 4);
+				this.setSize(9 * 5);
 
 				this.rangeButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.BOW).name(Lang.of("Turrets_Menu.Range_Button_Title"))
 								.lore(Lang.ofArray("Turrets_Menu.Range_Button_Lore", "{range}", turretData.getLevel(turretLevel).getRange())),
@@ -256,6 +259,12 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 				this.lootButton = new ButtonMenu(new LevelMenu.TurretLootChancesMenu(), CompMaterial.CHEST,
 						Lang.of("Turrets_Menu.Loot_Drop_Button_Title"),
 						Lang.ofArray("Turrets_Menu.Loot_Drop_Button_Lore"));
+
+				this.healthButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.DIAMOND_CHESTPLATE).name(Lang.of("Turrets_Menu.Health_Button_Title"))
+								.lore(Lang.ofArray("Turrets_Menu.Health_Button_Lore", "{health}", turretData.getLevel(turretLevel).getMaxHealth())),
+						Lang.of("Turrets_Menu.Health_Prompt_Message", "{health}", turretData.getLevel(turretLevel).getMaxHealth()),
+						new RangedValue(0.0, 5000.0), () -> turretData.getLevel(turretLevel).getMaxHealth(), (Double input) -> turretData.getLevel(turretLevel).setMaxHealth(input));
+
 
 				this.previousLevelButton = new Button() {
 

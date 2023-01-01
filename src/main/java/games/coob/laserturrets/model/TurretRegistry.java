@@ -91,7 +91,7 @@ public class TurretRegistry extends YamlConfig {
 	}
 
 	private double getYForLines(final int numberOfLines) {
-		return numberOfLines / 6.0;
+		return (numberOfLines / 6.0) + 2;
 	}
 
 	public void unregister(final Block block) {

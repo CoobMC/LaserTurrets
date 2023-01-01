@@ -244,7 +244,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		final String[] split = hash.split(" \\| ");
 		final Location location = SerializeUtil.deserializeLocation(split[0]);
 		final CompMaterial material = CompMaterial.valueOf(split[1]);
-		final Hologram hologram = map.get("Hologram", Hologram.class, new Hologram(location.clone().add(0.5, 0.8, 0.5)));
+		final Hologram hologram = map.get("Hologram", Hologram.class, new Hologram(location.clone().add(0.5, 2.5, 0.5)));
 		final List<TurretLevel> levels = map.getList("Levels", TurretLevel.class, turretData);
 
 		turretData.setMaterial(material);
@@ -287,7 +287,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		private double laserDamage;
 
 		@Getter
-		private int maxHealth;
+		private double maxHealth;
 
 		public void setPrice(final double price) {
 			this.price = price;
@@ -309,7 +309,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 			this.lootChances = lootChances;
 		}
 
-		public void setMaxHealth(final int health) {
+		public void setMaxHealth(final double health) {
 			this.maxHealth = health;
 		}
 
@@ -319,7 +319,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 			final int range = map.getInteger("Range");
 			final boolean laserEnabled = map.getBoolean("Laser_Enabled");
 			final double laserDamage = map.getDouble("Laser_Damage");
-			final int maxHealth = map.getInteger("Max_Health");
+			final double maxHealth = map.getDouble("Max_Health");
 
 			final TurretLevel level = new TurretLevel(turretData);
 

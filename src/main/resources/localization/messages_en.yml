@@ -257,7 +257,7 @@ Settings_Menu:
     - "You can edit each individual"
     - "level in this menu and set its"
     - "price."
-  Range_Button_Title: "Turret Range"
+  Range_Button_Title: "Range"
   Range_Button_Lore:
     - "Set the turrets range"
     - "by clicking this button."
@@ -266,10 +266,10 @@ Settings_Menu:
   Range_Prompt_Message: "Type in an integer value between 0 and 40 (recommended value : 15-20)."
   Laser_Enabled_Button_Title: "Enable/Disable Laser"
   Laser_Enabled_Button_Lore:
-    - "Current: {enabledOrDisabled}"
-    - ""
     - "Click to enable or disable"
-    - "lasers for this turret."
+    - "lasers for this type of turret."
+    - ""
+    - "Current: {enabledOrDisabled}"
   Laser_Enabled_Button_Animated_Message: "{enableOrDisabled} laser pointer"
   Laser_Damage_Button_Title: "Laser Damage"
   Laser_Damage_Button_Lore:
@@ -417,7 +417,7 @@ Turrets_Menu:
     - "You can edit each individual"
     - "level in this menu and set its"
     - "price."
-  Range_Button_Title: "Turret Range"
+  Range_Button_Title: "Range"
   Range_Button_Lore:
     - "Set the turrets range"
     - "by clicking this button."
@@ -426,10 +426,10 @@ Turrets_Menu:
   Range_Prompt_Message: "Type in an integer value between 1 and 40 (recommend value : 15-20)"
   Laser_Enabled_Button_Title: "Enable/Disable Laser"
   Laser_Enabled_Button_Lore:
-    - "Current: {enabledOrDisabled}"
-    - ""
     - "Click to enable or disable"
     - "lasers for this turret."
+    - ""
+    - "Current: {enabledOrDisabled}"
   Laser_Enabled_Button_Animated_Message: "{enableOrDisabled} laser pointer"
   Laser_Damage_Button_Title: "Laser Damage"
   Laser_Damage_Button_Lore:
@@ -449,7 +449,7 @@ Turrets_Menu:
   Health_Button_Title: "Health"
   Health_Button_Lore:
     - "Set the amount of health"
-    - "the turrets will have"
+    - "this turret will have"
     - "by clicking this button."
     - ""
     - "Current: &9{health}"

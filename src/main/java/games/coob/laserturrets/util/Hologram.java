@@ -7,7 +7,6 @@ import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Consumer;
 import org.mineacademy.fo.Common;
@@ -142,18 +141,17 @@ public class Hologram implements ConfigSerializable {
 	private Entity createEntity() {
 		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_11)) {
 			final Consumer<ArmorStand> consumer = armorStand -> {
-				armorStand.setVisible(false);
 				armorStand.setMarker(true);
-				CompProperty.GRAVITY.apply(armorStand, true);
-				armorStand.setCollidable(false);
+				CompProperty.GRAVITY.apply(armorStand, false);
 				armorStand.setSmall(true);
+				armorStand.setVisible(false);
 			};
 
 			return this.getLastTeleportLocation().getWorld().spawn(this.getLastTeleportLocation(), ArmorStand.class, consumer);
 		} else {
 			final ArmorStand armorStand = this.getLastTeleportLocation().getWorld().spawn(this.getLastTeleportLocation(), ArmorStand.class);
 
-			CompProperty.GRAVITY.apply(armorStand, true);
+			CompProperty.GRAVITY.apply(armorStand, false);
 			armorStand.setVisible(false);
 			armorStand.setMarker(true);
 			armorStand.setSmall(true);
@@ -173,10 +171,28 @@ public class Hologram implements ConfigSerializable {
 			location = location.clone().add(0, -0.5, 0);
 
 		for (final String loreLine : this.loreLines) {
-			final ArmorStand armorStand = (ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
+			final ArmorStand armorStand;
 
-			armorStand.setGravity(false);
-			armorStand.setVisible(false);
+			if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_11)) {
+				final Consumer<ArmorStand> consumer = stand -> {
+					stand.setMarker(true);
+					CompProperty.GRAVITY.apply(stand, false);
+					stand.setSmall(true);
+					stand.setVisible(false);
+				};
+
+				armorStand = location.getWorld().spawn(location, ArmorStand.class, consumer);
+			} else {
+				armorStand = location.getWorld().spawn(location, ArmorStand.class);
+
+				armorStand.setMarker(true);
+				CompProperty.GRAVITY.apply(armorStand, false);
+				armorStand.setSmall(true);
+				armorStand.setVisible(false);
+			}
+
+			/*armorStand.setGravity(false);
+			armorStand.setVisible(false);*/
 
 			Remain.setCustomName(armorStand, loreLine);
 
@@ -325,7 +341,7 @@ public class Hologram implements ConfigSerializable {
 		final Location location = map.getLocation("Location");
 		final String[] lines = map.getStringList("Lines").toArray(new String[0]);
 
-		final Hologram hologram = new Hologram(location.clone().add(0.5, 0.5, 0.5));
+		final Hologram hologram = new Hologram(location.clone().add(0.5, 2.5, 0.5));
 
 		hologram.setLore(lines);
 

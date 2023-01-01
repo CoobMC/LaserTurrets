@@ -134,7 +134,7 @@ public class TurretSettings extends YamlConfig {
 		this.save();
 	}
 
-	public void setHealth(final LevelData levelData, final int health) {
+	public void setHealth(final LevelData levelData, final double health) {
 		levelData.setHealth(health);
 
 		this.save();
@@ -199,7 +199,7 @@ public class TurretSettings extends YamlConfig {
 
 		private int range;
 
-		private int health;
+		private double health;
 
 		private List<Tuple<ItemStack, Double>> lootChances;
 
@@ -239,7 +239,7 @@ public class TurretSettings extends YamlConfig {
 
 		public static LevelData deserialize(final SerializedMap map) {
 			final int range = map.getInteger("Range");
-			final int health = map.getInteger("Health");
+			final double health = map.getDouble("Health");
 			final double price = map.getDouble("Price");
 			final boolean enableLaserPointer = map.getBoolean("Enable_Laser_Pointer");
 			final double laserPointerDamage = map.getDouble("Laser_Pointer_Damage");
