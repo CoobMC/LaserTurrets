@@ -92,7 +92,12 @@ Turret_Commands:
   Balance_Take: "&aTook &e{amount} &a{currencyName} from {playerName} who now has a total of &e{totalAmount} &a{currencyName}."
   Balance_Set: "&Set {playerName}'s amount of {currencyName} to &e{amount}&a."
   Balance_Get: "&a{playerName} has &e{amount} &a{currencyName}."
+  Remove_Turret_Message: "&aSuccessfully removed the {turretType} turret with the id of &3{turretId}&a."
+  Take_Turret_Message: "&aSuccessfully took the {turretType} turret with the id of &3{turretId}&a."
+  Buy_Turret_Message: "&aSuccessfully bought an {turretType} turret."
   Balance_Cannot_Be_Negative: "Currency cannot be negative"
+  Error_Not_Looking_At_Turret: "This block isn't a turret, you must be looking at the turrets base while using this command."
+  Turret_ID_Does_Not_Exist: "{invalidID} does not exist, you must insert a valid one."
 
 # -------------------------------------------------------------------------------------------------
 # Messages that are displayed when interacting with the turret (damage, un/registration, destruction, etc)
@@ -615,6 +620,10 @@ Tool:
   Registered_Turret_Message: "Successfully &aregistered &7the {turretType} turret at {location}."
   Registered_Turret_Hologram: "&aRegistered {turretType} Turret"
   Unregistered_Turret_Message: "Successfully &cunregistered &7the {turretType} turret at {location}."
+  Unplaced_Turret_Title: "&b{turretType} Turret &8{turretId}"
+  Unplaced_Turret_Lore:
+    - "Level: {level}"
+    - "Owner: {owner}"
 
 # -------------------------------------------------------------------------------------------------
 # Edit message values from the placeholders used in this plugin (the placeholders are capitalized in titles so no need to capitalize the words here)

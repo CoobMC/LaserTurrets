@@ -10,7 +10,7 @@
 # -------------------------------------------------------------------------------------------------
 Turret:
   # Display holograms above turrets
-  Display_Holograms: true
+  Display_Holograms: false
   # Display an action bar when a player damages a turret
   Display_Action_Bar: true
 

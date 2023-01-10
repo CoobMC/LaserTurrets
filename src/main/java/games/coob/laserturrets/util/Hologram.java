@@ -2,6 +2,7 @@ package games.coob.laserturrets.util;
 
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.settings.Settings;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
@@ -20,9 +21,6 @@ import org.mineacademy.fo.remain.Remain;
 
 import java.util.*;
 
-/**
- *
- */
 public class Hologram implements ConfigSerializable {
 
 	/**
@@ -300,6 +298,9 @@ public class Hologram implements ConfigSerializable {
 	}
 
 	public final void update(final TurretData turretData) {
+		if (!Settings.TurretSection.DISPLAY_HOLOGRAM)
+			return;
+		
 		this.remove();
 		this.setLore(Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth()));
 		this.spawn();
@@ -341,7 +342,7 @@ public class Hologram implements ConfigSerializable {
 		final Location location = map.getLocation("Location");
 		final String[] lines = map.getStringList("Lines").toArray(new String[0]);
 
-		final Hologram hologram = new Hologram(location.clone().add(0.5, 2.5, 0.5));
+		final Hologram hologram = new Hologram(location.clone().add(0.5, 0.5, 0.5));
 
 		hologram.setLore(lines);
 

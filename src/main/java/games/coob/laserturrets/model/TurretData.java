@@ -5,6 +5,7 @@ import games.coob.laserturrets.util.Hologram;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
@@ -19,6 +20,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 @Getter
+@ToString
 public class TurretData implements ConfigSerializable { // TODO create ammo
 
 	private Location location;
@@ -219,8 +221,8 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		map.put("Use_Mob_Whitelist", this.mobWhitelistEnabled);
 		map.put("Current_Health", this.currentHealth);
 		map.put("Current_Level", this.currentLevel);
-		map.put("Destroyed", this.broken);
-		map.put("Hologram", this.hologram);
+		map.put("Broken", this.broken); // TODO check if it causes errors (was Destroyed)
+		map.putIf("Hologram", this.hologram);
 		map.put("Levels", this.turretLevels);
 
 		return map;
@@ -244,7 +246,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		final String[] split = hash.split(" \\| ");
 		final Location location = SerializeUtil.deserializeLocation(split[0]);
 		final CompMaterial material = CompMaterial.valueOf(split[1]);
-		final Hologram hologram = map.get("Hologram", Hologram.class, new Hologram(location.clone().add(0.5, 2.5, 0.5)));
+		final Hologram hologram = map.get("Hologram", Hologram.class, new Hologram(location.clone().add(0.5, 0.5, 0.5)));
 		final List<TurretLevel> levels = map.getList("Levels", TurretLevel.class, turretData);
 
 		turretData.setMaterial(material);

@@ -42,13 +42,7 @@ public class TurretSettings extends YamlConfig {
 	}
 
 	@Override
-	protected void onLoad() { // TODO ask question about this condition
-		if (this.levels != null) {
-			this.save();
-
-			return;
-		}
-
+	protected void onLoad() {
 		this.turretLimit = this.getInteger("Turret_Limit");
 		this.playerList = this.getSet("Player_Blacklist", UUID.class);
 		this.mobList = this.getSet("Mob_Blacklist", EntityType.class);
@@ -226,7 +220,6 @@ public class TurretSettings extends YamlConfig {
 		public SerializedMap serialize() {
 			final SerializedMap map = new SerializedMap();
 
-			//map.put("Level", this.level);
 			map.put("Range", this.range);
 			map.put("Price", this.price);
 			map.put("Health", this.health);

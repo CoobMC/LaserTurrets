@@ -101,7 +101,10 @@ public final class PlayerCache extends YamlConfig {
 	}
 
 	public void takeCurrency(final double amount, final boolean displayMessage) {
-		Valid.checkBoolean(amount >= 0, Lang.of("Turret_Commands.Balance_Cannot_Be_Negative"));
+		if (amount < 0 || getCurrency(false) - amount < 0) {
+			Messenger.error(this.toPlayer(), Lang.of("Turret_Commands.Balance_Cannot_Be_Negative"));
+			return;
+		}
 
 		final Player player = toPlayer();
 		final boolean isUsingVault = Settings.CurrencySection.USE_VAULT;

@@ -27,10 +27,10 @@ public final class LaserTurrets extends SimplePlugin { // TODO create a command 
 	@Override
 	protected void onPluginStart() {
 		Common.runLater(TurretRegistry::getInstance);
+		//TurretRegistry.getInstance();
 
-		for (final String type : getTypes()) {
+		for (final String type : getTypes())
 			TurretSettings.createSettings(type);
-		}
 
 		if (!VaultHook.setupEconomy(getServer()) && Settings.CurrencySection.USE_VAULT) {
 			Common.log("[LaserTurrets] - Disabled due to no Vault dependency found!", getDescription().getName());

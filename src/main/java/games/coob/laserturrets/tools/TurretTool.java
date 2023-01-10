@@ -23,9 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Handles tools that click within an arena.
- */
 public abstract class TurretTool extends VisualTool {
 
 	private final String turretType;
@@ -83,7 +80,7 @@ public abstract class TurretTool extends VisualTool {
 		if (block.hasMetadata("IsCreating"))
 			return;
 
-		final boolean oneUse = this.oneUse/*this.item.getItemMeta().getLore().toString().contains("1 use")*/;
+		final boolean oneUse = this.oneUse;
 		final boolean isTurret = registry.isTurretOfType(block, type);
 
 		if (isTurret && !oneUse) {
@@ -94,7 +91,7 @@ public abstract class TurretTool extends VisualTool {
 				player.getInventory().removeItem(this.item);
 
 			block.setMetadata("IsCreating", new FixedMetadataValue(SimplePlugin.getInstance(), ""));
-			Sequence.TURRET_CREATION(player, block, type).start(block.getLocation());
+			Sequence.TURRET_CREATION(player, block, type, this.item).start(block.getLocation());
 			Messenger.success(player, Lang.of("Tool.Registered_Turret_Message", "{turretType}", this.displayName, "{location}", Common.shortLocation(block.getLocation())));
 		}
 	}

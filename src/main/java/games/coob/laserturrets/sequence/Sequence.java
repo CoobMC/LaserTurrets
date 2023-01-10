@@ -29,8 +29,15 @@ public abstract class Sequence {
 	/**
 	 * Pre-loaded crate drop sequence.
 	 */
-	public static Sequence TURRET_CREATION(final Player player, final Block block, final String type) {
-		return new TurretCreationSequence(player, block, type);
+	public static Sequence TURRET_CREATION(final Player player, final Block block, final String type, final ItemStack persistentItem) {
+		return new TurretCreationSequence(player, block, type, persistentItem);
+	}
+
+	/**
+	 * Pre-loaded crate drop sequence.
+	 */
+	public static Sequence TURRET_PLACE(final Block block, final String type, final String id) {
+		return new TurretPlaceSequence(block, type, id);
 	}
 
 	/**

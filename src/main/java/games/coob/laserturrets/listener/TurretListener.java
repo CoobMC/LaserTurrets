@@ -6,38 +6,39 @@ import games.coob.laserturrets.menu.BrokenTurretMenu;
 import games.coob.laserturrets.menu.UpgradeMenu;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.util.Lang;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 import org.mineacademy.fo.Common;
+import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.annotation.AutoRegister;
 import org.mineacademy.fo.menu.tool.Tool;
-import org.mineacademy.fo.remain.CompAttribute;
-import org.mineacademy.fo.remain.CompParticle;
-import org.mineacademy.fo.remain.CompSound;
-import org.mineacademy.fo.remain.Remain;
+import org.mineacademy.fo.model.Tuple;
+import org.mineacademy.fo.remain.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @AutoRegister
-public final class TurretListener implements Listener {
+public final class TurretListener implements Listener { // TODO remove turret if item no longer existent
 
 	@EventHandler
 	public void onJoin(final PlayerJoinEvent event) {
@@ -128,8 +129,9 @@ public final class TurretListener implements Listener {
 		final TurretRegistry registry = TurretRegistry.getInstance();
 		final Action action = event.getAction();
 		final Player player = event.getPlayer();
+		final ItemStack item = player.getItemInHand();
 
-		if (Tool.getTool(player.getInventory().getItemInHand()) == null) {
+		if (Tool.getTool(item) == null) {
 			final Double damage = CompAttribute.GENERIC_ATTACK_DAMAGE.get(player); // TODO doesn't work in 1.18 
 			//player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
 
@@ -239,14 +241,73 @@ public final class TurretListener implements Listener {
 	}
 
 	@EventHandler
+	public void onItemDespawn(final ItemDespawnEvent event) {
+		final TurretRegistry registry = TurretRegistry.getInstance();
+		final ItemStack despawnedItem = event.getEntity().getItemStack();
+
+		for (final Tuple<TurretData, ItemStack> tuple : registry.getRegisteredUnplacedTurrets()) {
+			final ItemStack itemStack = tuple.getValue();
+
+			if (itemStack != null && itemStack.isSimilar(despawnedItem))
+				registry.unregisterUnplaced(tuple.getKey());
+		}
+	}
+
+	@EventHandler
+	public void onEntityDamage(final EntityDamageEvent event) {
+		final Entity entity = event.getEntity();
+		final TurretRegistry registry = TurretRegistry.getInstance();
+
+		if (entity instanceof Item) {
+			final Item despawnedItem = (Item) event.getEntity();
+
+			for (final Tuple<TurretData, ItemStack> tuple : registry.getRegisteredUnplacedTurrets()) {
+				final ItemStack itemStack = tuple.getValue();
+
+				if (itemStack.isSimilar(despawnedItem.getItemStack()))
+					for (final EntityDamageEvent.DamageCause damageCause : EntityDamageEvent.DamageCause.values())
+						if (event.getCause() == damageCause)
+							Common.runLater(() -> registry.unregisterUnplaced(tuple.getKey()));
+			}
+		}
+	}
+
+	@EventHandler
 	public void onBlockPlace(final BlockPlaceEvent event) {
 		final Block block = event.getBlock();
 		final Block blockDown = block.getRelative(BlockFace.DOWN);
 		final TurretRegistry registry = TurretRegistry.getInstance();
+		final ItemStack item = event.getItemInHand();
+
+		if (CompMetadata.hasMetadata(item, "id"))
+			placeTurret(item, event);
 
 		for (final BlockFace blockface : BlockFace.values()) {
 			if ((registry.isRegistered(block.getRelative(blockface)) && blockface != BlockFace.UP) || registry.isRegistered(blockDown.getRelative(blockface)))
 				event.setCancelled(true);
 		}
+	}
+
+	private void placeTurret(final ItemStack item, final BlockPlaceEvent event) {
+		final TurretRegistry registry = TurretRegistry.getInstance();
+		final String id = CompMetadata.getMetadata(item, "id");
+		final String type = registry.getUnplacedTurretById(id).getType();
+		final Player player = event.getPlayer();
+		final Block block = event.getBlockAgainst();
+
+		event.setCancelled(true);
+
+		if (!block.getType().isSolid()) {
+			Messenger.error(player, Lang.of("Tool.Turret_Cannot_Be_Placed"));
+			return;
+		}
+
+		if (registry.isRegistered(block) && !Objects.equals(registry.getTurretByBlock(block).getType(), type)) {
+			Messenger.error(player, Lang.of("Tool.Block_Is_Already_Turret"));
+			return;
+		}
+
+		player.getInventory().remove(item);
+		Sequence.TURRET_PLACE(block, type, id).start(block.getLocation());
 	}
 }

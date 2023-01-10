@@ -24,6 +24,10 @@ public final class HologramTask extends BukkitRunnable {
 
 		for (final TurretData turretData : registry.getRegisteredTurrets()) {
 			final Hologram hologram = turretData.getHologram();
+
+			if (hologram == null)
+				continue;
+
 			final Player player = EntityUtil.findNearestEntity(turretData.getLocation(), 40, Player.class);
 
 			if (player != null && !hologram.isSpawned()) {
