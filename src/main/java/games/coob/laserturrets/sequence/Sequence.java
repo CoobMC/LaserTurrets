@@ -26,18 +26,12 @@ public abstract class Sequence {
 	 */
 	private static final Map<String, Sequence> byName = new HashMap<>();
 
-	/**
-	 * Pre-loaded crate drop sequence.
-	 */
-	public static Sequence TURRET_CREATION(final Player player, final Block block, final String type, final ItemStack persistentItem) {
-		return new TurretCreationSequence(player, block, type, persistentItem);
+	public static Sequence TURRET_CREATION(final Player player, final Block block, final String type) {
+		return new TurretCreationSequence(player, block, type);
 	}
 
-	/**
-	 * Pre-loaded crate drop sequence.
-	 */
-	public static Sequence TURRET_PLACE(final Block block, final String type, final String id) {
-		return new TurretPlaceSequence(block, type, id);
+	public static Sequence TURRET_PLACE(final Player player, final Block block, final String type, final String id) {
+		return new TurretPlaceSequence(player, block, type, id);
 	}
 
 	/**

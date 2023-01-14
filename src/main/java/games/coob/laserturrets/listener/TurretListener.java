@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Objects;
 
 @AutoRegister
-public final class TurretListener implements Listener { // TODO remove turret if item no longer existent
+public final class TurretListener implements Listener {
 
 	@EventHandler
 	public void onJoin(final PlayerJoinEvent event) {
@@ -308,6 +308,6 @@ public final class TurretListener implements Listener { // TODO remove turret if
 		}
 
 		player.getInventory().remove(item);
-		Sequence.TURRET_PLACE(block, type, id).start(block.getLocation());
+		Sequence.TURRET_PLACE(player, block, type, id).start(block.getLocation());
 	}
 }

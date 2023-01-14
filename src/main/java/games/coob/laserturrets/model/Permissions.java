@@ -20,7 +20,22 @@ public final class Permissions {
 	@PermissionGroup("View the permission details.")
 	public static final class Command {
 
-		@Permission("Chose a tool to start creating some turrets!")
+		/*@Permission("The permission that gives you access to all the turret commands.")
+		public static final String TURRET = "turret.command.turret";*/ // TODO remove
+
+		@Permission("Gives access to '/lt turret take <id>' to take turrets back into your inventory.")
+		public static final String TAKE = "turret.command.take";
+
+		@Permission("Gives access to '/lt turret remove <id>' to remove existing turrets.")
+		public static final String REMOVE = "turret.command.remove";
+
+		@Permission("Gives access to '/lt turret buy <turretType>' to buy turrets.")
+		public static final String BUY = "turret.command.buy";
+
+		@Permission("Gives access to '/lt turret give <turretType> <player>' to give turrets to yourself or another player.")
+		public static final String GIVE = "turret.command.give";
+
+		@Permission("Gives access to '/lt turret tool <turretType> <player>' to give a turret tool to yourself or another player.")
 		public static final String TOOL = "turret.command.tool";
 
 		@Permission("This is the main menu that allows you to view all turrets and edit them specifically.")

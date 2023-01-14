@@ -91,7 +91,7 @@ public abstract class TurretTool extends VisualTool {
 				player.getInventory().removeItem(this.item);
 
 			block.setMetadata("IsCreating", new FixedMetadataValue(SimplePlugin.getInstance(), ""));
-			Sequence.TURRET_CREATION(player, block, type, this.item).start(block.getLocation());
+			Sequence.TURRET_CREATION(player, block, type).start(block.getLocation());
 			Messenger.success(player, Lang.of("Tool.Registered_Turret_Message", "{turretType}", this.displayName, "{location}", Common.shortLocation(block.getLocation())));
 		}
 	}

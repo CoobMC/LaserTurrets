@@ -142,7 +142,17 @@ public class TurretRegistry extends YamlConfig {
 		this.save();
 	}
 
-	public void unregisterByID(final String turretID) {
+	public void unregister(final TurretData turretData) {
+		if (turretData.getHologram() != null)
+			turretData.getHologram().remove();
+
+		turretData.getLocation().getBlock().getRelative(BlockFace.UP).setType(CompMaterial.AIR.getMaterial());
+		this.registeredTurrets.remove(turretData);
+
+		this.save();
+	}
+
+	public void unregister(final String turretID) {
 		final TurretData turretData = getTurretByID(turretID);
 
 		if (turretData.getHologram() != null)

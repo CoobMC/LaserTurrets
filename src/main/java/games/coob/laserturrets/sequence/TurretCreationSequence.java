@@ -4,6 +4,8 @@ import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.TurretSettings;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Skull;
+import org.bukkit.block.data.Rotatable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.Common;
@@ -20,15 +22,12 @@ public final class TurretCreationSequence extends Sequence {
 
 	private final String type;
 
-	private final ItemStack persistentItem;
-
-	TurretCreationSequence(final Player player, final Block block, final String type, final ItemStack persistentItem) {
+	TurretCreationSequence(final Player player, final Block block, final String type) {
 		super("turret-creation");
 
 		this.player = player;
 		this.block = block;
 		this.type = type;
-		this.persistentItem = persistentItem;
 	}
 
 	/*
@@ -62,24 +61,19 @@ public final class TurretCreationSequence extends Sequence {
 		final TurretRegistry registry = TurretRegistry.getInstance();
 
 		SkullCreator.blockWithBase64(skullBlock, turretSettings.getBase64Texture());
+		rotateSkull((Skull) skullBlock.getState(), this.player);
 		Common.runLater(() -> registry.register(this.player, this.block, this.type));
 
 		this.removeLast();
 		this.block.removeMetadata("IsCreating", SimplePlugin.getInstance());
 	}
 
-	/*private Map<String, Object> retrieveData(final ItemStack itemStack) {
-		final NamespacedKey key = new NamespacedKey(SimplePlugin.getInstance(), "TurretData");
-		final ItemMeta itemMeta = itemStack.getItemMeta();
-		final PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+	private void rotateSkull(final Skull skull, final Player player) {
+		final Rotatable skullRotation = (Rotatable) skull.getBlockData();
+		final BlockFace blockFace = player.getFacing();
 
-		if (container.has(key, PersistentDataType.STRING)) {
-			final String dataValue = container.get(key, PersistentDataType.STRING);
-			final String deserializedValue = SerializeUtil.deserialize(SerializeUtil.Mode.JSON, String.class, dataValue);
-
-
-		}
-
-		return null;
-	}*/
+		skullRotation.setRotation(blockFace);
+		skull.setBlockData(skullRotation);
+		skull.update(true);
+	}
 }

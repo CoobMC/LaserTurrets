@@ -1,42 +1,18 @@
 package games.coob.laserturrets.command;
 
-import games.coob.laserturrets.PlayerCache;
-import games.coob.laserturrets.menu.ToolsMenu;
-import games.coob.laserturrets.model.Permissions;
-import games.coob.laserturrets.model.TurretData;
-import games.coob.laserturrets.model.TurretRegistry;
-import games.coob.laserturrets.settings.TurretSettings;
-import games.coob.laserturrets.tools.*;
-import games.coob.laserturrets.util.Lang;
-import org.bukkit.Bukkit;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.mineacademy.fo.*;
-import org.mineacademy.fo.command.SimpleSubCommand;
-import org.mineacademy.fo.menu.model.ItemCreator;
-import org.mineacademy.fo.menu.model.SkullCreator;
-import org.mineacademy.fo.remain.Remain;
-
-import javax.annotation.Nullable;
-import java.util.List;
-
 /**
  * A sample command belonging to a command group.
  */
-final class TurretCommand extends SimpleSubCommand {
+final class TurretCommand/* extends SimpleSubCommand*/ {
 
-	TurretCommand() {
+	/*TurretCommand() {
 		super("turret|turrets");
 
 		setDescription(Lang.of("Turret_Commands.Turret_Description"));
-		setUsage("<give_tool|give_turret> <turret_type> <player>");
-		setPermission(Permissions.Command.TOOL);
+		setUsage("<tool|give|buy|take|remove> <turret_type|id> <player>");
+		setPermission(Permissions.Command.TURRET);
 	}
 
-	/**
-	 * Perform the main command logic.
-	 */
 	@Override
 	protected void onCommand() {
 		checkConsole();
@@ -53,6 +29,38 @@ final class TurretCommand extends SimpleSubCommand {
 
 				giveTurret(param, getPlayer(), value);
 				removeOrTakeTurret(param, getPlayer(), value);
+
+				if (param.equals("buy")) {
+					final PlayerCache cache = PlayerCache.from(getPlayer());
+					final String typeName = value.replace("_turret", "");
+					final TurretSettings settings = TurretSettings.findTurretSettings(typeName);
+
+					if (cache.getCurrency(false) - settings.getLevels().get(0).getPrice() < 0) {
+						Messenger.error(getPlayer(), Lang.of("Turret_Commands.Balance_Cannot_Be_Negative"));
+						return;
+					}
+
+					final double price = settings.getLevels().get(0).getPrice();
+					cache.takeCurrency(price, false);
+
+					switch (value) {
+						case "arrow_turret":
+							ArrowTurret.getInstance().give(getPlayer());
+							break;
+						case "beam_turret":
+							if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_9))
+								BeamTurret.getInstance().give(getPlayer());
+							else
+								Messenger.error(getPlayer(), "Beam turrets are only supported in versions 1.9 and above.");
+							break;
+						case "fireball_turret":
+							FireballTurret.getInstance().give(getPlayer());
+							break;
+					}
+
+					Messenger.success(getPlayer(), Lang.of("Turret_Commands.Buy_Turret_Message", "{turretType}", typeName, "{price}", price, "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
+
+				}
 
 				if (args.length == 3) {
 					final String playerName = args[2];
@@ -88,36 +96,6 @@ final class TurretCommand extends SimpleSubCommand {
 					else Messenger.error(player, "Beam turrets are only supported in versions 1.9 and above.");
 				else if ("fireball_turret".equals(type))
 					FireballTurret.getInstance().give(player);
-				break;
-			case "buy":
-				final PlayerCache cache = PlayerCache.from(player);
-				final String typeName = type.replace("_turret", "");
-				final TurretSettings settings = TurretSettings.findTurretSettings(typeName);
-
-				if (cache.getCurrency(false) - settings.getLevels().get(0).getPrice() < 0) {
-					Messenger.error(player, Lang.of("Turret_Commands.Balance_Cannot_Be_Negative"));
-					break;
-				}
-
-
-				System.out.println(cache.getCurrency(false));
-				cache.takeCurrency(settings.getLevels().get(0).getPrice(), false);
-
-				switch (type) {
-					case "arrow_turret":
-						ArrowTurret.getInstance().give(player);
-						break;
-					case "beam_turret":
-						if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_9))
-							BeamTurret.getInstance().give(player);
-						else Messenger.error(player, "Beam turrets are only supported in versions 1.9 and above.");
-						break;
-					case "fireball_turret":
-						FireballTurret.getInstance().give(player);
-						break;
-				}
-
-				Messenger.success(player, Lang.of("Turret_Commands.Buy_Turret_Message", "{turretType}", typeName));
 				break;
 		}
 	}
@@ -200,5 +178,5 @@ final class TurretCommand extends SimpleSubCommand {
 		final TurretRegistry registry = TurretRegistry.getInstance();
 
 		return TabUtil.complete(this.getLastArg(), registry.getTurretIDs());
-	}
+	}*/
 }

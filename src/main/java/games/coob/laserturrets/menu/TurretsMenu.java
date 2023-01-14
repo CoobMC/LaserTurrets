@@ -149,12 +149,14 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 		@Position(15)
 		private final Button teleportButton;
 
+		@Position(31)
+		private final Button removeTurret;
+
 		TurretEditMenu(final Menu parent) {
 			super(parent, true);
 
 			this.setSize(9 * 4);
 			this.setTitle(Lang.of("Turrets_Menu.Turret_Edit_Menu_Title", "{turretType}", TurretUtil.capitalizeWord(TurretUtil.getDisplayName(turretData.getType())), "{turretId}", turretData.getId()));
-
 
 			this.levelEditButton = new ButtonMenu(new LevelMenu(turretData.getCurrentLevel()), CompMaterial.EXPERIENCE_BOTTLE,
 					Lang.of("Turrets_Menu.Level_Edit_Button_Title"),
@@ -170,6 +172,17 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 						Messenger.success(player1, Lang.of("Turrets_Menu.Teleport_Success_Message", "{turretType}", TurretUtil.getDisplayName(turretData.getType()), "{turretId}", turretData.getId()));
 					});
+
+			this.removeTurret = Button.makeSimple(CompMaterial.BARRIER, Lang.of("Turrets_Menu.Remove_Turret_Button_Title"), Lang.of("Turrets_Menu.Remove_Turret_Button_Lore"), player1 -> {
+				final TurretRegistry registry = TurretRegistry.getInstance();
+
+				registry.unregister(turretData);
+
+				final Menu previousMenu = new TurretsMenu(player1, turretType);
+				
+				previousMenu.displayTo(player1);
+				Common.runLater(() -> previousMenu.restartMenu(Lang.of("Turrets_Menu.Remove_Turret_Animated_Message", "{turretType}", TurretUtil.getDisplayName(turretData.getType()), "{turretId}", turretData.getId())));
+			});
 		}
 
 		@Override
@@ -308,7 +321,6 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 					@Override
 					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
-						//turretData.removeLevel(turretLevel);
 						TurretRegistry.getInstance().removeLevel(turretData, turretLevel);
 
 						final Menu previousMenu = new LevelMenu(turretLevel - 1);
