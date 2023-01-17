@@ -8,6 +8,7 @@ import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
+import games.coob.laserturrets.util.CompAttribute;
 import games.coob.laserturrets.util.Lang;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -31,7 +32,10 @@ import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.annotation.AutoRegister;
 import org.mineacademy.fo.menu.tool.Tool;
 import org.mineacademy.fo.model.Tuple;
-import org.mineacademy.fo.remain.*;
+import org.mineacademy.fo.remain.CompMetadata;
+import org.mineacademy.fo.remain.CompParticle;
+import org.mineacademy.fo.remain.CompSound;
+import org.mineacademy.fo.remain.Remain;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -132,8 +136,7 @@ public final class TurretListener implements Listener {
 		final ItemStack item = player.getItemInHand();
 
 		if (Tool.getTool(item) == null) {
-			final Double damage = CompAttribute.GENERIC_ATTACK_DAMAGE.get(player); // TODO doesn't work in 1.18 
-			//player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
+			final double damage = CompAttribute.GENERIC_ATTACK_DAMAGE.get(player);
 
 			if (registry.isRegistered(block)) {
 				event.setCancelled(true);
@@ -215,6 +218,9 @@ public final class TurretListener implements Listener {
 			cache.setTurretHit(true);
 			Common.runLater(20, () -> cache.setTurretHit(false));
 		}
+
+		if (!Settings.TurretSection.ENABLE_DAMAGEABLE_TURRETS)
+			return;
 
 		damageTurretQuiet(block, damage);
 

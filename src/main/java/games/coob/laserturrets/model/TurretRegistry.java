@@ -1,5 +1,6 @@
 package games.coob.laserturrets.model;
 
+import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.Hologram;
 import games.coob.laserturrets.util.Lang;
@@ -117,11 +118,18 @@ public class TurretRegistry extends YamlConfig {
 	}
 
 	private Hologram createHologram(final TurretData turretData) {
-		final String[] lore = Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth());
-		final int lines = lore.length;
-		final Hologram hologram = new Hologram(turretData.getLocation().clone().add(0.5, getYForLines(lines), 0.5));
+		final List<String> lore = Lang.ofList("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth());
+		final List<String> loreList = new ArrayList<>(lore);
 
-		hologram.setLore(lore);
+		if (!Settings.TurretSection.ENABLE_DAMAGEABLE_TURRETS)
+			loreList.removeIf(line -> line.contains(String.valueOf(turretData.getCurrentHealth())));
+
+		final Object[] objects = loreList.toArray();
+		final String[] lines = Arrays.copyOf(objects, objects.length, String[].class);
+		final int linesLength = objects.length;
+		final Hologram hologram = new Hologram(turretData.getLocation().clone().add(0.5, getYForLines(linesLength), 0.5));
+
+		hologram.setLore(lines);
 
 		return hologram;
 	}

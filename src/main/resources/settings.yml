@@ -13,6 +13,8 @@ Turret:
   Display_Holograms: false
   # Display an action bar when a player damages a turret
   Display_Action_Bar: true
+  # Should turrets be damageable ?
+  Enable_Damageable_Turrets: true
 
 # -------------------------------------------------------------------------------------------------
 # Edit your currency settings

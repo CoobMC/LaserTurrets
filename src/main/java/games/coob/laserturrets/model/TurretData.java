@@ -221,7 +221,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		map.put("Use_Mob_Whitelist", this.mobWhitelistEnabled);
 		map.put("Current_Health", this.currentHealth);
 		map.put("Current_Level", this.currentLevel);
-		map.put("Broken", this.broken); // TODO check if it causes errors (was Destroyed)
+		map.put("Broken", this.broken);
 		map.putIf("Hologram", this.hologram);
 		map.put("Levels", this.turretLevels);
 
@@ -242,10 +242,12 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		final boolean mobWhitelist = map.getBoolean("Use_Mob_Whitelist", false); // Add default value to load it if the key doesn't exist
 		final double currentHealth = map.getDouble("Current_Health");
 		final Integer level = map.getInteger("Current_Level");
-		final boolean destroyed = map.getBoolean("Destroyed", false);
+		final boolean broken = map.getBoolean("Broken", false);
+
 		final String[] split = hash.split(" \\| ");
 		final Location location = SerializeUtil.deserializeLocation(split[0]);
 		final CompMaterial material = CompMaterial.valueOf(split[1]);
+		
 		final Hologram hologram = map.get("Hologram", Hologram.class, new Hologram(location.clone().add(0.5, 0.5, 0.5)));
 		final List<TurretLevel> levels = map.getList("Levels", TurretLevel.class, turretData);
 
@@ -261,7 +263,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		turretData.setMobWhitelistEnabled(mobWhitelist);
 		turretData.setCurrentLevel(level);
 		turretData.setCurrentHealth(currentHealth);
-		turretData.setBroken(destroyed);
+		turretData.setBroken(broken);
 		turretData.setHologram(hologram);
 		turretData.setTurretLevels(levels);
 
