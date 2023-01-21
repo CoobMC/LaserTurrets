@@ -494,10 +494,15 @@ Upgrade_Menu:
     - "&eBalance: {balance} {currencyName}"
   Upgrade_Button_Title: "&aUpgrade"
   Upgrade_Button_Title_Max_Level: "&cMax level"
+  # Turret upgrade info placeholders: {currentRange}, {upgradedRange}, {currentDamage}, {upgradedDamage}, {currentHealth}, {upgradedHealth}
   Upgrade_Button_Lore:
-    - "Current level: {level}"
+    - "Current level: &e{level}"
     - ""
-    - "Price: {price} {currencyName}"
+    - "Range: &9{currentRange} blocks &7&l⇨&r &9{upgradedRange} blocks"
+    - "Laser damage: &9{currentDamage} &7&l⇨&r &9{upgradedDamage}"
+    - "Health: &9{currentHealth} &7&l⇨&r &9{upgradedHealth}"
+    - ""
+    - "Price: &6{price} {currencyName}"
   Upgrade_Animated_Message: "&2Upgraded to level {nextLevel}"
   Allies_Button_Title: "Turret Allies"
   Allies_Button_Lore:

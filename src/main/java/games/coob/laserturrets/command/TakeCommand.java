@@ -27,7 +27,7 @@ final class TakeCommand extends SimpleSubCommand {
 	TakeCommand() {
 		super("take");
 
-		setDescription(Lang.of("Turret_Commands.Take_Description")); // TODO
+		setDescription(Lang.of("Turret_Commands.Take_Description"));
 		setUsage("<id>");
 		setPermission(Permissions.Command.TAKE);
 	}

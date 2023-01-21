@@ -20,9 +20,6 @@ public final class Permissions {
 	@PermissionGroup("View the permission details.")
 	public static final class Command {
 
-		/*@Permission("The permission that gives you access to all the turret commands.")
-		public static final String TURRET = "turret.command.turret";*/ // TODO remove
-
 		@Permission("Gives access to '/lt turret take <id>' to take turrets back into your inventory.")
 		public static final String TAKE = "turret.command.take";
 

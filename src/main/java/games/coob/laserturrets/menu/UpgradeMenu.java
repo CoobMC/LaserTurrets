@@ -76,8 +76,10 @@ public class UpgradeMenu extends Menu {
 
 				if (!hasMaxTier) {
 					final double price = turretData.getLevel(nextLevel).getPrice();
+					final TurretData.TurretLevel currentLevel = turretData.getLevel(turretData.getCurrentLevel());
+					final TurretData.TurretLevel upgradedLevel = turretData.getLevel(nextLevel);
 
-					lore = Lang.ofArray("Upgrade_Menu.Upgrade_Button_Lore", "{price}", price, "{level}", turretData.getCurrentLevel(), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME);
+					lore = Lang.ofArray("Upgrade_Menu.Upgrade_Button_Lore", "{price}", price, "{level}", turretData.getCurrentLevel(), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME, "{currentRange}", currentLevel.getRange(), "{upgradedRange}", upgradedLevel.getRange(), "{currentDamage}", currentLevel.getLaserDamage(), "{upgradedDamage}", upgradedLevel.getLaserDamage(), "{currentHealth}", currentLevel.getMaxHealth(), "{upgradedHealth}", upgradedLevel.getMaxHealth());
 				}
 
 				return ItemCreator
