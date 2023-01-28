@@ -1,6 +1,11 @@
 package games.coob.laserturrets.util;
 
+import games.coob.laserturrets.model.TurretData;
+import games.coob.laserturrets.settings.Settings;
 import org.mineacademy.fo.menu.model.SkullCreator;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class TurretUtil {
 	public static String getDisplayName(final String turretType) {
@@ -38,5 +43,23 @@ public class TurretUtil {
 		}
 
 		return true;
+	}
+
+	public static void modifyHologram(final TurretData turretData) {
+		Hologram hologram = turretData.getHologram();
+		final List<String> lore = hologram.getLoreLines();
+
+		if (!Settings.TurretSection.ENABLE_DAMAGEABLE_TURRETS)
+			lore.removeIf(line -> line.contains(String.valueOf(turretData.getCurrentHealth())));
+
+		final Object[] objects = lore.toArray();
+		final String[] lines = Arrays.copyOf(objects, objects.length, String[].class);
+		hologram = new Hologram(turretData.getLocation().clone().add(0.5, getYForLines(lines.length), 0.5));
+
+		hologram.setLore(lines);
+	}
+
+	public static double getYForLines(final int numberOfLines) { // TODO
+		return (numberOfLines / 6.0) + 2;
 	}
 }

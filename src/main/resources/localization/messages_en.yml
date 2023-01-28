@@ -258,7 +258,7 @@ Settings_Menu:
   Level_Edit_Button_Lore:
     - "Open this menu to upgrade"
     - "or downgrade the turret."
-  Allies_Manager_Button_Title: Turret Allies Manager"
+  Allies_Manager_Button_Title: "Turret Allies Manager"
   Allies_Manager_Button_Lore:
     - "Click this button to edit"
     - "your turrets targets."

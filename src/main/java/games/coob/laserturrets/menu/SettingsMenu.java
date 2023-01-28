@@ -405,7 +405,7 @@ public final class SettingsMenu extends Menu {
 
 				this.mobBlacklistButton = new ButtonMenu(new MobAlliesMenu(), CompMaterial.CREEPER_HEAD,
 						Lang.of("Settings_Menu.Mob_Allies_Button_Title", "{listType}", settings.isEnableMobWhitelist() ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist"))),
-						Lang.ofArray("Settings_Menu.Mob_Allies_Button_Lore", settings.isEnableMobWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")));
+						Lang.ofArray("Settings_Menu.Mob_Allies_Button_Lore", "{listType}", settings.isEnableMobWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")));
 
 				this.playerBlacklistButton = new ButtonMenu(new PlayerAlliesMenu(), CompMaterial.PLAYER_HEAD,
 						Lang.of("Settings_Menu.Player_Allies_Button_Title", "{listType}", settings.isEnablePlayerWhitelist() ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist"))),

@@ -2,7 +2,6 @@ package games.coob.laserturrets.util;
 
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
-import games.coob.laserturrets.settings.Settings;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
@@ -11,7 +10,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Consumer;
 import org.mineacademy.fo.Common;
-import org.mineacademy.fo.MathUtil;
 import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.collection.SerializedMap;
@@ -34,7 +32,7 @@ public class Hologram implements ConfigSerializable {
 	 * A registry of created animated items
 	 */
 	@Getter
-	private static Set<Hologram> registeredItems = new HashSet<>();
+	private static final Set<Hologram> registeredItems = new HashSet<>();
 
 	/**
 	 * The ticking task responsible for calling {@link #onTick()}
@@ -126,7 +124,7 @@ public class Hologram implements ConfigSerializable {
 		this.entity = this.createEntity();
 		Valid.checkNotNull(this.entity, "Failed to spawn entity from " + this);
 
-		this.drawLore(this.lastTeleportLocation.clone());
+		this.drawLore(this.getLastTeleportLocation());
 
 		return this;
 	}
@@ -136,7 +134,9 @@ public class Hologram implements ConfigSerializable {
 	 *
 	 * @return
 	 */
-	private Entity createEntity() {
+	private ArmorStand createEntity() {
+		final Location location = this.getLastTeleportLocation();
+
 		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_11)) {
 			final Consumer<ArmorStand> consumer = armorStand -> {
 				armorStand.setMarker(true);
@@ -145,9 +145,9 @@ public class Hologram implements ConfigSerializable {
 				armorStand.setVisible(false);
 			};
 
-			return this.getLastTeleportLocation().getWorld().spawn(this.getLastTeleportLocation(), ArmorStand.class, consumer);
+			return location.getWorld().spawn(location, ArmorStand.class, consumer);
 		} else {
-			final ArmorStand armorStand = this.getLastTeleportLocation().getWorld().spawn(this.getLastTeleportLocation(), ArmorStand.class);
+			final ArmorStand armorStand = location.getWorld().spawn(location, ArmorStand.class);
 
 			CompProperty.GRAVITY.apply(armorStand, false);
 			armorStand.setVisible(false);
@@ -156,6 +156,31 @@ public class Hologram implements ConfigSerializable {
 
 			return armorStand;
 		}
+	}
+
+	private ArmorStand createLoreEntity(final Location location) {
+		final ArmorStand armorStand;
+
+		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_11)) {
+			final Consumer<ArmorStand> consumer = stand -> {
+				stand.setMarker(true);
+				CompProperty.GRAVITY.apply(stand, false);
+				stand.setSmall(true);
+				stand.setVisible(false);
+			};
+
+			armorStand = location.getWorld().spawn(location, ArmorStand.class, consumer);
+		} else {
+			armorStand = location.getWorld().spawn(location, ArmorStand.class);
+
+			armorStand.setMarker(true);
+			CompProperty.GRAVITY.apply(armorStand, false);
+			armorStand.setSmall(true);
+			armorStand.setVisible(false);
+		}
+
+		this.loreEntities.add(armorStand);
+		return armorStand;
 	}
 
 	/*
@@ -169,34 +194,10 @@ public class Hologram implements ConfigSerializable {
 			location = location.clone().add(0, -0.5, 0);
 
 		for (final String loreLine : this.loreLines) {
-			final ArmorStand armorStand;
-
-			if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_11)) {
-				final Consumer<ArmorStand> consumer = stand -> {
-					stand.setMarker(true);
-					CompProperty.GRAVITY.apply(stand, false);
-					stand.setSmall(true);
-					stand.setVisible(false);
-				};
-
-				armorStand = location.getWorld().spawn(location, ArmorStand.class, consumer);
-			} else {
-				armorStand = location.getWorld().spawn(location, ArmorStand.class);
-
-				armorStand.setMarker(true);
-				CompProperty.GRAVITY.apply(armorStand, false);
-				armorStand.setSmall(true);
-				armorStand.setVisible(false);
-			}
-
-			/*armorStand.setGravity(false);
-			armorStand.setVisible(false);*/
+			final ArmorStand armorStand = createLoreEntity(location);
 
 			Remain.setCustomName(armorStand, loreLine);
-
 			location = location.subtract(0, loreLineHeight, 0);
-
-			this.loreEntities.add(armorStand);
 		}
 	}
 
@@ -246,7 +247,6 @@ public class Hologram implements ConfigSerializable {
 	public final void setLore(final String... lore) {
 		this.loreLines.clear();
 		this.loreLines.addAll(Arrays.asList(lore));
-
 	}
 
 	/**
@@ -297,13 +297,17 @@ public class Hologram implements ConfigSerializable {
 		registeredItems.remove(this);
 	}
 
-	public final void update(final TurretData turretData) {
-		if (!Settings.TurretSection.DISPLAY_HOLOGRAM)
-			return;
-		
-		this.remove();
-		this.setLore(Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth()));
-		this.spawn();
+	public final void updateLore(final String[] loreLines) {
+		final List<String> list = new ArrayList<>(Arrays.asList(loreLines));
+
+		for (int i = 0; i < list.size(); i++) {
+			if (this.getLoreEntities().get(i) == null)
+				this.getLoreEntities().add(this.createLoreEntity(this.getLoreEntities().get(i - 1).getLocation()));
+			
+			Remain.setCustomName(this.getLoreEntities().get(i), list.get(i));
+		}
+
+		this.setLore(loreLines);
 	}
 
 	/*
@@ -340,7 +344,7 @@ public class Hologram implements ConfigSerializable {
 
 	public static Hologram deserialize(final SerializedMap map) {
 		final Location location = map.getLocation("Location");
-		final String[] lines = map.getStringList("Lines").toArray(new String[0]);
+		final String[] lines = map.getStringList("Lore").toArray(new String[0]);
 
 		final Hologram hologram = new Hologram(location.clone().add(0.5, 0.5, 0.5));
 

@@ -127,15 +127,11 @@ public class TurretRegistry extends YamlConfig {
 		final Object[] objects = loreList.toArray();
 		final String[] lines = Arrays.copyOf(objects, objects.length, String[].class);
 		final int linesLength = objects.length;
-		final Hologram hologram = new Hologram(turretData.getLocation().clone().add(0.5, getYForLines(linesLength), 0.5));
+		final Hologram hologram = new Hologram(turretData.getLocation().clone().add(0.5, TurretUtil.getYForLines(linesLength), 0.5));
 
 		hologram.setLore(lines);
 
 		return hologram;
-	}
-
-	private double getYForLines(final int numberOfLines) {
-		return (numberOfLines / 6.0) + 2;
 	}
 
 	public void unregister(final Block block) {
@@ -250,6 +246,13 @@ public class TurretRegistry extends YamlConfig {
 
 	public void setLaserDamage(final TurretData turretData, final int level, final double damage) {
 		turretData.getLevel(level).setLaserDamage(damage);
+
+		this.save();
+	}
+
+	public void updateHologram(final TurretData turretData) {
+		turretData.getHologram().remove();
+		turretData.setHologram(createHologram(turretData));
 
 		this.save();
 	}

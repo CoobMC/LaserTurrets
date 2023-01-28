@@ -17,6 +17,11 @@ import org.mineacademy.fo.menu.button.ButtonMenu;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompSound;
+import org.mineacademy.fo.remain.Remain;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class UpgradeMenu extends Menu {
 
@@ -65,7 +70,19 @@ public class UpgradeMenu extends Menu {
 							Common.runLater(() -> newMenu.animateTitle(Lang.of("Upgrade_Menu.Upgrade_Animated_Message", "{nextLevel}", nextLevel)));
 						});
 
-						turretData.getHologram().update(turretData);
+						if (Settings.TurretSection.DISPLAY_HOLOGRAM) {
+							final String[] lore = Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth());
+							final List<String> list = new ArrayList<>(Arrays.asList(lore));
+
+							if (!Settings.TurretSection.ENABLE_DAMAGEABLE_TURRETS) {
+								list.removeIf(line -> line.contains(String.valueOf(turretData.getCurrentHealth())));
+							}
+
+							final Object[] objects = list.toArray();
+							final String[] lines = Arrays.copyOf(objects, objects.length, String[].class);
+
+							turretData.getHologram().updateLore(lines);
+						}
 					}
 				}
 			}

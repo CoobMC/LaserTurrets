@@ -179,7 +179,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 				registry.unregister(turretData);
 
 				final Menu previousMenu = new TurretsMenu(player1, turretType);
-				
+
 				previousMenu.displayTo(player1);
 				Common.runLater(() -> previousMenu.restartMenu(Lang.of("Turrets_Menu.Remove_Turret_Animated_Message", "{turretType}", TurretUtil.getDisplayName(turretData.getType()), "{turretId}", turretData.getId())));
 			});
@@ -361,7 +361,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 			public ItemStack getItemAt(final int slot) {
 				final boolean nextLevelExists = this.turretLevel < turretData.getLevels() || turretData.getLevels() == 0;
 
-				if (!nextLevelExists && slot == 34)
+				if (!nextLevelExists && slot == getBottomCenterSlot() + 3)
 					return this.removeLevelButton.getItem();
 
 				return NO_ITEM;

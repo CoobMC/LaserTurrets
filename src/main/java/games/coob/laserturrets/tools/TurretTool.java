@@ -62,7 +62,7 @@ public abstract class TurretTool extends VisualTool {
 		final String type = this.turretType;
 		final TurretRegistry registry = TurretRegistry.getInstance();
 
-		if (registry.getTurretsOfType(type).size() >= TurretSettings.findTurretSettings(type).getTurretLimit()) {
+		if (registry.getTurretsOfType(type).size() >= TurretSettings.findTurretSettings(type).getTurretLimit() && !registry.isRegistered(block)) {
 			Messenger.error(player, Lang.of("Tool.Turret_Limit_Reached", "{turretType}", this.displayName, "{turretLimit}", TurretSettings.findTurretSettings(type).getTurretLimit()));
 			return;
 		}

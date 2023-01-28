@@ -247,7 +247,8 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 		final String[] split = hash.split(" \\| ");
 		final Location location = SerializeUtil.deserializeLocation(split[0]);
 		final CompMaterial material = CompMaterial.valueOf(split[1]);
-		
+		//final List<String> lore = Lang.ofList("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth());
+
 		final Hologram hologram = map.get("Hologram", Hologram.class, new Hologram(location.clone().add(0.5, 0.5, 0.5)));
 		final List<TurretLevel> levels = map.getList("Levels", TurretLevel.class, turretData);
 
