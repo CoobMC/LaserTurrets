@@ -15,6 +15,8 @@ Turret:
   Display_Action_Bar: true
   # Should turrets be damageable ?
   Enable_Damageable_Turrets: true
+  # The minimum distance between turrets
+  Turret_Min_Distance: 2
 
 # -------------------------------------------------------------------------------------------------
 # Edit your currency settings

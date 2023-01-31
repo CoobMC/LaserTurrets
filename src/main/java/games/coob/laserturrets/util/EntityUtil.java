@@ -38,8 +38,15 @@ public class EntityUtil {
 			final Location entityLocation = ((LivingEntity) entity).getEyeLocation().clone();
 			final Vector vector = entityLocation.subtract(center).toVector();
 
-			center.setDirection(vector);
+			/*
+			final Location location = center.clone();
+			for (double waypoint = 1; waypoint < 30 + 0.5; waypoint += 0.5) {
+				location.add(vector.clone().normalize().multiply(0.5));
+				CompParticle.VILLAGER_HAPPY.spawn(location);
+			}*/
 
+			center.setDirection(vector);
+			
 			if (vectorHasBlock(center, vector))
 				entityIterator.remove();
 		}

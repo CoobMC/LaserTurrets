@@ -23,7 +23,7 @@ public class FireballTask extends BukkitRunnable {
 				continue;
 
 			final Location location = turretData.getLocation();
-			final Location shootLocation = location.clone().add(0.5, 1, 0.5);
+			final Location shootLocation = location.clone().add(0.5, 1.4, 0.5);
 			final Block block = location.getBlock();
 			final int level = turretData.getCurrentLevel();
 			final int range = turretData.getLevel(level).getRange();
@@ -49,7 +49,6 @@ public class FireballTask extends BukkitRunnable {
 			for (int i = 0; i <= 10; i++) {
 				if (fireball.getLocation().getBlock().getType() != Material.AIR) {
 					fireball.teleport(fireball.getLocation().add(vector.clone().normalize().multiply(0.08)));
-					System.out.println(block.getLocation().distance(target.getLocation()));
 
 					if (block.getLocation().distance(target.getLocation()) < 1.6)
 						target.setVelocity(vector.clone().multiply(0.25));

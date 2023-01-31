@@ -2,6 +2,7 @@ package games.coob.laserturrets.tools;
 
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.sequence.Sequence;
+import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.TurretUtil;
@@ -61,6 +62,8 @@ public abstract class TurretTool extends VisualTool {
 	protected void handleBlockClick(final Player player, final ClickType click, final Block block) {
 		final String type = this.turretType;
 		final TurretRegistry registry = TurretRegistry.getInstance();
+		final Location location = block.getLocation();
+		final Location closestLocation = getClosestLocation(location, registry.getTurretLocations());
 
 		if (registry.getTurretsOfType(type).size() >= TurretSettings.findTurretSettings(type).getTurretLimit() && !registry.isRegistered(block)) {
 			Messenger.error(player, Lang.of("Tool.Turret_Limit_Reached", "{turretType}", this.displayName, "{turretLimit}", TurretSettings.findTurretSettings(type).getTurretLimit()));
@@ -77,6 +80,11 @@ public abstract class TurretTool extends VisualTool {
 			return;
 		}
 
+		if (!registry.isRegistered(block) && Settings.TurretSection.TURRET_MIN_DISTANCE > closestLocation.distance(location)) {
+			Messenger.error(player, Lang.of("Tool.Turret_Min_Distance_Breached", "{distance}", Settings.TurretSection.TURRET_MIN_DISTANCE));
+			return;
+		}
+
 		if (block.hasMetadata("IsCreating"))
 			return;
 
@@ -85,15 +93,26 @@ public abstract class TurretTool extends VisualTool {
 
 		if (isTurret && !oneUse) {
 			registry.unregister(block);
-			Messenger.success(player, Lang.of("Tool.Unregistered_Turret_Message", "{turretType}", this.displayName, "{location}", Common.shortLocation(block.getLocation())));
+			Messenger.success(player, Lang.of("Tool.Unregistered_Turret_Message", "{turretType}", this.displayName, "{location}", Common.shortLocation(location)));
 		} else if (!isTurret) {
 			if (oneUse)
 				player.getInventory().removeItem(this.item);
 
 			block.setMetadata("IsCreating", new FixedMetadataValue(SimplePlugin.getInstance(), ""));
-			Sequence.TURRET_CREATION(player, block, type).start(block.getLocation());
-			Messenger.success(player, Lang.of("Tool.Registered_Turret_Message", "{turretType}", this.displayName, "{location}", Common.shortLocation(block.getLocation())));
+			Sequence.TURRET_CREATION(player, block, type).start(location);
+			Messenger.success(player, Lang.of("Tool.Registered_Turret_Message", "{turretType}", this.displayName, "{location}", Common.shortLocation(location)));
 		}
+	}
+
+	private Location getClosestLocation(final Location centerLocation, final List<Location> locations) { // TODO add to foundation
+		Location closestLocation = null;
+
+		for (final Location location : locations) {
+			if (closestLocation == null || (location.distanceSquared(centerLocation) < closestLocation.distanceSquared(centerLocation)))
+				closestLocation = location;
+		}
+
+		return closestLocation;
 	}
 
 	@Override

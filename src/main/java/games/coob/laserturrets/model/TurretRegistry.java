@@ -362,6 +362,15 @@ public class TurretRegistry extends YamlConfig {
 		return locations;
 	}
 
+	public List<Location> getTurretLocations() {
+		final List<Location> locations = new ArrayList<>();
+
+		for (final TurretData turretData : this.registeredTurrets)
+			locations.add(turretData.getLocation());
+
+		return locations;
+	}
+
 	public Set<String> getTurretIDs() {
 		final Set<String> turretIDs = new HashSet<>();
 

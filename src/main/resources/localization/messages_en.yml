@@ -629,6 +629,7 @@ Tool:
     - "&61 use"
   Turret_Limit_Reached: "You cannot create anymore turrets because the limit of {turretType} turrets has been reached. You can increase this limit in your turret settings. (Limit: {turretLimit})"
   Turret_Cannot_Be_Placed: "Turrets can only be created on solid blocks."
+  Turret_Min_Distance_Breached: "Turrets must be further apart (minimum distance: {distance} blocks)."
   Block_Is_Already_Turret: "This block is already a turret."
   Registered_Turret_Message: "Successfully &aregistered &7the {turretType} turret at {location}."
   Registered_Turret_Hologram: "&aRegistered {turretType} Turret"
