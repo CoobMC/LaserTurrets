@@ -33,6 +33,9 @@ final class GiveCommand extends SimpleSubCommand {
 	protected void onCommand() {
 		checkConsole();
 
+		if (args.length == 0)
+			returnInvalidArgs();
+		
 		final String type = args[0];
 
 		if (args.length == 1) {

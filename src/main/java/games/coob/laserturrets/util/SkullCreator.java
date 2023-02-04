@@ -8,7 +8,6 @@ import org.bukkit.SkullType;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Skull;
-import org.bukkit.block.data.Rotatable;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.mineacademy.fo.Common;
@@ -325,11 +324,17 @@ public class SkullCreator {
 	 * @param skull
 	 * @param blockFace
 	 */
-	public static void rotateSkull(final Skull skull, final BlockFace blockFace) {
-		final Rotatable skullRotation = (Rotatable) skull.getBlockData();
+	public static void rotateSkull(final Skull skull, final BlockFace blockFace) { // TODO Use try catch
+		/*try {
+			//final Rotatable skullRotation = (Rotatable) skull.getBlockData();
+			final Directional skullRotation = (Directional) skull.getBlockData();
 
-		skullRotation.setRotation(blockFace);
-		skull.setBlockData(skullRotation);
+			skullRotation.setFacing(blockFace);
+			skull.setBlockData(skullRotation);
+		} catch (final Throwable t) {*/
+		skull.setRotation(blockFace);
+		//}
+
 		skull.update(true);
 	}
 }

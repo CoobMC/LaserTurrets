@@ -25,7 +25,7 @@ import org.mineacademy.fo.remain.CompMaterial;
  * <p>
  * It uses Foundation for fast and efficient development process.
  */
-public final class LaserTurrets extends SimplePlugin { // TODO create a command that updates the head texture of all turrets
+public final class LaserTurrets extends SimplePlugin { // TODO use HookManager.deposit(); instead of vault hook
 
 	/**
 	 * Automatically perform login ONCE when the plugin starts.
@@ -39,7 +39,7 @@ public final class LaserTurrets extends SimplePlugin { // TODO create a command 
 			TurretSettings.createSettings(type);
 
 		if (!VaultHook.setupEconomy(getServer()) && Settings.CurrencySection.USE_VAULT) {
-			Common.log("[LaserTurrets] - Disabled due to no Vault dependency found!", getDescription().getName());
+			Common.log("[LaserTurrets] - Disabled due to no Vault dependency found (an economy plugin is also required)!", getDescription().getName());
 			getServer().getPluginManager().disablePlugin(this);
 			return;
 		}

@@ -11,7 +11,7 @@ import java.util.List;
 
 public class BalanceCommand extends SimpleSubCommand {
 	protected BalanceCommand() {
-		super("currency");
+		super("balance");
 
 		setMinArguments(1);
 		setPermission(Permissions.Command.CURRENCY);

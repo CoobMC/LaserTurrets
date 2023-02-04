@@ -35,6 +35,9 @@ final class BuyCommand extends SimpleSubCommand {
 	protected void onCommand() {
 		checkConsole();
 
+		if (args.length == 0)
+			returnInvalidArgs();
+		
 		final String type = args[0];
 		final PlayerCache cache = PlayerCache.from(getPlayer());
 		final String typeName = type.replace("_turret", "");

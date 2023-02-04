@@ -225,7 +225,7 @@ public class AlliesMenu extends Menu {
 
 		@Override
 		protected ItemStack convertToItemStack(final UUID uuid) {
-			final Player player = Remain.getPlayerByUUID(uuid);
+			final OfflinePlayer player = Remain.getOfflinePlayerByUUID(uuid);
 
 			return ItemCreator.of(
 							CompMaterial.PLAYER_HEAD,
@@ -236,7 +236,7 @@ public class AlliesMenu extends Menu {
 
 		@Override
 		protected void onPageClick(final Player player, final UUID item, final ClickType click) {
-			final Player target = Remain.getPlayerByUUID(item);
+			final OfflinePlayer target = Remain.getOfflinePlayerByUUID(item);
 
 			TurretRegistry.getInstance().removePlayerFromBlacklist(turretData, target.getUniqueId());
 			this.restartMenu(Lang.of("Manage_Allies_Menu.Player_Head_Animated_Message", "{playerName}", target.getName()));

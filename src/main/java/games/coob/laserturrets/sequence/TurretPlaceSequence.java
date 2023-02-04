@@ -9,6 +9,7 @@ import org.bukkit.block.Skull;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.Common;
+import org.mineacademy.fo.PlayerUtil;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.plugin.SimplePlugin;
 import org.mineacademy.fo.remain.CompParticle;
@@ -63,19 +64,10 @@ public final class TurretPlaceSequence extends Sequence {
 		final TurretRegistry registry = TurretRegistry.getInstance();
 
 		SkullCreator.blockWithBase64(skullBlock, turretSettings.getBase64Texture());
-		SkullCreator.rotateSkull((Skull) skullBlock.getState(), this.player.getFacing().getOppositeFace()); // TODO
+		SkullCreator.rotateSkull((Skull) skullBlock.getState(), PlayerUtil.getFacing(this.player)); // TODO getOpposite
 		Common.runLater(() -> registry.registerTurretById(this.block, this.turretId));
 
 		this.removeLast();
 		this.block.removeMetadata("IsCreating", SimplePlugin.getInstance());
 	}
-
-	/*private void rotateSkull(final Skull skull, final Player player) {
-		final Rotatable skullRotation = (Rotatable) skull.getBlockData();
-		final BlockFace blockFace = player.getFacing().getOppositeFace();
-
-		skullRotation.setRotation(blockFace);
-		skull.setBlockData(skullRotation);
-		skull.update(true);
-	}*/
 }

@@ -6,6 +6,7 @@ import games.coob.laserturrets.util.Lang;
 import lombok.Getter;
 import lombok.Setter;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.mineacademy.fo.MathUtil;
 import org.mineacademy.fo.Messenger;
@@ -82,7 +83,7 @@ public final class PlayerCache extends YamlConfig {
 		if (amount == 0)
 			return;
 
-		final Player player = toPlayer();
+		final OfflinePlayer player = toPlayer();
 		final boolean isUsingVault = Settings.CurrencySection.USE_VAULT;
 		final Economy economy = VaultHook.getEconomy();
 		final String currencyName = Settings.CurrencySection.CURRENCY_NAME;
@@ -96,8 +97,8 @@ public final class PlayerCache extends YamlConfig {
 
 		final double totalAmount = isUsingVault ? formatCurrency(economy.getBalance(player)) : formatCurrency(getCurrency());
 
-		if (displayMessage)
-			Messenger.success(player, Lang.of("Turret_Commands.Balance_Give", "{currencyName}", currencyName, "{playerName}", this.playerName, "{totalAmount}", totalAmount, "{amount}", amount));
+		if (displayMessage && player != null)
+			Messenger.success(player.getPlayer(), Lang.of("Turret_Commands.Balance_Give", "{currencyName}", currencyName, "{playerName}", this.playerName, "{totalAmount}", totalAmount, "{amount}", amount));
 	}
 
 	public void takeCurrency(final double amount, final boolean displayMessage) {

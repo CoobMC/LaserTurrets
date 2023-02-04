@@ -80,7 +80,7 @@ public abstract class TurretTool extends VisualTool {
 			return;
 		}
 
-		if (!registry.isRegistered(block) && Settings.TurretSection.TURRET_MIN_DISTANCE > closestLocation.distance(location)) {
+		if (!registry.isRegistered(block) && closestLocation != null && Settings.TurretSection.TURRET_MIN_DISTANCE > closestLocation.distance(location)) {
 			Messenger.error(player, Lang.of("Tool.Turret_Min_Distance_Breached", "{distance}", Settings.TurretSection.TURRET_MIN_DISTANCE));
 			return;
 		}

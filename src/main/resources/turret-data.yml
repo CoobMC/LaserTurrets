@@ -1,5 +1,5 @@
 Turret_Settings:
-  Turret_Limit: 10
+  Turret_Limit: 25
   Player_Blacklist: [ ]
   Mob_Blacklist: [ ]
   Use_Player_Whitelist: false

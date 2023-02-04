@@ -40,7 +40,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 	private TurretData turretData;
 
-	private Player player;
+	private final Player player;
 
 	private final Button changeTypeButton;
 
