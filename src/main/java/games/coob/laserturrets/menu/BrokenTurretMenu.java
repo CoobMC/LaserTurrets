@@ -5,6 +5,7 @@ import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.util.Lang;
+import games.coob.laserturrets.util.TurretUtil;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -12,6 +13,7 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.mineacademy.fo.Common;
+import org.mineacademy.fo.MathUtil;
 import org.mineacademy.fo.PlayerUtil;
 import org.mineacademy.fo.collection.StrictMap;
 import org.mineacademy.fo.menu.Menu;
@@ -24,6 +26,7 @@ import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.menu.model.MenuClickLocation;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompSound;
+import org.mineacademy.fo.remain.Remain;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,11 +57,21 @@ public class BrokenTurretMenu extends Menu {
 				final TurretRegistry registry = TurretRegistry.getInstance();
 				final PlayerCache cache = PlayerCache.from(player);
 
+				if (cache.getCurrency(false) - price < 0) {
+					animateTitle(Lang.of("Menu.Not_Enough_Money_Animated_Message", "{moneyNeeded}", price - cache.getCurrency(false), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
+					return;
+				}
+
+				cache.takeCurrency(price, false);
 				CompSound.ANVIL_USE.play(turretData.getLocation());
 				registry.setBroken(turretData, false);
-				cache.takeCurrency(price, false);
 				player.closeInventory();
 				Common.tell(player, Lang.of("Broken_Turret_Menu.Repair_Button_Click_Message", "{price}", price, "{currencyName}", currencyName));
+
+				if (Settings.TurretSection.DISPLAY_HOLOGRAM) {
+					final String[] loreHologram = Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth());
+					turretData.getHologram().updateLore(loreHologram);
+				}
 			}
 
 			@Override

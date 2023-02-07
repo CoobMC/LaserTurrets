@@ -115,6 +115,11 @@ Turret_Display:
     - "&6{turretType} Turret"
     - "Health: &c{health}"
     - "Level: &9{level}"
+  # Placeholders : {owner}, {turretType}, {level}
+  Broken_Turret_Hologram:
+    - "&c{turretType} Turret"
+    - "&cis broken!"
+    - "&6Owner: {owner}"
 
 # -------------------------------------------------------------------------------------------------
 # Messages that are displayed in the Manage Allies menu
@@ -201,7 +206,7 @@ Broken_Turret_Menu:
     - "Click to repair this"
     - "turret."
     - ""
-    - "Cost: {price}"
+    - "Cost: {price} {currencyName}"
   Repair_Button_Click_Message: "&aYou have successfully repaired this turret and it costed you {price} {currencyName}."
   Loot_Button_Title: "Turret Loot"
   Loot_Button_Lore:

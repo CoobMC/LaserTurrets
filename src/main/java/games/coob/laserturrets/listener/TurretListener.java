@@ -236,19 +236,25 @@ public final class TurretListener implements Listener {
 		final TurretRegistry registry = TurretRegistry.getInstance();
 		final TurretData turretData = registry.getTurretByBlock(block);
 		final Location location = block.getLocation().clone();
+		final boolean canDisplayHologram = Settings.TurretSection.DISPLAY_HOLOGRAM;
 
 		registry.setTurretHealth(block, turretData.getCurrentHealth() - damage);
 		CompSound.ITEM_BREAK.play(location);
-
-		if (Settings.TurretSection.DISPLAY_HOLOGRAM) {
-			final String[] lore = Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth());
-			turretData.getHologram().updateLore(lore);
-		}
 
 		if (turretData.getCurrentHealth() <= 0 && !turretData.isBroken()) {
 			registry.setBrokenAndFill(block, true);
 			CompSound.EXPLODE.play(location);
 			CompParticle.EXPLOSION_LARGE.spawn(location.add(0.5, 1, 0.5), 2);
+		}
+
+		if (canDisplayHologram) {
+			if (turretData.isBroken()) {
+				final String[] lore = Lang.ofArray("Turret_Display.Broken_Turret_Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()));
+				turretData.getHologram().updateLore(lore);
+			} else {
+				final String[] loreHologram = Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth());
+				turretData.getHologram().updateLore(loreHologram);
+			}
 		}
 	}
 

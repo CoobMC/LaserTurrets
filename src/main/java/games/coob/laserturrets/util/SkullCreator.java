@@ -337,4 +337,15 @@ public class SkullCreator {
 
 		skull.update(true);
 	}
+
+	/*public static void rotateSkull(final Skull skull, final BlockFace blockFace) { // TODO Use try catch
+		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_13)) {
+			final Rotatable skullRotation = (Rotatable) skull.getBlockData();
+
+			skullRotation.setRotation(blockFace);
+			skull.setBlockData(skullRotation);
+		} else skull.setRotation(blockFace);
+
+		skull.update(true);
+	}*/
 }
