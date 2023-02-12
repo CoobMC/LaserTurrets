@@ -4,17 +4,21 @@ import games.coob.laserturrets.PlayerCache;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.Settings;
+import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.TurretUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.mineacademy.fo.ChatUtil;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.MathUtil;
+import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.menu.Menu;
 import org.mineacademy.fo.menu.button.Button;
 import org.mineacademy.fo.menu.button.ButtonMenu;
 import org.mineacademy.fo.menu.model.ItemCreator;
+import org.mineacademy.fo.menu.model.SkullCreator;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompSound;
 import org.mineacademy.fo.remain.Remain;
@@ -32,6 +36,8 @@ public class UpgradeMenu extends Menu {
 	private final Button upgradeButton;
 
 	private final Button blacklistButton;
+
+	private final Button takeButton;
 
 	public UpgradeMenu(final TurretData turretData, final int turretLevel, final Player player) {
 		this.setSize(27);
@@ -107,6 +113,35 @@ public class UpgradeMenu extends Menu {
 			}
 		};
 
+		this.takeButton = new Button() {
+			final TurretSettings settings = TurretSettings.findTurretSettings(turretData.getType());
+
+			@Override
+			public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
+				final TurretRegistry registry = TurretRegistry.getInstance();
+				final ItemStack skull = SkullCreator.itemFromBase64(settings.getBase64Texture());
+				final ItemStack turret = ItemCreator.of(skull).name(Lang.of("Tool.Unplaced_Turret_Title", "{turretType}", ChatUtil.capitalize(turretData.getType()), "{turretId}", turretData.getId()))
+						.lore(Lang.ofArray("Tool.Unplaced_Turret_Lore", "{turretType}", turretData.getType(), "{turretId}", turretData.getId(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName()))
+						.tag("id", turretData.getId()).make();
+
+				player.getInventory().addItem(turret);
+				registry.registerToUnplaced(turretData, turret);
+				player.closeInventory();
+				CompSound.BLOCK_ANVIL_DESTROY.play(player);
+				registry.unregister(turretData);
+				Messenger.success(player, Lang.of("Turret_Commands.Take_Turret_Message", "{turretType}", turretData.getType(), "{turretId}", turretData.getId()));
+			}
+
+			@Override
+			public ItemStack getItem() {
+				final ItemStack skull = SkullCreator.itemFromBase64(settings.getBase64Texture());
+
+				return ItemCreator.of(skull).name(Lang.of("Upgrade_Menu.Take_Turret_Button_Title", "{turretType}", ChatUtil.capitalize(turretData.getType()), "{turretId}", turretData.getId()))
+						.lore(Lang.ofArray("Upgrade_Menu.Take_Turret_Button_Lore", "{turretType}", turretData.getType(), "{turretId}", turretData.getId(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel())))
+						.tag("id", turretData.getId()).make();
+			}
+		};
+
 		this.blacklistButton = new ButtonMenu(new AlliesMenu(UpgradeMenu.this, turretData, player), CompMaterial.KNOWLEDGE_BOOK,
 				Lang.of("Upgrade_Menu.Allies_Button_Title"),
 				Lang.ofArray("Upgrade_Menu.Allies_Button_Lore"));
@@ -118,6 +153,8 @@ public class UpgradeMenu extends Menu {
 			return this.upgradeButton.getItem();
 		if (slot == this.getCenterSlot() - 1)
 			return this.blacklistButton.getItem();
+		if (slot == this.getBottomCenterSlot() + 4)
+			return this.takeButton.getItem();
 
 		return NO_ITEM;
 	}

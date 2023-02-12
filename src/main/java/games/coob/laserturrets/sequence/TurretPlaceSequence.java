@@ -64,7 +64,7 @@ public final class TurretPlaceSequence extends Sequence {
 		final TurretRegistry registry = TurretRegistry.getInstance();
 
 		SkullCreator.blockWithBase64(skullBlock, turretSettings.getBase64Texture());
-		SkullCreator.rotateSkull((Skull) skullBlock.getState(), PlayerUtil.getFacing(this.player)); // TODO getOpposite
+		SkullCreator.rotateSkull((Skull) skullBlock.getState(), PlayerUtil.getFacing(this.player));
 		Common.runLater(() -> registry.registerTurretById(this.block, this.turretId));
 
 		this.removeLast();

@@ -25,6 +25,8 @@ public class TurretSettings extends YamlConfig {
 
 	private boolean enableMobWhitelist;
 
+	//private CompMaterial material; TODO
+
 	private boolean enablePlayerWhitelist;
 
 	private String base64Texture;
@@ -49,6 +51,7 @@ public class TurretSettings extends YamlConfig {
 		this.enableMobWhitelist = this.getBoolean("Use_Mob_Whitelist");
 		this.enablePlayerWhitelist = this.getBoolean("Use_Player_Whitelist");
 		this.base64Texture = this.getString("Head_Texture");
+		//this.material = this.getMaterial("Tool_Item"); TODO
 		this.levels = this.getList("Levels", LevelData.class);
 	}
 
@@ -60,6 +63,7 @@ public class TurretSettings extends YamlConfig {
 		this.set("Use_Player_Whitelist", this.enablePlayerWhitelist);
 		this.set("Use_Mob_Whitelist", this.enableMobWhitelist);
 		this.set("Head_Texture", this.base64Texture);
+		//this.set("Tool_Item", this.material);
 		this.set("Levels", this.levels);
 	}
 
@@ -80,6 +84,12 @@ public class TurretSettings extends YamlConfig {
 
 		this.save();
 	}
+
+	/*public void setToolItem(final CompMaterial material) { // TODO
+		this.material = material;
+
+		this.save();
+	}*/
 
 	public int getLevelsSize() {
 		return this.levels.size();

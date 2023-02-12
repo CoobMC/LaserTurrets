@@ -33,7 +33,6 @@ public final class LaserTurrets extends SimplePlugin { // TODO use HookManager.d
 	@Override
 	protected void onPluginStart() {
 		Common.runLater(TurretRegistry::getInstance);
-		//TurretRegistry.getInstance();
 
 		for (final String type : getTypes())
 			TurretSettings.createSettings(type);

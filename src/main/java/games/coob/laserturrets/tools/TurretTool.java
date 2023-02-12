@@ -8,6 +8,7 @@ import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.TurretUtil;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
@@ -70,7 +71,7 @@ public abstract class TurretTool extends VisualTool {
 			return;
 		}
 
-		if (!block.getType().isSolid()) {
+		if (!block.getType().isSolid() || (block.getRelative(BlockFace.UP).getType().isSolid() && !registry.isRegistered(block))) {
 			Messenger.error(player, Lang.of("Tool.Turret_Cannot_Be_Placed"));
 			return;
 		}

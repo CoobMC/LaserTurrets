@@ -22,6 +22,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -256,6 +257,14 @@ public final class TurretListener implements Listener {
 				turretData.getHologram().updateLore(loreHologram);
 			}
 		}
+	}
+
+	@EventHandler
+	public void onPlayerArmorStandManipulate(final PlayerArmorStandManipulateEvent event) {
+		final ArmorStand armorStand = event.getRightClicked();
+		
+		if (armorStand.hasMetadata("AnimatedStand"))
+			event.setCancelled(true);
 	}
 
 	@EventHandler

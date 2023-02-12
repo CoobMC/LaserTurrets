@@ -109,7 +109,7 @@ public final class SettingsMenu extends Menu {
 			this.turretLimitButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.CRAFTING_TABLE).name(Lang.of("Settings_Menu.Turret_Limit_Button_Title"))
 							.lore(Lang.ofArray("Settings_Menu.Turret_Limit_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName), "{limit}", this.settings.getTurretLimit())),
 					Lang.of("Settings_Menu.Turret_Limit_Prompt_Message", "{turretType}", TurretUtil.getDisplayName(typeName), "{limit}", this.settings.getTurretLimit()),
-					new RangedValue(0, 40), this.settings::getTurretLimit, this.settings::setTurretLimit);
+					new RangedValue(0, 100), this.settings::getTurretLimit, this.settings::setTurretLimit);
 
 			this.levelEditButton = new ButtonMenu(new LevelMenu(1), CompMaterial.EXPERIENCE_BOTTLE,
 					Lang.of("Settings_Menu.Level_Edit_Button_Title"),
