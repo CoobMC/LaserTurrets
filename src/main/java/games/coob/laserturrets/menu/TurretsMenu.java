@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class TurretsMenu extends MenuPagged<TurretData> {
+public class TurretsMenu extends MenuPagged<TurretData> { // TODO fix pagged menu
 
 	private TurretType turretType;
 
@@ -47,13 +47,12 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 	private final Button settingsButton;
 
 	private TurretsMenu(final Player player, final TurretType turretType) {
-		super(null, compileTurrets(turretType), true);
+		super(9 * 4, null, compileTurrets(turretType), true);
 
 		this.turretType = turretType;
 		this.player = player;
 
 		this.setTitle(Lang.of("Turrets_Menu.Menu_Title", "{turretType}", TurretUtil.capitalizeWord(TurretUtil.getDisplayName(turretType.typeName))));
-		this.setSize(9 * 3);
 
 		this.changeTypeButton = new ButtonConversation(new EditMenuTypePrompt(),
 				ItemCreator.of(CompMaterial.BEACON, Lang.of("Turrets_Menu.Change_Turret_Type_Button_Title"),
@@ -96,7 +95,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 	@Override
 	public ItemStack getItemAt(final int slot) {
-		if (slot == getSize() - 1)
+		if (slot == getSize() - 2)
 			return changeTypeButton.getItem();
 		if (slot == getBottomCenterSlot())
 			return settingsButton.getItem();

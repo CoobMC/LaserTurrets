@@ -150,6 +150,7 @@ public class AlliesMenu extends Menu {
 			private MobSelectionMenu() {
 				super(27, AlliesMenu.MobBlacklistMenu.this, Arrays.stream(EntityType.values())
 						.filter(EntityType::isAlive)
+						.filter(EntityType::isSpawnable)
 						.collect(Collectors.toList()));
 
 				this.setTitle(Lang.of("Manage_Allies_Menu.Mob_Selection_Menu_Title"));

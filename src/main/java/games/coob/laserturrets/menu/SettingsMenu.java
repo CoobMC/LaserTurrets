@@ -493,6 +493,7 @@ public final class SettingsMenu extends Menu {
 					private MobSelectionMenu() {
 						super(27, MobAlliesMenu.this, Arrays.stream(EntityType.values())
 								.filter(EntityType::isAlive)
+								.filter(EntityType::isSpawnable)
 								.collect(Collectors.toList()), true);
 
 						this.setTitle(Lang.of("Settings_Menu.Mob_Selection_Menu_Title"));
