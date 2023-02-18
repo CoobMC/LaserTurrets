@@ -24,13 +24,16 @@ import org.mineacademy.fo.settings.YamlConfig;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class TurretRegistry extends YamlConfig {
+public class TurretRegistry extends YamlConfig { // TODO test out turret type
 
 	@Getter
 	private static final TurretRegistry instance = new TurretRegistry();
 
 	@Getter
 	private Set<TurretData> registeredTurrets = new HashSet<>();
+
+	// TODO add all the created turrets in the data
+	private Set<String> turretTypes = new HashSet<>();
 
 	@Getter
 	private List<Tuple<TurretData, ItemStack>> registeredUnplacedTurrets = new ArrayList<>();
@@ -41,12 +44,14 @@ public class TurretRegistry extends YamlConfig {
 
 	@Override
 	protected void onLoad() {
+		this.turretTypes = this.getSet("Turret_Types", String.class, new HashSet<>(Arrays.asList("arrow", "fireball", "beam")));
 		this.registeredTurrets = this.getSet("Turrets", TurretData.class);
 		this.registeredUnplacedTurrets = this.getTupleList("Unplaced", TurretData.class, ItemStack.class);
 	}
 
 	@Override
 	protected void onSave() {
+		this.set("Turret_Types", this.turretTypes);
 		this.set("Turrets", this.registeredTurrets);
 		this.set("Unplaced", this.registeredUnplacedTurrets);
 	}
@@ -64,7 +69,7 @@ public class TurretRegistry extends YamlConfig {
 		turretData.setId(uniqueID);
 		turretData.setCurrentLevel(1);
 
-		final TurretSettings turretSettings = TurretSettings.findTurretSettings(type);
+		final TurretSettings turretSettings = TurretSettings.findByName(type);
 
 		turretData.setMobBlacklist(turretSettings.getMobList());
 		turretData.setPlayerBlacklist(turretSettings.getPlayerList());

@@ -254,6 +254,16 @@ Settings_Menu:
     - ""
     - "Current limit: &9{limit}"
   Turret_Limit_Prompt_Message: "Type in an integer value between 0 and 100 (recommended value : 25-50)."
+  Item_Tool_Title: "Edit the item tool"
+  Item_Tool_Button_Lore:
+    - "This item will be used"
+    - "to create turrets."
+  Item_Tool_Menu_Info_Button:
+    - "Place or replace an item "
+    - "into the center of the"
+    - "menu. This item will be"
+    - "used to create turrets"
+    - "of the specific type."
   Head_Texture_Button_Title: Turret Head Texture
   Head_Texture_Button_Lore:
     - "Edit the base 64 head texture"

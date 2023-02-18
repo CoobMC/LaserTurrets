@@ -37,8 +37,8 @@ public final class TurretCreationSequence extends Sequence {
 	protected void onStart() {
 		this.getLastLocation().add(0.5, 1.2, 0.5);
 
-		final TurretSettings turretSettings = TurretSettings.findTurretSettings(this.type);
-		final ItemStack item = ItemCreator.of(SkullCreator.itemFromBase64(turretSettings.getBase64Texture())).make();
+		final TurretSettings turretSettings = TurretSettings.findByName(this.type);
+		final ItemStack item = ItemCreator.of(SkullCreator.itemFromBase64(turretSettings.getHeadTexture())).make();
 
 		this.lightning();
 		this.glowingStand(item);
@@ -56,11 +56,11 @@ public final class TurretCreationSequence extends Sequence {
 	private void onFinish() {
 		CompParticle.EXPLOSION_LARGE.spawn(this.block.getLocation().add(0.5, 1, 0.5), 2);
 
-		final TurretSettings turretSettings = TurretSettings.findTurretSettings(this.type);
+		final TurretSettings turretSettings = TurretSettings.findByName(this.type);
 		final Block skullBlock = this.block.getRelative(BlockFace.UP);
 		final TurretRegistry registry = TurretRegistry.getInstance();
 
-		SkullCreator.blockWithBase64(skullBlock, turretSettings.getBase64Texture());
+		SkullCreator.blockWithBase64(skullBlock, turretSettings.getHeadTexture());
 		SkullCreator.rotateSkull((Skull) skullBlock.getState(), PlayerUtil.getFacing(this.player));
 		Common.runLater(() -> registry.register(this.player, this.block, this.type));
 

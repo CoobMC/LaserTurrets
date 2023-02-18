@@ -55,8 +55,8 @@ final class TakeCommand extends SimpleSubCommand {
 
 		if (turretId == null) {
 			if (registry.isRegistered(block)) {
-				final TurretSettings settings = TurretSettings.findTurretSettings(turretData.getType());
-				final ItemStack skull = SkullCreator.itemFromBase64(settings.getBase64Texture());
+				final TurretSettings settings = TurretSettings.findByName(turretData.getType());
+				final ItemStack skull = SkullCreator.itemFromBase64(settings.getHeadTexture());
 				final ItemStack turret = ItemCreator.of(skull).name(Lang.of("Tool.Unplaced_Turret_Title", "{turretType}", ChatUtil.capitalize(turretData.getType()), "{turretId}", turretData.getId()))
 						.lore(Lang.ofArray("Tool.Unplaced_Turret_Lore", "{turretType}", turretData.getType(), "{turretId}", turretData.getId(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName()))
 						.tag("id", turretData.getId()).make();
@@ -69,8 +69,8 @@ final class TakeCommand extends SimpleSubCommand {
 				Messenger.error(player, Lang.of("Turret_Commands.Error_Not_Looking_At_Turret"));
 		} else {
 			if (registry.isRegistered(turretId)) {
-				final TurretSettings settings = TurretSettings.findTurretSettings(turretData.getType());
-				final ItemStack skull = SkullCreator.itemFromBase64(settings.getBase64Texture());
+				final TurretSettings settings = TurretSettings.findByName(turretData.getType());
+				final ItemStack skull = SkullCreator.itemFromBase64(settings.getHeadTexture());
 				final ItemStack turret = ItemCreator.of(skull).name(Lang.of("Tool.Unplaced_Turret_Title", "{turretType}", ChatUtil.capitalize(turretData.getType()), "{turretId}", turretData.getId()))
 						.lore(Lang.ofArray("Tool.Unplaced_Turret_Lore", "{turretType}", turretData.getType(), "{turretId}", turretData.getId(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName()))
 						.tag("id", turretData.getId()).make();

@@ -65,9 +65,10 @@ public abstract class TurretTool extends VisualTool {
 		final TurretRegistry registry = TurretRegistry.getInstance();
 		final Location location = block.getLocation();
 		final Location closestLocation = getClosestLocation(location, registry.getTurretLocations());
+		final TurretSettings settings = TurretSettings.findByName(type);
 
-		if (registry.getTurretsOfType(type).size() >= TurretSettings.findTurretSettings(type).getTurretLimit() && !registry.isRegistered(block)) {
-			Messenger.error(player, Lang.of("Tool.Turret_Limit_Reached", "{turretType}", this.displayName, "{turretLimit}", TurretSettings.findTurretSettings(type).getTurretLimit()));
+		if (registry.getTurretsOfType(type).size() >= settings.getTurretLimit() && !registry.isRegistered(block)) {
+			Messenger.error(player, Lang.of("Tool.Turret_Limit_Reached", "{turretType}", this.displayName, "{turretLimit}", settings.getTurretLimit()));
 			return;
 		}
 
@@ -147,7 +148,7 @@ public abstract class TurretTool extends VisualTool {
 		return true;
 	}
 
-	private CompMaterial getTurretMaterial() {
+	private CompMaterial getTurretMaterial() { // TODO make a better system for items
 		switch (this.turretType) {
 			case "arrow":
 				return CompMaterial.ARROW;

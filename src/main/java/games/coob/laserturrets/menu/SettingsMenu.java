@@ -12,6 +12,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.mineacademy.fo.Common;
@@ -31,6 +32,7 @@ import org.mineacademy.fo.menu.model.SkullCreator;
 import org.mineacademy.fo.model.RangedValue;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
+import org.mineacademy.fo.remain.CompSound;
 import org.mineacademy.fo.remain.Remain;
 
 import javax.annotation.Nullable;
@@ -61,17 +63,17 @@ public final class SettingsMenu extends Menu {
 		this.setSize(27);
 		this.setTitle(Lang.of("Settings_Menu.Menu_Title"));
 
-		this.arrowSettingsButton = new ButtonMenu(new SettingsEditMenu("arrow"), CompMaterial.ARROW,
-				Lang.of("Settings_Menu.Arrow_Settings_Button_Title"),
-				Lang.ofArray("Settings_Menu.Arrow_Settings_Button_Lore"));
+		this.arrowSettingsButton = new ButtonMenu(new SettingsEditMenu("arrow"), ItemCreator.of(TurretSettings.findByName("arrow").getToolItem())
+				.name(Lang.of("Settings_Menu.Arrow_Settings_Button_Title"))
+				.lore(Lang.ofArray("Settings_Menu.Arrow_Settings_Button_Lore")));
 
-		this.fireballSettingsButton = new ButtonMenu(new SettingsEditMenu("fireball"), CompMaterial.FIRE_CHARGE,
-				Lang.of("Settings_Menu.Fireball_Settings_Button_Title"),
-				Lang.ofArray("Settings_Menu.Fireball_Settings_Button_Lore"));
+		this.fireballSettingsButton = new ButtonMenu(new SettingsEditMenu("fireball"), ItemCreator.of(TurretSettings.findByName("arrow").getToolItem())
+				.name(Lang.of("Settings_Menu.Fireball_Settings_Button_Title"))
+				.lore(Lang.ofArray("Settings_Menu.Fireball_Settings_Button_Lore")));
 
-		this.beamSettingsButton = new ButtonMenu(new SettingsEditMenu("beam"), CompMaterial.BLAZE_ROD,
-				Lang.of("Settings_Menu.Beam_Settings_Button_Title"),
-				Lang.ofArray("Settings_Menu.Beam_Settings_Button_Lore"));
+		this.beamSettingsButton = new ButtonMenu(new SettingsEditMenu("beam"), ItemCreator.of(TurretSettings.findByName("arrow").getToolItem())
+				.name(Lang.of("Settings_Menu.Beam_Settings_Button_Title"))
+				.lore(Lang.ofArray("Settings_Menu.Beam_Settings_Button_Lore")));
 	}
 
 	@Override
@@ -85,23 +87,26 @@ public final class SettingsMenu extends Menu {
 
 		private final TurretSettings settings;
 
-		@Position(10)
+		@Position(11)
 		private final Button levelEditButton;
 
-		@Position(12)
+		@Position(13)
 		private final Button alliesManagerButton;
 
-		@Position(14)
+		@Position(15)
 		private final Button turretLimitButton;
 
-		@Position(16)
+		@Position(21)
 		private final Button headTextureButton;
+
+		@Position(23)
+		private final Button toolItemButton;
 
 		private SettingsEditMenu(final String typeName) {
 			super(SettingsMenu.this, true);
 
 			this.typeName = typeName;
-			this.settings = TurretSettings.findTurretSettings(typeName);
+			this.settings = TurretSettings.findByName(typeName);
 
 			this.setSize(9 * 4);
 			this.setTitle(Lang.of("Settings_Menu.Edit_Menu_Title", "{turretType}", TurretUtil.capitalizeWord(TurretUtil.getDisplayName(typeName))));
@@ -120,9 +125,11 @@ public final class SettingsMenu extends Menu {
 					Lang.ofArray("Settings_Menu.Allies_Manager_Button_Lore"));
 
 			this.headTextureButton = new ButtonConversation(new HeadTexturePrompt(),
-					ItemCreator.of(SkullCreator.itemFromBase64(this.settings.getBase64Texture()))
+					ItemCreator.of(SkullCreator.itemFromBase64(this.settings.getHeadTexture()))
 							.name(Lang.of("Settings_Menu.Head_Texture_Button_Title", "{turretType}", TurretUtil.getDisplayName(typeName)))
 							.lore(Lang.ofArray("Settings_Menu.Head_Texture_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName))));
+
+			this.toolItemButton = new ButtonMenu(new ItemToolMenu(), ItemCreator.of(CompMaterial.DIAMOND_PICKAXE, Lang.of("Settings_Menu.Item_Tool_Title"), Lang.ofArray("Settings_Menu.Item_Tool_Button_Lore"))); // TODO
 		}
 
 		@Override
@@ -158,9 +165,64 @@ public final class SettingsMenu extends Menu {
 
 			@Override
 			protected Prompt acceptValidatedInput(@NotNull final ConversationContext context, @NotNull final String input) {
-				settings.setBase64Texture(input);
+				settings.setHeadTexture(input);
 
 				return Prompt.END_OF_CONVERSATION;
+			}
+		}
+
+		/**
+		 * The edit kit icon menu
+		 */
+		private final class ItemToolMenu extends Menu { // TODO add in localisation
+
+			/**
+			 * Create a new menu
+			 */
+			private ItemToolMenu() {
+				super(SettingsEditMenu.this, true);
+
+				setSize(9 * 3);
+				setTitle(Lang.of("Settings_Menu.Item_Tool_Title"));
+			}
+
+			/**
+			 * @see Menu#getItemAt(int)
+			 */
+			@Override
+			public ItemStack getItemAt(final int slot) {
+
+				if (slot == getCenterSlot())
+					return settings.getToolItem();
+
+				return ItemCreator.of(CompMaterial.GRAY_STAINED_GLASS_PANE).name(" ").make();
+			}
+
+			/**
+			 * @see Menu#onMenuClose(Player, Inventory)
+			 */
+			@Override
+			protected void onMenuClose(final Player player, final Inventory inventory) {
+				final ItemStack item = inventory.getItem(getCenterSlot());
+
+				settings.setToolItem(item);
+				CompSound.SUCCESSFUL_HIT.play(player);
+			}
+
+			/**
+			 * Enable clicking outside of the menu or in the slot item
+			 */
+			@Override
+			protected boolean isActionAllowed(final MenuClickLocation location, final int slot, @org.jetbrains.annotations.Nullable final ItemStack clicked, @org.jetbrains.annotations.Nullable final ItemStack cursor, final InventoryAction action) {
+				return location != MenuClickLocation.MENU || (location == MenuClickLocation.MENU && slot == getCenterSlot());
+			}
+
+			/**
+			 * @see Menu#getInfo()
+			 */
+			@Override
+			protected String[] getInfo() {
+				return Lang.ofArray("Settings_Menu.Item_Tool_Menu_Info_Button");
 			}
 		}
 

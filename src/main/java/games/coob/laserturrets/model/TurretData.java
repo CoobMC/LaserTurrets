@@ -184,7 +184,7 @@ public class TurretData implements ConfigSerializable { // TODO create ammo
 
 	public void createLevel(final String turretType) {
 		final TurretData.TurretLevel level = addLevel();
-		final List<TurretSettings.LevelData> levels = TurretSettings.findTurretSettings(turretType).getLevels();
+		final List<TurretSettings.LevelData> levels = TurretSettings.findByName(turretType).getLevels();
 
 		levels.get(levels.size() - 1).setLevelData(level);
 	}

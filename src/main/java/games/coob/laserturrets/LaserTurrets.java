@@ -7,6 +7,7 @@ import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
+import games.coob.laserturrets.settings.TurretType;
 import games.coob.laserturrets.task.*;
 import games.coob.laserturrets.util.Hologram;
 import games.coob.laserturrets.util.SkullCreator;
@@ -15,8 +16,14 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Skull;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.MinecraftVersion;
+import org.mineacademy.fo.ReflectionUtil;
+import org.mineacademy.fo.Valid;
+import org.mineacademy.fo.exception.CommandException;
 import org.mineacademy.fo.plugin.SimplePlugin;
 import org.mineacademy.fo.remain.CompMaterial;
+
+import java.util.Arrays;
+import java.util.function.Function;
 
 /**
  * PluginTemplate is a simple template you can use every time you make
@@ -34,8 +41,10 @@ public final class LaserTurrets extends SimplePlugin { // TODO use HookManager.d
 	protected void onPluginStart() {
 		Common.runLater(TurretRegistry::getInstance);
 
-		for (final String type : getTypes())
-			TurretSettings.createSettings(type);
+		for (final String type : getTypes()) {
+			final TurretType turretType = findEnum(TurretType.class, type, null, "No such such turret type. Available: " + Arrays.toString(getTypes()) + ".");
+			TurretSettings.createTurretType(type, turretType);
+		}
 
 		if (!VaultHook.setupEconomy(getServer()) && Settings.CurrencySection.USE_VAULT) {
 			Common.log("[LaserTurrets] - Disabled due to no Vault dependency found (an economy plugin is also required)!", getDescription().getName());
@@ -61,7 +70,7 @@ public final class LaserTurrets extends SimplePlugin { // TODO use HookManager.d
 		Hologram.deleteAll();
 	}
 
-	public String[] getTypes() {
+	public String[] getTypes() { // TODO get from database
 		return new String[]{
 				"arrow", "beam", "fireball"
 		};
@@ -84,12 +93,12 @@ public final class LaserTurrets extends SimplePlugin { // TODO use HookManager.d
 		Common.runLater(() -> {
 			for (final TurretData turretData : TurretRegistry.getInstance().getRegisteredTurrets()) {
 				final String type = turretData.getType();
-				final TurretSettings settings = TurretSettings.findTurretSettings(type);
+				final TurretSettings settings = TurretSettings.findByName(type);
 				final Block skullBlock = turretData.getLocation().getBlock().getRelative(BlockFace.UP);
 
 				if (CompMaterial.isSkull(skullBlock.getType())) {
 					final Skull state = (Skull) skullBlock.getState();
-					SkullCreator.mutateBlockState(state, settings.getBase64Texture());
+					SkullCreator.mutateBlockState(state, settings.getHeadTexture());
 					state.update(false, false);
 				}
 
@@ -105,6 +114,23 @@ public final class LaserTurrets extends SimplePlugin { // TODO use HookManager.d
 
 		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_9))
 			Common.runTimer(30, new BeamTask());
+	}
+
+	private <T extends Enum<T>> T findEnum(final Class<T> enumType, final String name, final Function<T, Boolean> condition, final String falseMessage) throws CommandException {
+		T found = null;
+
+		try {
+			found = ReflectionUtil.lookupEnum(enumType, name);
+
+			if (!condition.apply(found))
+				found = null;
+
+		} catch (final Throwable t) {
+			// Not found, pass through below to error out
+		}
+
+		Valid.checkNotNull(found, falseMessage.replace("{enum}", name).replace("{available}", Common.join(enumType.getEnumConstants())));
+		return found;
 	}
 
 	/* ------------------------------------------------------------------------------- */

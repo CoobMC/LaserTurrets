@@ -37,11 +37,11 @@ final class BuyCommand extends SimpleSubCommand {
 
 		if (args.length == 0)
 			returnInvalidArgs();
-		
+
 		final String type = args[0];
 		final PlayerCache cache = PlayerCache.from(getPlayer());
 		final String typeName = type.replace("_turret", "");
-		final TurretSettings settings = TurretSettings.findTurretSettings(typeName);
+		final TurretSettings settings = TurretSettings.findByName(typeName);
 		final double price = settings.getLevels().get(0).getPrice();
 
 		if (cache.getCurrency(false) - price < 0) {

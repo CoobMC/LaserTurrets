@@ -14,7 +14,6 @@ import org.mineacademy.fo.menu.Menu;
 import org.mineacademy.fo.menu.button.Button;
 import org.mineacademy.fo.menu.button.annotation.Position;
 import org.mineacademy.fo.menu.model.ItemCreator;
-import org.mineacademy.fo.remain.CompMaterial;
 
 public class ShopMenu extends Menu {
 
@@ -39,7 +38,7 @@ public class ShopMenu extends Menu {
 		this.arrowTurretButton = new Button() {
 			@Override
 			public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
-				final double buyPrice = TurretSettings.findTurretSettings("arrow").getLevels().get(0).getPrice();
+				final double buyPrice = TurretSettings.findByName("arrow").getLevels().get(0).getPrice();
 
 				if (cache.getCurrency(false) - buyPrice < 0) {
 					animateTitle(Lang.of("Menu.Not_Enough_Money_Animated_Message", "{moneyNeeded}", buyPrice - cache.getCurrency(false), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
@@ -53,17 +52,18 @@ public class ShopMenu extends Menu {
 
 			@Override
 			public ItemStack getItem() {
-				final double buyPrice = TurretSettings.findTurretSettings("arrow").getLevels().get(0).getPrice();
+				final double buyPrice = TurretSettings.findByName("arrow").getLevels().get(0).getPrice();
 
-				return ItemCreator.of(CompMaterial.ARROW, Lang.of("Shop_Menu.Arrow_Turret_Button_Title"),
-						Lang.ofArray("Shop_Menu.Arrow_Turret_Button_Lore", "{price}", buyPrice)).make();
+				return ItemCreator.of(TurretSettings.findByName("arrow").getToolItem())
+						.name(Lang.of("Shop_Menu.Arrow_Turret_Button_Title"))
+						.lore(Lang.ofArray("Shop_Menu.Arrow_Turret_Button_Lore", "{price}", buyPrice)).make();
 			}
 		};
 
 		this.fireballTurretButton = new Button() {
 			@Override
 			public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
-				final double buyPrice = TurretSettings.findTurretSettings("fireball").getLevels().get(0).getPrice();
+				final double buyPrice = TurretSettings.findByName("fireball").getLevels().get(0).getPrice();
 
 				if (cache.getCurrency(false) - buyPrice < 0) {
 					animateTitle(Lang.of("Menu.Not_Enough_Money_Animated_Message", "{moneyNeeded}", buyPrice - cache.getCurrency(false), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
@@ -77,17 +77,18 @@ public class ShopMenu extends Menu {
 
 			@Override
 			public ItemStack getItem() {
-				final double buyPrice = TurretSettings.findTurretSettings("fireball").getLevels().get(0).getPrice();
+				final double buyPrice = TurretSettings.findByName("fireball").getLevels().get(0).getPrice();
 
-				return ItemCreator.of(CompMaterial.FIRE_CHARGE, Lang.of("Shop_Menu.Fireball_Turret_Button_Title"),
-						Lang.ofArray("Shop_Menu.Fireball_Turret_Button_Lore", "{price}", buyPrice)).make();
+				return ItemCreator.of(TurretSettings.findByName("fireball").getToolItem())
+						.name(Lang.of("Shop_Menu.Fireball_Turret_Button_Title"))
+						.lore(Lang.ofArray("Shop_Menu.Fireball_Turret_Button_Lore", "{price}", buyPrice)).make();
 			}
 		};
 
 		this.beamTurretButton = new Button() {
 			@Override
 			public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
-				final double buyPrice = TurretSettings.findTurretSettings("beam").getLevels().get(0).getPrice();
+				final double buyPrice = TurretSettings.findByName("beam").getLevels().get(0).getPrice();
 
 				if (cache.getCurrency(false) - buyPrice < 0) {
 					animateTitle(Lang.of("Menu.Not_Enough_Money_Animated_Message", "{moneyNeeded}", buyPrice - cache.getCurrency(false), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
@@ -101,10 +102,11 @@ public class ShopMenu extends Menu {
 
 			@Override
 			public ItemStack getItem() {
-				final double buyPrice = TurretSettings.findTurretSettings("beam").getLevels().get(0).getPrice();
+				final double buyPrice = TurretSettings.findByName("beam").getLevels().get(0).getPrice();
 
-				return ItemCreator.of(CompMaterial.BLAZE_ROD, Lang.of("Shop_Menu.Beam_Turret_Button_Title"),
-						Lang.ofArray("Shop_Menu.Beam_Turret_Button_Lore", "{price}", buyPrice)).make();
+				return ItemCreator.of(TurretSettings.findByName("fireball").getToolItem())
+						.name(Lang.of("Shop_Menu.Beam_Turret_Button_Title"))
+						.lore(Lang.ofArray("Shop_Menu.Beam_Turret_Button_Lore", "{price}", buyPrice)).make();
 			}
 		};
 	}

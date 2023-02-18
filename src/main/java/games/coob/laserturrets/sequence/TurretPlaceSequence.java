@@ -40,8 +40,8 @@ public final class TurretPlaceSequence extends Sequence {
 	protected void onStart() {
 		this.getLastLocation().add(0.5, 1.2, 0.5);
 
-		final TurretSettings turretSettings = TurretSettings.findTurretSettings(this.type);
-		final ItemStack item = ItemCreator.of(SkullCreator.itemFromBase64(turretSettings.getBase64Texture())).make();
+		final TurretSettings turretSettings = TurretSettings.findByName(this.type);
+		final ItemStack item = ItemCreator.of(SkullCreator.itemFromBase64(turretSettings.getHeadTexture())).make();
 
 		this.lightning();
 		this.glowingStand(item);
@@ -59,15 +59,69 @@ public final class TurretPlaceSequence extends Sequence {
 	private void onFinish() {
 		CompParticle.EXPLOSION_LARGE.spawn(this.block.getLocation().add(0.5, 1, 0.5), 2);
 
-		final TurretSettings turretSettings = TurretSettings.findTurretSettings(this.type);
+		final TurretSettings turretSettings = TurretSettings.findByName(this.type);
 		final Block skullBlock = this.block.getRelative(BlockFace.UP);
 		final TurretRegistry registry = TurretRegistry.getInstance();
 
-		SkullCreator.blockWithBase64(skullBlock, turretSettings.getBase64Texture());
+		SkullCreator.blockWithBase64(skullBlock, turretSettings.getHeadTexture());
 		SkullCreator.rotateSkull((Skull) skullBlock.getState(), PlayerUtil.getFacing(this.player));
 		Common.runLater(() -> registry.registerTurretById(this.block, this.turretId));
 
 		this.removeLast();
 		this.block.removeMetadata("IsCreating", SimplePlugin.getInstance());
 	}
+
+	// TODO use
+
+	/*
+	import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public class StellatedRhombicDodecahedronPlugin extends JavaPlugin {
+
+    @Override
+    public void onEnable() {
+        // Define the center point and the size of the shape
+        Location center = new Location(getServer().getWorld("world"), 0, 70, 0);
+        int size = 10;
+
+        // Calculate the coordinates for the vertices of the shape
+        double phi = (1 + Math.sqrt(5)) / 2;
+        Location[] vertices = new Location[] {
+            center.clone().add(size, size, size),
+            center.clone().add(size, size, -size),
+            center.clone().add(size, -size, size),
+            center.clone().add(size, -size, -size),
+            center.clone().add(-size, size, size),
+            center.clone().add(-size, size, -size),
+            center.clone().add(-size, -size, size),
+            center.clone().add(-size, -size, -size),
+            center.clone().add(0, size*phi, size/phi),
+            center.clone().add(0, size*phi, -size/phi),
+            center.clone().add(0, -size*phi, size/phi),
+            center.clone().add(0, -size*phi, -size/phi),
+            center.clone().add(size/phi, 0, size*phi),
+            center.clone().add(size/phi, 0, -size*phi),
+            center.clone().add(-size/phi, 0, size*phi),
+            center.clone().add(-size/phi, 0, -size*phi),
+            center.clone().add(size*phi, size/phi, 0),
+            center.clone().add(size*phi, -size/phi, 0),
+            center.clone().add(-size*phi, size/phi, 0),
+            center.clone().add(-size*phi, -size/phi, 0)
+        };
+
+        // Draw the shape using particles
+        for (Location vertex : vertices) {
+            for (int i = 0; i < 10; i++) {
+                double x = vertex.getX() + Math.random() * 2 - 1;
+                double y = vertex.getY() + Math.random() * 2 - 1;
+                double z = vertex.getZ() + Math.random() * 2 - 1;
+                vertex.getWorld().spawnParticle(Particle.REDSTONE, x, y, z, 0, 0, 0, 1);
+            }
+        }
+    }
+
+}
+	 */
 }

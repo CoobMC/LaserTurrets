@@ -114,12 +114,12 @@ public class UpgradeMenu extends Menu {
 		};
 
 		this.takeButton = new Button() {
-			final TurretSettings settings = TurretSettings.findTurretSettings(turretData.getType());
+			final TurretSettings settings = TurretSettings.findByName(turretData.getType());
 
 			@Override
 			public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
 				final TurretRegistry registry = TurretRegistry.getInstance();
-				final ItemStack skull = SkullCreator.itemFromBase64(settings.getBase64Texture());
+				final ItemStack skull = SkullCreator.itemFromBase64(settings.getHeadTexture());
 				final ItemStack turret = ItemCreator.of(skull).name(Lang.of("Tool.Unplaced_Turret_Title", "{turretType}", ChatUtil.capitalize(turretData.getType()), "{turretId}", turretData.getId()))
 						.lore(Lang.ofArray("Tool.Unplaced_Turret_Lore", "{turretType}", turretData.getType(), "{turretId}", turretData.getId(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName()))
 						.tag("id", turretData.getId()).make();
@@ -134,7 +134,7 @@ public class UpgradeMenu extends Menu {
 
 			@Override
 			public ItemStack getItem() {
-				final ItemStack skull = SkullCreator.itemFromBase64(settings.getBase64Texture());
+				final ItemStack skull = SkullCreator.itemFromBase64(settings.getHeadTexture());
 
 				return ItemCreator.of(skull).name(Lang.of("Upgrade_Menu.Take_Turret_Button_Title", "{turretType}", ChatUtil.capitalize(turretData.getType()), "{turretId}", turretData.getId()))
 						.lore(Lang.ofArray("Upgrade_Menu.Take_Turret_Button_Lore", "{turretType}", turretData.getType(), "{turretId}", turretData.getId(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel())))

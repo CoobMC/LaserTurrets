@@ -4,18 +4,43 @@ import games.coob.laserturrets.model.TurretData;
 import lombok.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
+import org.mineacademy.fo.Common;
+import org.mineacademy.fo.FileUtil;
+import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.collection.SerializedMap;
 import org.mineacademy.fo.model.ConfigSerializable;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.settings.ConfigItems;
 import org.mineacademy.fo.settings.YamlConfig;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @Getter
-public class TurretSettings extends YamlConfig {
+public abstract class TurretSettings extends YamlConfig {
 
-	private static final ConfigItems<TurretSettings> loadedTurretSettings = ConfigItems.fromFolder("turrets", TurretSettings.class);
+	// TODO Create possibility to allow players to build their own turrets, creating a file for their own turret types
+	// Containing custom item tool and custom texture.
+	// Players will be able to create turret types via a menu
+
+	/**
+	 * The folder name where all items are stored
+	 */
+	private static final String FOLDER = "turrets";
+
+	/**
+	 * The config helper instance which loads and saves items
+	 */
+	private static final ConfigItems<? extends TurretSettings> loadedFiles = ConfigItems.fromFolder(FOLDER, fileName -> {
+		final YamlConfig config = YamlConfig.fromFileFast(FileUtil.getFile(FOLDER + "/" + fileName + ".yml"));
+		final TurretType type = config.get("Type", TurretType.class);
+
+		Valid.checkNotNull(type, "Unrecognized TurretType." + config.getObject("Type") + " in " + fileName + "! Available: " + Common.join(TurretType.values()));
+		return type.getInstanceClass();
+	});
 
 	private List<LevelData> levels;
 
@@ -25,17 +50,12 @@ public class TurretSettings extends YamlConfig {
 
 	private boolean enableMobWhitelist;
 
-	//private CompMaterial material; TODO
-
 	private boolean enablePlayerWhitelist;
-
-	private String base64Texture;
 
 	private int turretLimit;
 
-	private TurretSettings(final String turretType) {
-		this.setPathPrefix("Turret_Settings");
-		this.loadConfiguration("turret-data.yml", "turrets/" + turretType + "-turrets.yml");
+	protected TurretSettings(final String turretName, @Nullable final TurretType type) {
+		this.loadConfiguration(FOLDER + "/" + type.toString().toLowerCase() + ".yml", FOLDER + "/" + turretName + ".yml");
 	}
 
 	@Override
@@ -50,8 +70,6 @@ public class TurretSettings extends YamlConfig {
 		this.mobList = this.getSet("Mob_Blacklist", EntityType.class);
 		this.enableMobWhitelist = this.getBoolean("Use_Mob_Whitelist");
 		this.enablePlayerWhitelist = this.getBoolean("Use_Player_Whitelist");
-		this.base64Texture = this.getString("Head_Texture");
-		//this.material = this.getMaterial("Tool_Item"); TODO
 		this.levels = this.getList("Levels", LevelData.class);
 	}
 
@@ -62,10 +80,16 @@ public class TurretSettings extends YamlConfig {
 		this.set("Mob_Blacklist", this.mobList);
 		this.set("Use_Player_Whitelist", this.enablePlayerWhitelist);
 		this.set("Use_Mob_Whitelist", this.enableMobWhitelist);
-		this.set("Head_Texture", this.base64Texture);
-		//this.set("Tool_Item", this.material);
 		this.set("Levels", this.levels);
 	}
+
+	public abstract String getHeadTexture();
+
+	public abstract void setHeadTexture(String texture);
+
+	public abstract ItemStack getToolItem();
+
+	public abstract void setToolItem(ItemStack itemStack);
 
 	public void setSettingsRange(final LevelData levelData, final int range) {
 		levelData.setRange(range);
@@ -78,18 +102,6 @@ public class TurretSettings extends YamlConfig {
 
 		this.save();
 	}
-
-	public void setBase64Texture(final String texture) {
-		this.base64Texture = texture;
-
-		this.save();
-	}
-
-	/*public void setToolItem(final CompMaterial material) { // TODO
-		this.material = material;
-
-		this.save();
-	}*/
 
 	public int getLevelsSize() {
 		return this.levels.size();
@@ -194,7 +206,6 @@ public class TurretSettings extends YamlConfig {
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 	public static class LevelData implements ConfigSerializable {
 
-
 		private double price;
 
 		private boolean laserEnabled;
@@ -208,7 +219,6 @@ public class TurretSettings extends YamlConfig {
 		private List<Tuple<ItemStack, Double>> lootChances;
 
 		public void setLevelData(final TurretData.TurretLevel turretLevel) {
-			//turretLevel.setLevel(this.level + upgradeValue);
 			turretLevel.setRange(this.range);
 			turretLevel.setPrice(this.price);
 			turretLevel.setLaserEnabled(this.laserEnabled);
@@ -262,30 +272,66 @@ public class TurretSettings extends YamlConfig {
 	}
 
 	// -----------------------------------------------------------------
-	// Static
+	// Static TODO check how to use these methods
 	// -----------------------------------------------------------------
 
-	public static void createSettings(@NonNull final String turretType) {
-		loadedTurretSettings.loadOrCreateItem(turretType, () -> new TurretSettings(turretType));
+	/**
+	 * @return
+	 * @see ConfigItems#getItems()
+	 */
+	public static List<? extends TurretSettings> getTurrets() {
+		return loadedFiles.getItems();
 	}
 
-	public static void loadTurretSettings() {
-		loadedTurretSettings.loadItems();
+	/**
+	 * @return
+	 * @see ConfigItems#getItemNames()
+	 */
+	public static Set<String> getTurretNames() {
+		return loadedFiles.getItemNames();
 	}
 
-	public static Collection<TurretSettings> getTurretSettings() {
-		return loadedTurretSettings.getItems();
+	/**
+	 * @param name
+	 * @param type
+	 * @see ConfigItems#loadOrCreateItem(String, java.util.function.Supplier)
+	 */
+	public static void createTurretType(@NonNull final String name, @NonNull final TurretType type) {
+		loadedFiles.loadOrCreateItem(name, () -> type.instantiate(name));
 	}
 
-	public static Set<String> getTurretSettingTypes() {
-		return loadedTurretSettings.getItemNames();
+	// 1) /game new bedwars Arena1
+	// 2) when we load a disk file
+
+	/**
+	 * @see ConfigItems#loadItems()
+	 */
+	public static void loadTurrets() {
+		loadedFiles.loadItems();
 	}
 
-	public static boolean isTurretSettingLoaded(final String type) {
-		return loadedTurretSettings.isItemLoaded(type);
+	/**
+	 * @param gameName
+	 */
+	public static void removeTurretType(final String gameName) {
+		loadedFiles.removeItemByName(gameName);
 	}
 
-	public static TurretSettings findTurretSettings(final String type) {
-		return loadedTurretSettings.findItem(type);
+	/**
+	 * @param name
+	 * @return
+	 * @see ConfigItems#isItemLoaded(String)
+	 */
+	public static boolean isTurretLoaded(final String name) {
+		return loadedFiles.isItemLoaded(name);
+	}
+
+	/**
+	 * @param name
+	 * @return
+	 * @see ConfigItems#findItem(String)
+	 */
+	public static TurretSettings findByName(@NonNull final String name) {
+		return loadedFiles.findItem(name);
 	}
 }
