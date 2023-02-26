@@ -67,11 +67,11 @@ public final class SettingsMenu extends Menu {
 				.name(Lang.of("Settings_Menu.Arrow_Settings_Button_Title"))
 				.lore(Lang.ofArray("Settings_Menu.Arrow_Settings_Button_Lore")));
 
-		this.fireballSettingsButton = new ButtonMenu(new SettingsEditMenu("fireball"), ItemCreator.of(TurretSettings.findByName("arrow").getToolItem())
+		this.fireballSettingsButton = new ButtonMenu(new SettingsEditMenu("fireball"), ItemCreator.of(TurretSettings.findByName("fireball").getToolItem())
 				.name(Lang.of("Settings_Menu.Fireball_Settings_Button_Title"))
 				.lore(Lang.ofArray("Settings_Menu.Fireball_Settings_Button_Lore")));
 
-		this.beamSettingsButton = new ButtonMenu(new SettingsEditMenu("beam"), ItemCreator.of(TurretSettings.findByName("arrow").getToolItem())
+		this.beamSettingsButton = new ButtonMenu(new SettingsEditMenu("beam"), ItemCreator.of(TurretSettings.findByName("beam").getToolItem())
 				.name(Lang.of("Settings_Menu.Beam_Settings_Button_Title"))
 				.lore(Lang.ofArray("Settings_Menu.Beam_Settings_Button_Lore")));
 	}
@@ -373,7 +373,7 @@ public final class SettingsMenu extends Menu {
 			public ItemStack getItemAt(final int slot) {
 				final boolean nextLevelExists = this.turretLevel < settings.getLevelsSize() || settings.getLevelsSize() == 0;
 
-				if (!nextLevelExists && slot == 34)
+				if (!nextLevelExists && slot == this.getBottomCenterSlot() + 3)
 					return this.removeLevelButton.getItem();
 
 				return NO_ITEM;

@@ -49,11 +49,12 @@ public abstract class TurretTool extends VisualTool {
 	 */
 	@Override
 	public ItemStack getItem() {
-		if (item == null)
-			item = ItemCreator.of(
-							getTurretMaterial(),
-							this.oneUse ? Lang.of("Tool.Title_Infinite_Use_Tool", "{turretType}", TurretUtil.capitalizeWord(this.displayName)) : Lang.of("Tool.Title_1_Use_Tool", "{turretType}", TurretUtil.capitalizeWord(this.displayName)),
-							this.oneUse ? Lang.ofArray("Tool.Lore_1_Use_Tool") : Lang.ofArray("Tool.Lore_Infinite_Use_Tool"))
+		final TurretSettings settings = TurretSettings.findByName(this.turretType);
+		
+		if (settings != null)
+			item = ItemCreator.of(settings.getToolItem())
+					.name(this.oneUse ? Lang.of("Tool.Title_Infinite_Use_Tool", "{turretType}", TurretUtil.capitalizeWord(this.displayName)) : Lang.of("Tool.Title_1_Use_Tool", "{turretType}", TurretUtil.capitalizeWord(this.displayName)))
+					.lore(this.oneUse ? Lang.ofArray("Tool.Lore_1_Use_Tool") : Lang.ofArray("Tool.Lore_Infinite_Use_Tool"))
 					.glow(true).make();
 
 		return item;
@@ -146,18 +147,5 @@ public abstract class TurretTool extends VisualTool {
 	@Override
 	protected boolean autoCancel() {
 		return true;
-	}
-
-	private CompMaterial getTurretMaterial() { // TODO make a better system for items
-		switch (this.turretType) {
-			case "arrow":
-				return CompMaterial.ARROW;
-			case "beam":
-				return CompMaterial.BLAZE_ROD;
-			case "fireball":
-				return CompMaterial.FIRE_CHARGE;
-		}
-
-		return null;
 	}
 }

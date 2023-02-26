@@ -46,7 +46,7 @@ public class EntityUtil {
 			}*/
 
 			center.setDirection(vector);
-			
+
 			if (vectorHasBlock(center, vector))
 				entityIterator.remove();
 		}
@@ -54,7 +54,7 @@ public class EntityUtil {
 		return foundEntities.isEmpty() ? null : (LivingEntity) foundEntities.get(0);
 	}
 
-	private static boolean vectorHasBlock(final Location start, final Vector direction) {
+	public static boolean vectorHasBlock(final Location start, final Vector direction) {
 		final int length = (int) Math.floor(direction.length());
 
 		if (length >= 1) {

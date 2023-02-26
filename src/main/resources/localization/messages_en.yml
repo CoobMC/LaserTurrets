@@ -253,7 +253,7 @@ Settings_Menu:
     - "that can be created."
     - ""
     - "Current limit: &9{limit}"
-  Turret_Limit_Prompt_Message: "Type in an integer value between 0 and 100 (recommended value : 25-50)."
+  Turret_Limit_Prompt_Message: "Type in an integer value between 0 and 100 (recommended value : 10-50)."
   Item_Tool_Title: "Edit the item tool"
   Item_Tool_Button_Lore:
     - "This item will be used"

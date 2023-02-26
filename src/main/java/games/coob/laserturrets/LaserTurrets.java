@@ -14,6 +14,7 @@ import games.coob.laserturrets.util.SkullCreator;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Skull;
+import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.ReflectionUtil;
@@ -44,6 +45,13 @@ public final class LaserTurrets extends SimplePlugin { // TODO use HookManager.d
 		for (final String type : getTypes()) {
 			final TurretType turretType = findEnum(TurretType.class, type, null, "No such such turret type. Available: " + Arrays.toString(getTypes()) + ".");
 			TurretSettings.createTurretType(type, turretType);
+
+			final TurretSettings settings = TurretSettings.findByName(type);
+
+			if (settings.getToolItem() == null) {
+				final ItemStack itemStack = SkullCreator.itemFromBase64(settings.getHeadTexture());
+				settings.setToolItem(itemStack);
+			}
 		}
 
 		if (!VaultHook.setupEconomy(getServer()) && Settings.CurrencySection.USE_VAULT) {
@@ -55,6 +63,23 @@ public final class LaserTurrets extends SimplePlugin { // TODO use HookManager.d
 		if (Settings.DatabaseSection.ENABLE_MYSQL)
 			TurretsDatabase.getInstance().connect(Settings.DatabaseSection.HOST, Settings.DatabaseSection.PORT, Settings.DatabaseSection.DATABASE, Settings.DatabaseSection.USER, Settings.DatabaseSection.PASSWORD);
 	}
+
+	/*private void updateFolder() {
+		//this.getDataFolder().getAbsolutePath();
+		final Path moveSourcePath = Paths.get(this.getDataFolder().getAbsolutePath() + "/turrets");
+		final Path moveTargetPath = Paths.get(this.getDataFolder().getAbsolutePath() + "/old-turrets");
+
+		System.out.println("Path1: " + moveSourcePath);
+		System.out.println("Path2: " + moveTargetPath);
+		try {
+			if (!Files.exists(moveTargetPath)) {
+				Files.createDirectory(moveTargetPath);
+			}
+			Files.move(moveSourcePath, moveTargetPath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+		} catch (final Exception e) {
+			// Handle any errors that occur during the move operation
+		}
+	}*/
 
 	@Override
 	protected void onPluginReload() {

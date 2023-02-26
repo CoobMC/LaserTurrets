@@ -2,8 +2,8 @@ package games.coob.laserturrets.task;
 
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
-import games.coob.laserturrets.util.BeamUtil;
 import games.coob.laserturrets.util.EntityUtil;
+import games.coob.laserturrets.util.Laser;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
@@ -32,7 +32,7 @@ public class BeamTask extends BukkitRunnable {
 			final Location turretLocation = location.clone().add(0.5, 1.2, 0.5);
 
 			try {
-				final BeamUtil beam = new BeamUtil.GuardianBeam(turretLocation, nearestEntity, 1, 40);
+				final Laser beam = new Laser.GuardianLaser(turretLocation, nearestEntity, 1, 40);
 				beam.start(SimplePlugin.getInstance());
 
 				turretLocation.getWorld().playSound(turretLocation, Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.4F, 0.2F);

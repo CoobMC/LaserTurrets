@@ -14,7 +14,7 @@ public class Fireball extends TurretSettings {
 
 	@Override
 	protected void onLoad() {
-		this.toolItem = this.getItemStack("Tool_Item");
+		this.toolItem = this.isSet("Tool_Item") ? this.getItemStack("Tool_Item") : null;
 		this.base64Texture = this.getString("Head_Texture");
 
 		super.onLoad();

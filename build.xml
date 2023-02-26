@@ -31,7 +31,7 @@
             <!--<fileset dir="/Users/jack.bikar/Workspace/Foundation/target/classes"/>-->
 
         </jar>
-        <jar jarfile="/Users/jack.bikar/Desktop/Test Servers/1.8/plugins/${ant.project.name}.jar"
+        <jar jarfile="/Users/jack.bikar/Desktop/Test Servers/1.16/plugins/${ant.project.name}.jar"
              basedir="./target/classes/"
              includes="**/*">
 
@@ -43,6 +43,21 @@
                     dir="${user.home}/.m2/repository/com/github/decentsoftware-eu/decentholograms/2.7.9/"
                     includes="**/*2.7.9.jar"/>-->
             <!--<fileset dir="/Users/jack.bikar/Workspace/Foundation/target/classes"/>-->
+
+        </jar>
+
+        <jar jarfile="/Users/jack.bikar/Desktop/Test Servers/1.8/plugins/${ant.project.name}.jar"
+             basedir="./target/classes/"
+             includes="**/*">
+
+            <!-- IF you have Foundation on your disk, remove the <zipgroupfileset> line and uncomment the <fileset> one. Repeat for the other <jar> goal below.
+                 Foundation then needs to be in the same parent's folder as your plugin's source, such as workspace/Foundation and workspace/YourPlugin! -->
+            <zipgroupfileset dir="${user.home}/.m2/repository/com/github/kangarko/Foundation/${foundation.version}/"
+                             includes="**/*${foundation.version}.jar"/>
+            <!--<zipgroupfileset
+                    dir="${user.home}/.m2/repository/com/github/decentsoftware-eu/decentholograms/2.7.9/"
+                    includes="**/*2.7.9.jar"/>-->
+            <fileset dir="/Users/jack.bikar/Workspace/Foundation/target/classes"/>
 
         </jar>
     </target>
