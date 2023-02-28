@@ -23,8 +23,7 @@ import java.util.UUID;
 public abstract class TurretSettings extends YamlConfig {
 
 	// TODO Create possibility to allow players to build their own turrets, creating a file for their own turret types
-	// Containing custom item tool and custom texture.
-	// Players will be able to create turret types via a menu
+	// TODO Players will be able to create turret types via a menu
 
 	/**
 	 * The folder name where all items are stored

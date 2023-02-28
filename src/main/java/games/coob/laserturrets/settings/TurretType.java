@@ -12,7 +12,7 @@ public enum TurretType {
 	ARROW(Arrow.class),
 	FIREBALL(Fireball.class),
 	BEAM(Beam.class);
-	// TODO add particle and bullet
+	// TODO add particle and bullet type
 
 	@Getter
 	private final Class<? extends TurretSettings> instanceClass;

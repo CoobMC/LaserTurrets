@@ -23,6 +23,10 @@ import org.mineacademy.fo.exception.CommandException;
 import org.mineacademy.fo.plugin.SimplePlugin;
 import org.mineacademy.fo.remain.CompMaterial;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.function.Function;
 
@@ -40,6 +44,11 @@ public final class LaserTurrets extends SimplePlugin { // TODO use HookManager.d
 	 */
 	@Override
 	protected void onPluginStart() {
+		if (folderContainsOldTurretFiles("turrets")) {
+			moveTurretsFolder();
+			createReadmeFile();
+		}
+
 		Common.runLater(TurretRegistry::getInstance);
 
 		for (final String type : getTypes()) {
@@ -55,31 +64,89 @@ public final class LaserTurrets extends SimplePlugin { // TODO use HookManager.d
 		}
 
 		if (!VaultHook.setupEconomy(getServer()) && Settings.CurrencySection.USE_VAULT) {
-			Common.log("[LaserTurrets] - Disabled due to no Vault dependency found (an economy plugin is also required)!", getDescription().getName());
+			Common.log("Disabled due to no Vault dependency found (an economy plugin is also required)!", getDescription().getName());
 			getServer().getPluginManager().disablePlugin(this);
 			return;
 		}
 
 		if (Settings.DatabaseSection.ENABLE_MYSQL)
 			TurretsDatabase.getInstance().connect(Settings.DatabaseSection.HOST, Settings.DatabaseSection.PORT, Settings.DatabaseSection.DATABASE, Settings.DatabaseSection.USER, Settings.DatabaseSection.PASSWORD);
+
+		new UpdateChecker(this, 105494).getVersion(version -> {
+			if (!this.getDescription().getVersion().equals(version))
+				Common.log("There is a new update available (v" + version + ").");
+		});
 	}
 
-	/*private void updateFolder() {
-		//this.getDataFolder().getAbsolutePath();
-		final Path moveSourcePath = Paths.get(this.getDataFolder().getAbsolutePath() + "/turrets");
-		final Path moveTargetPath = Paths.get(this.getDataFolder().getAbsolutePath() + "/old-turrets");
+	public void moveTurretsFolder() {
+		final File turretsFolder = new File(this.getDataFolder(), "turrets");
 
-		System.out.println("Path1: " + moveSourcePath);
-		System.out.println("Path2: " + moveTargetPath);
-		try {
-			if (!Files.exists(moveTargetPath)) {
-				Files.createDirectory(moveTargetPath);
-			}
-			Files.move(moveSourcePath, moveTargetPath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
-		} catch (final Exception e) {
-			// Handle any errors that occur during the move operation
+		final File oldTurretsFolder = new File(this.getDataFolder(), "old-turrets");
+		if (oldTurretsFolder.exists()) {
+			Common.log("Error: old-turrets folder already exists");
+			return;
 		}
-	}*/
+
+		if (!oldTurretsFolder.mkdir()) {
+			Common.log("Error: failed to create old-turrets folder");
+			return;
+		}
+
+		for (final File file : turretsFolder.listFiles()) {
+			try {
+				Files.move(file.toPath(), new File(oldTurretsFolder, file.getName()).toPath());
+			} catch (final IOException e) {
+				System.err.println("Error moving file " + file.getName() + ": " + e.getMessage());
+			}
+		}
+
+		Common.log("All files from turrets folder moved to old-turrets folder");
+	}
+
+	public boolean folderContainsOldTurretFiles(final String folderName) {
+		final File pluginDataFolder = new File(this.getDataFolder(), folderName);
+
+		if (!pluginDataFolder.isDirectory()) {
+			System.err.println("Error: folder not found or is not a directory");
+			return false;
+		}
+
+		for (final File file : pluginDataFolder.listFiles()) {
+			if (file.getName().contains("turret")) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+	public void createReadmeFile() {
+		final File oldTurretsFolder = new File(this.getDataFolder(), "old-turrets");
+
+		if (!oldTurretsFolder.exists() || !oldTurretsFolder.isDirectory()) {
+			Common.log("Error: old-turrets folder not found or is not a directory");
+			return;
+		}
+
+		final File readmeFile = new File(oldTurretsFolder, "README.txt");
+
+		try (FileWriter writer = new FileWriter(readmeFile)) {
+			writer.write("Update to v2.0.0 information\n\n");
+			writer.write("This folder contains all the files that were previously in the 'turrets' folder. ");
+			writer.write("These files have been moved here because I've made some new changes and recoded some parts of the plugin.\n\n");
+			writer.write("If you would like to maintain your previous settings, you can copy paste the specific sections from the 'old-turrets' to the files in the 'turrets' folder. ");
+			writer.write("Feel free to delete this folder if you no longer need these files.\n\n");
+			writer.write("You may use a YAML validator to check if your files are correctly formatted and prevent the plugin from breaking. ");
+			writer.write("If you encounter any issues, you can contact me on our discord server (https://discord.gg/2rgvQbHsSW).\n\n");
+			writer.write("NOTE: This update does not impact already created turrets, only the settings have been modified.");
+		} catch (final IOException e) {
+			Common.log("Error creating README file: " + e.getMessage());
+			return;
+		}
+
+		Common.log("README file created in the old-turrets folder");
+	}
 
 	@Override
 	protected void onPluginReload() {

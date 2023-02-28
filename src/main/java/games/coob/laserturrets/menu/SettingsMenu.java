@@ -129,7 +129,7 @@ public final class SettingsMenu extends Menu {
 							.name(Lang.of("Settings_Menu.Head_Texture_Button_Title", "{turretType}", TurretUtil.getDisplayName(typeName)))
 							.lore(Lang.ofArray("Settings_Menu.Head_Texture_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName))));
 
-			this.toolItemButton = new ButtonMenu(new ItemToolMenu(), ItemCreator.of(CompMaterial.DIAMOND_PICKAXE, Lang.of("Settings_Menu.Item_Tool_Title"), Lang.ofArray("Settings_Menu.Item_Tool_Button_Lore"))); // TODO
+			this.toolItemButton = new ButtonMenu(new ItemToolMenu(), ItemCreator.of(CompMaterial.DIAMOND_PICKAXE, Lang.of("Settings_Menu.Item_Tool_Title"), Lang.ofArray("Settings_Menu.Item_Tool_Button_Lore")));
 		}
 
 		@Override
@@ -174,7 +174,7 @@ public final class SettingsMenu extends Menu {
 		/**
 		 * The edit kit icon menu
 		 */
-		private final class ItemToolMenu extends Menu { // TODO add in localisation
+		private final class ItemToolMenu extends Menu {
 
 			/**
 			 * Create a new menu
