@@ -1,8 +1,10 @@
 package games.coob.laserturrets.sequence;
 
 import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.SkullCreator;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Skull;
@@ -12,7 +14,6 @@ import org.mineacademy.fo.Common;
 import org.mineacademy.fo.PlayerUtil;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.plugin.SimplePlugin;
-import org.mineacademy.fo.remain.CompParticle;
 
 public final class TurretCreationSequence extends Sequence {
 
@@ -42,7 +43,6 @@ public final class TurretCreationSequence extends Sequence {
 
 		this.lightning();
 		this.glowingStand(item);
-		this.lightning();
 		this.getLastStand().setAnimated(true);
 
 		this.nextSequence(this::onFinish);
@@ -54,7 +54,10 @@ public final class TurretCreationSequence extends Sequence {
 	}
 
 	private void onFinish() {
-		CompParticle.EXPLOSION_LARGE.spawn(this.block.getLocation().add(0.5, 1, 0.5), 2);
+		final Location location = this.block.getLocation().add(0.5, 1, 0.5);
+
+		Settings.TurretSection.CREATION_PARTICLE.spawn(location, 0.5, 0.5, 0.5, 0.1, Settings.TurretSection.CREATION_PARTICLE_COUNT, 0.1, null);
+		Settings.TurretSection.CREATION_SOUND.play(location);
 
 		final TurretSettings turretSettings = TurretSettings.findByName(this.type);
 		final Block skullBlock = this.block.getRelative(BlockFace.UP);

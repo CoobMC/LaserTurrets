@@ -50,7 +50,7 @@ public abstract class TurretTool extends VisualTool {
 	@Override
 	public ItemStack getItem() {
 		final TurretSettings settings = TurretSettings.findByName(this.turretType);
-		
+
 		if (settings != null)
 			item = ItemCreator.of(settings.getToolItem())
 					.name(this.oneUse ? Lang.of("Tool.Title_Infinite_Use_Tool", "{turretType}", TurretUtil.capitalizeWord(this.displayName)) : Lang.of("Tool.Title_1_Use_Tool", "{turretType}", TurretUtil.capitalizeWord(this.displayName)))
@@ -67,13 +67,14 @@ public abstract class TurretTool extends VisualTool {
 		final Location location = block.getLocation();
 		final Location closestLocation = getClosestLocation(location, registry.getTurretLocations());
 		final TurretSettings settings = TurretSettings.findByName(type);
+		final Block blockUp = block.getRelative(BlockFace.UP);
 
 		if (registry.getTurretsOfType(type).size() >= settings.getTurretLimit() && !registry.isRegistered(block)) {
 			Messenger.error(player, Lang.of("Tool.Turret_Limit_Reached", "{turretType}", this.displayName, "{turretLimit}", settings.getTurretLimit()));
 			return;
 		}
 
-		if (!block.getType().isSolid() || (block.getRelative(BlockFace.UP).getType().isSolid() && !registry.isRegistered(block))) {
+		if (!block.getType().isSolid() || (!blockUp.getType().isAir() && !registry.isRegistered(block))) {
 			Messenger.error(player, Lang.of("Tool.Turret_Cannot_Be_Placed"));
 			return;
 		}

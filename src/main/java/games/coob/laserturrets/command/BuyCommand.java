@@ -40,8 +40,7 @@ final class BuyCommand extends SimpleSubCommand {
 
 		final String type = args[0];
 		final PlayerCache cache = PlayerCache.from(getPlayer());
-		final String typeName = type.replace("_turret", "");
-		final TurretSettings settings = TurretSettings.findByName(typeName);
+		final TurretSettings settings = TurretSettings.findByName(type);
 		final double price = settings.getLevels().get(0).getPrice();
 
 		if (cache.getCurrency(false) - price < 0) {
@@ -52,25 +51,25 @@ final class BuyCommand extends SimpleSubCommand {
 		cache.takeCurrency(price, false);
 		giveTurret(type, getPlayer());
 
-		Messenger.success(getPlayer(), Lang.of("Turret_Commands.Buy_Turret_Message", "{turretType}", typeName, "{price}", price, "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
+		Messenger.success(getPlayer(), Lang.of("Turret_Commands.Buy_Turret_Message", "{turretType}", type, "{price}", price, "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
 
 	}
 
 	private void giveTurret(final String type, final Player player) {
-		if ("arrow_turret".equals(type))
+		if ("arrow".equals(type))
 			ArrowTurret.getInstance().give(player);
-		else if ("beam_turret".equals(type))
+		else if ("beam".equals(type))
 			if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_9))
 				BeamTurret.getInstance().give(player);
 			else Messenger.error(player, "Beam turrets are only supported in versions 1.9 and above.");
-		else if ("fireball_turret".equals(type))
+		else if ("fireball".equals(type))
 			FireballTurret.getInstance().give(player);
 	}
 
 	@Override
 	protected List<String> tabComplete() {
 		if (this.args.length == 1)
-			return this.completeLastWord("arrow_turret", "beam_turret", "fireball_turret");
+			return this.completeLastWord("arrow", "beam", "fireball");
 
 		return NO_COMPLETE;
 	}

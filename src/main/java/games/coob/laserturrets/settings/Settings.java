@@ -1,6 +1,8 @@
 package games.coob.laserturrets.settings;
 
 import games.coob.laserturrets.util.Lang;
+import org.mineacademy.fo.remain.CompParticle;
+import org.mineacademy.fo.remain.CompSound;
 import org.mineacademy.fo.settings.SimpleSettings;
 import org.mineacademy.fo.settings.YamlStaticConfig;
 
@@ -39,6 +41,12 @@ public final class Settings extends SimpleSettings {
 		public static Boolean DISPLAY_ACTION_BAR;
 		public static Boolean ENABLE_DAMAGEABLE_TURRETS;
 		public static Integer TURRET_MIN_DISTANCE;
+		public static CompParticle CREATION_PARTICLE;
+		public static Integer CREATION_PARTICLE_COUNT;
+		public static CompParticle PLACEMENT_PARTICLE;
+		public static Integer PLACEMENT_PARTICLE_COUNT;
+		public static CompSound CREATION_SOUND;
+		public static CompSound PLACEMENT_SOUND;
 
 		/*
 		 * Automatically called method when we load settings.yml to load values in this subclass
@@ -53,6 +61,12 @@ public final class Settings extends SimpleSettings {
 			DISPLAY_ACTION_BAR = getBoolean("Display_Action_Bar");
 			ENABLE_DAMAGEABLE_TURRETS = getBoolean("Enable_Damageable_Turrets");
 			TURRET_MIN_DISTANCE = getInteger("Turret_Min_Distance");
+			CREATION_PARTICLE = get("Creation_Particle", CompParticle.class);
+			CREATION_PARTICLE_COUNT = getInteger("Creation_Particle_Count");
+			CREATION_SOUND = get("Creation_Sound", CompSound.class);
+			PLACEMENT_PARTICLE = get("Placement_Particle", CompParticle.class);
+			PLACEMENT_PARTICLE_COUNT = getInteger("Placement_Particle_Count");
+			PLACEMENT_SOUND = get("Placement_Sound", CompSound.class);
 		}
 	}
 
@@ -107,6 +121,6 @@ public final class Settings extends SimpleSettings {
 	 */
 	@Override
 	protected int getConfigVersion() {
-		return 1;
+		return 2;
 	}
 }

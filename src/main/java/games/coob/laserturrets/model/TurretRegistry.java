@@ -392,4 +392,21 @@ public class TurretRegistry extends YamlConfig { // TODO test out turret type
 
 		return false;
 	}
+
+	public void syncTurretDataWithSettings(final TurretSettings settings, final TurretData turretData) {
+		turretData.setMobBlacklist(settings.getMobList());
+		turretData.setPlayerBlacklist(settings.getPlayerList());
+		turretData.setPlayerWhitelistEnabled(settings.isEnablePlayerWhitelist());
+		turretData.setMobWhitelistEnabled(settings.isEnableMobWhitelist());
+
+		if (!turretData.isPlayerWhitelistEnabled())
+			turretData.addPlayerToBlacklist(turretData.getOwner());
+
+		for (final TurretSettings.LevelData levelData : settings.getLevels()) {
+			final TurretData.TurretLevel level = turretData.addLevel();
+			levelData.setLevelData(level);
+		}
+
+		this.save();
+	}
 }

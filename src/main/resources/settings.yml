@@ -17,6 +17,18 @@ Turret:
   Enable_Damageable_Turrets: true
   # The minimum distance between turrets
   Turret_Min_Distance: 2
+  # The particle that spawns when the turret is created
+  Creation_Particle: "EXPLOSION_LARGE"
+  # How big should the particle be set a higher value to make it bigger
+  Creation_Particle_Count: 2
+  # The sound that is played when the turret is created
+  Creation_Sound: "EXPLODE"
+  # The particle that spawns when the turret is placed (already created)
+  Placement_Particle: "FIREWORKS_SPARK"
+  # How big should the particle be set a lower value to make it smaller
+  Placement_Particle_Count: 50
+  # The sound that is played when the turret is placed
+  Placement_Sound: "FIREWORK_BLAST"
 
 # -------------------------------------------------------------------------------------------------
 # Edit your currency settings
@@ -77,4 +89,4 @@ Debug: [ ]
 # Do not change this value, otherwise it will corrupt your plugin installation!
 # NB: Don't forget to keep this up-to-date with the getConfigVersion method in your Settings class. 
 # -------------------------------------------------------------------------------------------------
-Version: 1
+Version: 2

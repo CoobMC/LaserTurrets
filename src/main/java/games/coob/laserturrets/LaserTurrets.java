@@ -80,12 +80,10 @@ public final class LaserTurrets extends SimplePlugin { // TODO use HookManager.d
 
 	public void moveTurretsFolder() {
 		final File turretsFolder = new File(this.getDataFolder(), "turrets");
-
 		final File oldTurretsFolder = new File(this.getDataFolder(), "old-turrets");
-		if (oldTurretsFolder.exists()) {
-			Common.log("Error: old-turrets folder already exists");
+
+		if (oldTurretsFolder.exists())
 			return;
-		}
 
 		if (!oldTurretsFolder.mkdir()) {
 			Common.log("Error: failed to create old-turrets folder");
@@ -96,7 +94,7 @@ public final class LaserTurrets extends SimplePlugin { // TODO use HookManager.d
 			try {
 				Files.move(file.toPath(), new File(oldTurretsFolder, file.getName()).toPath());
 			} catch (final IOException e) {
-				System.err.println("Error moving file " + file.getName() + ": " + e.getMessage());
+				Common.log("Error moving file " + file.getName() + ": " + e.getMessage());
 			}
 		}
 
@@ -107,7 +105,6 @@ public final class LaserTurrets extends SimplePlugin { // TODO use HookManager.d
 		final File pluginDataFolder = new File(this.getDataFolder(), folderName);
 
 		if (!pluginDataFolder.isDirectory()) {
-			System.err.println("Error: folder not found or is not a directory");
 			return false;
 		}
 

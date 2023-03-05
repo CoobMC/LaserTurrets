@@ -1,6 +1,6 @@
 package games.coob.laserturrets.command;
 
-import games.coob.laserturrets.util.BeamUtil_v1_8;
+import games.coob.laserturrets.util.Beam_v1_8;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.LivingEntity;
@@ -27,9 +27,14 @@ public class BeamCommand extends SimpleSubCommand {
 		if (args.length == 1) {
 			final String param = this.args[0];
 
-			if (param.equals("beam"))
-				BeamUtil_v1_8.spawnGuardianBeam(location, entity, 20);
-			else if (param.equals("particle"))
+			if (param.equals("beam")) {
+				try {
+					final Beam_v1_8 beamUtil_v1_8 = new Beam_v1_8(location, entity.getEyeLocation(), 10, 40);
+					beamUtil_v1_8.spawnGuardian(getPlayer());
+				} catch (final IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			} else if (param.equals("particle"))
 				//spawnParticlesInArc(location, entity.getEyeLocation(), 400, 1.5, Particle.VILLAGER_HAPPY, 10, 0.1, 9.81, 10.0);
 				spawnParticlesInArc(location, entity.getEyeLocation(), 12, Particle.EXPLOSION_NORMAL, Particle.FLAME);
 		}

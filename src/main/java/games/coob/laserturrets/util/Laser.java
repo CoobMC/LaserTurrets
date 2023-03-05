@@ -9,6 +9,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import org.mineacademy.fo.Common;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -834,7 +835,7 @@ public abstract class Laser {
 				e.printStackTrace();
 				final String errorMsg = "Laser Beam reflection failed to initialize. The util is disabled. Please ensure your version (" + Bukkit.getServer().getClass().getPackage().getName() + ") is supported.";
 				if (logger == null)
-					System.err.println(errorMsg);
+					Common.log(errorMsg);
 				else
 					logger.severe(errorMsg);
 			}

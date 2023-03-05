@@ -1,8 +1,10 @@
 package games.coob.laserturrets.sequence;
 
 import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.SkullCreator;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Skull;
@@ -12,7 +14,6 @@ import org.mineacademy.fo.Common;
 import org.mineacademy.fo.PlayerUtil;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.plugin.SimplePlugin;
-import org.mineacademy.fo.remain.CompParticle;
 
 public final class TurretPlaceSequence extends Sequence {
 
@@ -45,7 +46,6 @@ public final class TurretPlaceSequence extends Sequence {
 
 		this.lightning();
 		this.glowingStand(item);
-		this.lightning();
 		this.getLastStand().setAnimated(true);
 
 		this.nextSequence(this::onFinish);
@@ -57,7 +57,12 @@ public final class TurretPlaceSequence extends Sequence {
 	}
 
 	private void onFinish() {
-		CompParticle.EXPLOSION_LARGE.spawn(this.block.getLocation().add(0.5, 1, 0.5), 2);
+		final Location location = this.block.getLocation().add(0.5, 1.4, 0.5);
+
+		//location.getWorld().spawnParticle(Particle.FIREWORKS_SPARK, location, 50, 0.5, 0.5, 0.5, 0.1);
+
+		Settings.TurretSection.PLACEMENT_PARTICLE.spawn(location, 0.5, 0.5, 0.5, 0.1, Settings.TurretSection.PLACEMENT_PARTICLE_COUNT, 0.1, null);
+		Settings.TurretSection.PLACEMENT_SOUND.play(location);
 
 		final TurretSettings turretSettings = TurretSettings.findByName(this.type);
 		final Block skullBlock = this.block.getRelative(BlockFace.UP);
@@ -70,58 +75,4 @@ public final class TurretPlaceSequence extends Sequence {
 		this.removeLast();
 		this.block.removeMetadata("IsCreating", SimplePlugin.getInstance());
 	}
-
-	// TODO use
-
-	/*
-	import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.plugin.java.JavaPlugin;
-
-public class StellatedRhombicDodecahedronPlugin extends JavaPlugin {
-
-    @Override
-    public void onEnable() {
-        // Define the center point and the size of the shape
-        Location center = new Location(getServer().getWorld("world"), 0, 70, 0);
-        int size = 10;
-
-        // Calculate the coordinates for the vertices of the shape
-        double phi = (1 + Math.sqrt(5)) / 2;
-        Location[] vertices = new Location[] {
-            center.clone().add(size, size, size),
-            center.clone().add(size, size, -size),
-            center.clone().add(size, -size, size),
-            center.clone().add(size, -size, -size),
-            center.clone().add(-size, size, size),
-            center.clone().add(-size, size, -size),
-            center.clone().add(-size, -size, size),
-            center.clone().add(-size, -size, -size),
-            center.clone().add(0, size*phi, size/phi),
-            center.clone().add(0, size*phi, -size/phi),
-            center.clone().add(0, -size*phi, size/phi),
-            center.clone().add(0, -size*phi, -size/phi),
-            center.clone().add(size/phi, 0, size*phi),
-            center.clone().add(size/phi, 0, -size*phi),
-            center.clone().add(-size/phi, 0, size*phi),
-            center.clone().add(-size/phi, 0, -size*phi),
-            center.clone().add(size*phi, size/phi, 0),
-            center.clone().add(size*phi, -size/phi, 0),
-            center.clone().add(-size*phi, size/phi, 0),
-            center.clone().add(-size*phi, -size/phi, 0)
-        };
-
-        // Draw the shape using particles
-        for (Location vertex : vertices) {
-            for (int i = 0; i < 10; i++) {
-                double x = vertex.getX() + Math.random() * 2 - 1;
-                double y = vertex.getY() + Math.random() * 2 - 1;
-                double z = vertex.getZ() + Math.random() * 2 - 1;
-                vertex.getWorld().spawnParticle(Particle.REDSTONE, x, y, z, 0, 0, 0, 1);
-            }
-        }
-    }
-
-}
-	 */
 }

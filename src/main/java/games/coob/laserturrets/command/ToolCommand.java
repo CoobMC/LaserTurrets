@@ -54,20 +54,20 @@ final class ToolCommand extends SimpleSubCommand {
 	}
 
 	private void giveTool(final String type, final Player player) {
-		if ("arrow_turret".equals(type))
+		if ("arrow".equals(type))
 			ArrowTurretTool.getInstance().give(player);
-		else if ("beam_turret".equals(type))
+		else if ("beam".equals(type))
 			if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_9))
 				BeamTurretTool.getInstance().give(player);
 			else Messenger.error(player, "Beam turrets are only supported in versions 1.9 and above.");
-		else if ("fireball_turret".equals(type))
+		else if ("fireball".equals(type))
 			FireballTurretTool.getInstance().give(player);
 	}
 
 	@Override
 	protected List<String> tabComplete() {
 		if (this.args.length == 1)
-			return this.completeLastWord("arrow_turret", "beam_turret", "fireball_turret");
+			return this.completeLastWord("arrow", "beam", "fireball");
 
 		if (this.args.length == 2)
 			return completeLastWordPlayerNames();
