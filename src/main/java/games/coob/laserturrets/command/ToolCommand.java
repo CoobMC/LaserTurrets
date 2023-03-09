@@ -8,8 +8,6 @@ import games.coob.laserturrets.tools.FireballTurretTool;
 import games.coob.laserturrets.util.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.mineacademy.fo.Messenger;
-import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.command.SimpleSubCommand;
 
 import java.util.List;
@@ -57,9 +55,7 @@ final class ToolCommand extends SimpleSubCommand {
 		if ("arrow".equals(type))
 			ArrowTurretTool.getInstance().give(player);
 		else if ("beam".equals(type))
-			if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_9))
-				BeamTurretTool.getInstance().give(player);
-			else Messenger.error(player, "Beam turrets are only supported in versions 1.9 and above.");
+			BeamTurretTool.getInstance().give(player);
 		else if ("fireball".equals(type))
 			FireballTurretTool.getInstance().give(player);
 	}

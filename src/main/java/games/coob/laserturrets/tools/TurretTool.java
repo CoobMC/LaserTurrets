@@ -74,7 +74,7 @@ public abstract class TurretTool extends VisualTool {
 			return;
 		}
 
-		if (!block.getType().isSolid() || (!blockUp.getType().isAir() && !registry.isRegistered(block))) {
+		if (!block.getType().isSolid() || (!CompMaterial.isAir(blockUp) && !registry.isRegistered(block))) {
 			Messenger.error(player, Lang.of("Tool.Turret_Cannot_Be_Placed"));
 			return;
 		}
@@ -84,7 +84,7 @@ public abstract class TurretTool extends VisualTool {
 			return;
 		}
 
-		if (!registry.isRegistered(block) && closestLocation != null && Settings.TurretSection.TURRET_MIN_DISTANCE > closestLocation.distance(location)) {
+		if (closestLocation != null && !registry.isRegistered(block) && Settings.TurretSection.TURRET_MIN_DISTANCE > closestLocation.distance(location)) {
 			Messenger.error(player, Lang.of("Tool.Turret_Min_Distance_Breached", "{distance}", Settings.TurretSection.TURRET_MIN_DISTANCE));
 			return;
 		}
@@ -112,6 +112,9 @@ public abstract class TurretTool extends VisualTool {
 		Location closestLocation = null;
 
 		for (final Location location : locations) {
+			if (!location.getWorld().equals(centerLocation.getWorld()))
+				continue;
+
 			if (closestLocation == null || (location.distanceSquared(centerLocation) < closestLocation.distanceSquared(centerLocation)))
 				closestLocation = location;
 		}

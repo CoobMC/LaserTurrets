@@ -4,24 +4,25 @@ import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.entity.LivingEntity;
+import org.mineacademy.fo.Common;
 
 import java.lang.reflect.Field;
 
 public class Beam_v1_8 {
 
 	protected Location start;
-	protected Location end;
+	protected LivingEntity targetEntity;
 	protected int duration;
 	protected int distanceSquared;
 
-	public Beam_v1_8(final Location start, final Location end, final int duration, final int distance) {
-		if (start.getWorld() != end.getWorld())
+	public Beam_v1_8(final Location start, final LivingEntity targetEntity, final int duration, final int distance) {
+		if (start.getWorld() != targetEntity.getWorld())
 			throw new IllegalArgumentException("Locations do not belong to the same worlds.");
 
 		this.start = start;
-		this.end = end;
+		this.targetEntity = targetEntity;
 		this.duration = duration;
-		distanceSquared = distance < 0 ? -1 : distance * distance;
+		distanceSquared = distance;
 	}
 
 	private final static Field entityCountField;
@@ -109,24 +110,30 @@ public class Beam_v1_8 {
 		dataWatcherField.set(spawnPacket, dataWatcher);
 	}
 
-	public void spawnGuardian(final LivingEntity entity) throws IllegalAccessException {
+	public void start() throws IllegalAccessException {
 		final WorldServer world = ((CraftWorld) this.start.getWorld()).getHandle();
-		// Test purpose only
 		final int GUARDIAN_ENTITY_TYPE = 68;
-		final PacketPlayOutSpawnEntityLiving spawnPacket = createSpawnPacket(this.start.clone().add(2, 0, 0), GUARDIAN_ENTITY_TYPE);
+		final PacketPlayOutSpawnEntityLiving spawnPacket = createSpawnPacket(this.start, GUARDIAN_ENTITY_TYPE);
 
-		setupGuardianDataWatcher(spawnPacket, entity.getEntityId());
+		setupGuardianDataWatcher(spawnPacket, this.targetEntity.getEntityId());
 
 		world.players.stream().filter(p -> p instanceof EntityPlayer).map(p -> (EntityPlayer) p)
 				.forEach(p -> {
-					// TODO send packet to all players within radius (add condition)
+					// Only send the packet if the player is within the certain distance
+					if (p.locX - this.start.getX() < this.distanceSquared && p.locZ - this.start.getZ() < this.distanceSquared && p.locY - this.start.getY() < this.distanceSquared) {
+						p.playerConnection.sendPacket(spawnPacket);
 
-					// Send a packet to remove the guardian from the player's view
-					p.playerConnection.sendPacket(spawnPacket);
-					//final PacketPlayOutEntityDestroy destroyPacket = new PacketPlayOutEntityDestroy(guardian.getId()); TODO
-					//Common.runLater(duration * 20, () -> p.playerConnection.sendPacket(destroyPacket));
+						try {
+							final int entityId = entityIdField.getInt(spawnPacket);
+							final PacketPlayOutEntityDestroy destroyPacket = new PacketPlayOutEntityDestroy(entityId);
+
+							// Send a packet to remove the guardian from the player's view after duration
+							Common.runLater(this.duration * 20, () -> p.playerConnection.sendPacket(destroyPacket));
+						} catch (final IllegalAccessException e) {
+							e.printStackTrace();
+						}
+					}
 				});
-
 	}
 }
 

@@ -158,7 +158,7 @@ Manage_Allies_Menu:
   Mob_Available_For_Selection_Lore: "Click to add"
   Mob_Already_Selected_Lore: "&aAlready in the {listType}"
   Mob_Selection_Animated_Message: "&aAdded {entityName}"
-  Player_Add_Button_Title: "Add Mob"
+  Player_Add_Button_Title: "Add Player"
   Player_Add_Button_Lore:
     - "Open this menu to add"
     - "players to the {listType}"
@@ -174,7 +174,7 @@ Manage_Allies_Menu:
     - "Edit your player {listType} by"
     - "clicking the existing heads"
     - "to remove them or clicking"
-    - "the 'Add Mob' button to add"
+    - "the 'Add Player' button to add"
     - "players to your {listType}."
   Player_List_Type_Button_Title: "{listType}"
   Player_List_Type_Button_Lore: "Click to change to {listType}"
@@ -373,7 +373,7 @@ Settings_Menu:
     - "Edit your player {listType} by"
     - "clicking the existing heads"
     - "to remove them or clicking"
-    - "the 'Add Mob' button to add"
+    - "the 'Add Player' button to add"
     - "players to your {listType}."
   Player_Add_Button_Title: "Add Players"
   Player_Add_Button_Lore:

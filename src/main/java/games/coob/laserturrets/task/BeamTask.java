@@ -2,13 +2,14 @@ package games.coob.laserturrets.task;
 
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.util.Beam_v1_8;
 import games.coob.laserturrets.util.EntityUtil;
 import games.coob.laserturrets.util.Laser;
 import org.bukkit.Location;
-import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.mineacademy.fo.Common;
+import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.plugin.SimplePlugin;
 
 public class BeamTask extends BukkitRunnable {
@@ -32,10 +33,17 @@ public class BeamTask extends BukkitRunnable {
 			final Location turretLocation = location.clone().add(0.5, 1.2, 0.5);
 
 			try {
-				final Laser beam = new Laser.GuardianLaser(turretLocation, nearestEntity, 1, 40);
-				beam.start(SimplePlugin.getInstance());
+				if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_9)) {
+					final Laser beam = new Laser.GuardianLaser(turretLocation, nearestEntity, 1, 40);
+					beam.start(SimplePlugin.getInstance());
+				} else {
+					final Beam_v1_8 beam_v1_8 = new Beam_v1_8(turretLocation, nearestEntity, 1, 40);
+					beam_v1_8.start();
+				}
 
-				turretLocation.getWorld().playSound(turretLocation, Sound.ENTITY_ELDER_GUARDIAN_CURSE, 0.4F, 0.2F);
+				//CompSound.ENTITY_GUARDIAN_ATTACK.play(turretLocation, 0.4F, 0.2F);
+				turretLocation.getWorld().playSound(turretLocation, "mob.guardian.attack", 0.4F, 0.2F);  // TODO
+
 				nearestEntity.damage(1);
 				Common.runLater(10, () -> nearestEntity.damage(1));
 			} catch (final ReflectiveOperationException e) {

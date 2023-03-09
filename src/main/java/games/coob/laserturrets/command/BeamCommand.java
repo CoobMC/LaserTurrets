@@ -29,8 +29,8 @@ public class BeamCommand extends SimpleSubCommand {
 
 			if (param.equals("beam")) {
 				try {
-					final Beam_v1_8 beamUtil_v1_8 = new Beam_v1_8(location, entity.getEyeLocation(), 10, 40);
-					beamUtil_v1_8.spawnGuardian(getPlayer());
+					final Beam_v1_8 beamUtil_v1_8 = new Beam_v1_8(location, entity, 4, 40);
+					beamUtil_v1_8.start();
 				} catch (final IllegalAccessException e) {
 					e.printStackTrace();
 				}

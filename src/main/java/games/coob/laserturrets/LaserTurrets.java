@@ -16,7 +16,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Skull;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.Common;
-import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.ReflectionUtil;
 import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.exception.CommandException;
@@ -177,6 +176,7 @@ public final class LaserTurrets extends SimplePlugin { // TODO use HookManager.d
 
 		Common.runTimer(20, new ArrowTask());
 		Common.runTimer(25, new FireballTask());
+		Common.runTimer(30, new BeamTask());
 		Common.runTimer(2, new LaserPointerTask());
 
 		Common.runLater(() -> {
@@ -200,9 +200,6 @@ public final class LaserTurrets extends SimplePlugin { // TODO use HookManager.d
 
 		if (Settings.TurretSection.DISPLAY_HOLOGRAM)
 			Common.runTimer(20, new HologramTask());
-
-		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_9))
-			Common.runTimer(30, new BeamTask());
 	}
 
 	private <T extends Enum<T>> T findEnum(final Class<T> enumType, final String name, final Function<T, Boolean> condition, final String falseMessage) throws CommandException {
