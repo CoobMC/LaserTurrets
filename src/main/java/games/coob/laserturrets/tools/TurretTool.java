@@ -89,8 +89,10 @@ public abstract class TurretTool extends VisualTool {
 			return;
 		}
 
-		if (block.hasMetadata("IsCreating"))
+		if (block.hasMetadata("IsCreating") || player.hasMetadata("CreatingTurret")) {
+			Messenger.error(player, Lang.of("Tool.Wait_Before_Place"));
 			return;
+		}
 
 		final boolean oneUse = this.oneUse;
 		final boolean isTurret = registry.isTurretOfType(block, type);
@@ -102,6 +104,7 @@ public abstract class TurretTool extends VisualTool {
 			if (oneUse)
 				player.getInventory().removeItem(this.item);
 
+			player.setMetadata("CreatingTurret", new FixedMetadataValue(SimplePlugin.getInstance(), ""));
 			block.setMetadata("IsCreating", new FixedMetadataValue(SimplePlugin.getInstance(), ""));
 			Sequence.TURRET_CREATION(player, block, type).start(location);
 			Messenger.success(player, Lang.of("Tool.Registered_Turret_Message", "{turretType}", this.displayName, "{location}", Common.shortLocation(location)));

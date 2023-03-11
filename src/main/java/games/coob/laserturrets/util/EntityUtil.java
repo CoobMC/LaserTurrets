@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
@@ -25,10 +26,15 @@ public class EntityUtil {
 		final TurretData turretData = registry.getTurretByBlock(turret);
 
 		for (final Entity nearby : center.getWorld().getNearbyEntities(center, range3D, range3D, range3D)) {
-			if (nearby instanceof LivingEntity && entityClass.isAssignableFrom(nearby.getClass()) && !(nearby instanceof ArmorStand))
-				if (((!turretData.isPlayerListedAsAlly(nearby.getUniqueId()) && !turretData.isPlayerWhitelistEnabled()) && (!turretData.isMobListedAsAlly(nearby.getType()) && !turretData.isMobWhitelistEnabled()))
-						|| ((turretData.isPlayerListedAsAlly(nearby.getUniqueId()) && turretData.isPlayerWhitelistEnabled()) || (turretData.isMobListedAsAlly(nearby.getType()) && turretData.isMobWhitelistEnabled())))
-					foundEntities.add(nearby);
+			if (nearby instanceof LivingEntity && entityClass.isAssignableFrom(nearby.getClass()) && !(nearby instanceof ArmorStand)) {
+				if (nearby.getType() == EntityType.PLAYER) {
+					if (turretData.isPlayerWhitelistEnabled() == turretData.isPlayerListedAsAlly(nearby.getUniqueId()))
+						foundEntities.add(nearby);
+				} else {
+					if (turretData.isMobWhitelistEnabled() == turretData.isMobListedAsAlly(nearby.getType()))
+						foundEntities.add(nearby);
+				}
+			}
 		}
 
 		foundEntities.sort(Comparator.comparingDouble(entity -> entity.getLocation().distance(center)));

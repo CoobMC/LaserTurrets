@@ -74,5 +74,6 @@ public final class TurretPlaceSequence extends Sequence {
 
 		this.removeLast();
 		this.block.removeMetadata("IsCreating", SimplePlugin.getInstance());
+		this.player.removeMetadata("CreatingTurret", SimplePlugin.getInstance());
 	}
 }

@@ -1,6 +1,14 @@
 package games.coob.laserturrets.util;
 
+import games.coob.laserturrets.model.TurretData;
+import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.settings.Settings;
+import games.coob.laserturrets.settings.TurretSettings;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.Skull;
 import org.mineacademy.fo.menu.model.SkullCreator;
+import org.mineacademy.fo.remain.CompMaterial;
 
 public class TurretUtil {
 	public static String getDisplayName(final String turretType) {
@@ -16,6 +24,21 @@ public class TurretUtil {
 		}
 
 		return null;
+	}
+
+	public static void updateHologramAndTexture(final TurretData turretData) {
+		final String type = turretData.getType();
+		final TurretSettings settings = TurretSettings.findByName(type);
+		final Block skullBlock = turretData.getLocation().getBlock().getRelative(BlockFace.UP);
+
+		if (CompMaterial.isSkull(skullBlock.getType())) {
+			final Skull state = (Skull) skullBlock.getState();
+			games.coob.laserturrets.util.SkullCreator.mutateBlockState(state, settings.getHeadTexture());
+			state.update(false, false);
+		}
+
+		if (Settings.TurretSection.DISPLAY_HOLOGRAM)
+			TurretRegistry.getInstance().updateHologram(turretData);
 	}
 
 	public static String capitalizeWord(final String word) {

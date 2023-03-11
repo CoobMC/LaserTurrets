@@ -402,10 +402,20 @@ public class TurretRegistry extends YamlConfig { // TODO test out turret type
 		if (!turretData.isPlayerWhitelistEnabled())
 			turretData.addPlayerToBlacklist(turretData.getOwner());
 
+		for (int i = 1; i <= turretData.getLevels() + 2; i++)
+			turretData.removeLevel(1);
+
 		for (final TurretSettings.LevelData levelData : settings.getLevels()) {
 			final TurretData.TurretLevel level = turretData.addLevel();
 			levelData.setLevelData(level);
 		}
+
+		final double maxHealth = turretData.getLevel(turretData.getCurrentLevel()).getMaxHealth();
+
+		if (turretData.getCurrentHealth() > maxHealth)
+			turretData.setCurrentHealth(maxHealth);
+
+		TurretUtil.updateHologramAndTexture(turretData);
 
 		this.save();
 	}

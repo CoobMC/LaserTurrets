@@ -11,16 +11,13 @@ import games.coob.laserturrets.settings.TurretType;
 import games.coob.laserturrets.task.*;
 import games.coob.laserturrets.util.Hologram;
 import games.coob.laserturrets.util.SkullCreator;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.Skull;
+import games.coob.laserturrets.util.TurretUtil;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.ReflectionUtil;
 import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.exception.CommandException;
 import org.mineacademy.fo.plugin.SimplePlugin;
-import org.mineacademy.fo.remain.CompMaterial;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -181,21 +178,8 @@ public final class LaserTurrets extends SimplePlugin { // TODO use HookManager.d
 
 		Common.runLater(() -> {
 			for (final TurretData turretData : TurretRegistry.getInstance().getRegisteredTurrets()) {
-				final String type = turretData.getType();
-				final TurretSettings settings = TurretSettings.findByName(type);
-				final Block skullBlock = turretData.getLocation().getBlock().getRelative(BlockFace.UP);
-
-				if (CompMaterial.isSkull(skullBlock.getType())) {
-					final Skull state = (Skull) skullBlock.getState();
-					SkullCreator.mutateBlockState(state, settings.getHeadTexture());
-					state.update(false, false);
-				}
-
-				if (Settings.TurretSection.DISPLAY_HOLOGRAM)
-					TurretRegistry.getInstance().updateHologram(turretData);
+				TurretUtil.updateHologramAndTexture(turretData);
 			}
-
-			TurretRegistry.getInstance().save();
 		});
 
 		if (Settings.TurretSection.DISPLAY_HOLOGRAM)

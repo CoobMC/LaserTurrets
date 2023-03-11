@@ -11,6 +11,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.plugin.SimplePlugin;
+import org.mineacademy.fo.remain.CompSound;
 
 public class BeamTask extends BukkitRunnable {
 
@@ -36,13 +37,12 @@ public class BeamTask extends BukkitRunnable {
 				if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_9)) {
 					final Laser beam = new Laser.GuardianLaser(turretLocation, nearestEntity, 1, 40);
 					beam.start(SimplePlugin.getInstance());
+					CompSound.ENTITY_ELDER_GUARDIAN_CURSE.play(turretLocation, 0.4F, 0.2F);
 				} else {
 					final Beam_v1_8 beam_v1_8 = new Beam_v1_8(turretLocation, nearestEntity, 1, 40);
 					beam_v1_8.start();
+					CompSound.WITHER_IDLE.play(turretLocation, 0.4F, 2F);
 				}
-
-				//CompSound.ENTITY_GUARDIAN_ATTACK.play(turretLocation, 0.4F, 0.2F);
-				turretLocation.getWorld().playSound(turretLocation, "mob.guardian.attack", 0.4F, 0.2F);  // TODO
 
 				nearestEntity.damage(1);
 				Common.runLater(10, () -> nearestEntity.damage(1));

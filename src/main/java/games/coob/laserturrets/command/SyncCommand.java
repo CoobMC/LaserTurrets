@@ -39,11 +39,14 @@ final class SyncCommand extends SimpleSubCommand {
 		final String type = args[0];
 		final TurretSettings settings = TurretSettings.findByName(type);
 		final Set<TurretData> turretDataSet = registry.getTurretsOfType(type);
+		int amount = 0;
 
-		for (final TurretData turretData : turretDataSet)
+		for (final TurretData turretData : turretDataSet) {
 			registry.syncTurretDataWithSettings(settings, turretData);
+			amount = amount + 1;
+		}
 
-		Messenger.success(getPlayer(), Lang.of("Turret_Commands.Sync_Message", "{turretType}", type));
+		Messenger.success(getPlayer(), Lang.of("Turret_Commands.Sync_Message", "{turretType}", type, "turretAmount", amount));
 	}
 
 	@Override
