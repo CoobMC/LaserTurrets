@@ -68,6 +68,12 @@ public abstract class TurretTool extends VisualTool {
 		final Location closestLocation = getClosestLocation(location, registry.getTurretLocations());
 		final TurretSettings settings = TurretSettings.findByName(type);
 		final Block blockUp = block.getRelative(BlockFace.UP);
+		final boolean restrictingRegions = Settings.RegionSection.USE_WORLDGUARD && Settings.RegionSection.RESTRICT_REGIONS;
+
+		/*if (restrictingRegions && !RegionHook.canPlaceTurret(location, player)) { // TODO
+			Messenger.error(player, "You cannot place turrets in this region.");
+			return;
+		}*/
 
 		if (registry.getTurretsOfType(type).size() >= settings.getTurretLimit() && !registry.isRegistered(block)) {
 			Messenger.error(player, Lang.of("Tool.Turret_Limit_Reached", "{turretType}", this.displayName, "{turretLimit}", settings.getTurretLimit()));
@@ -111,7 +117,7 @@ public abstract class TurretTool extends VisualTool {
 		}
 	}
 
-	private Location getClosestLocation(final Location centerLocation, final List<Location> locations) { // TODO add to foundation
+	private Location getClosestLocation(final Location centerLocation, final List<Location> locations) { // TODO add to foundation BlockUtil
 		Location closestLocation = null;
 
 		for (final Location location : locations) {

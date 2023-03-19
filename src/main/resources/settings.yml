@@ -42,6 +42,15 @@ Currency_Settings:
   Default_Currency: 500
 
 # -------------------------------------------------------------------------------------------------
+# Edit your region settings
+# -------------------------------------------------------------------------------------------------
+Region_Settings:
+  # If set to false, we will use our own built in economy system that supports MySQL!
+  Use_WorldGuard: true
+  # Name your currency
+  Restrict_Regions: true
+
+# -------------------------------------------------------------------------------------------------
 # MySQL settings (a database system that synchronises data across all of your servers)
 # -------------------------------------------------------------------------------------------------
 MySQL:

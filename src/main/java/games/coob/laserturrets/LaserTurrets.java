@@ -1,6 +1,7 @@
 package games.coob.laserturrets;
 
 import games.coob.laserturrets.database.TurretsDatabase;
+import games.coob.laserturrets.hook.HookSystem;
 import games.coob.laserturrets.hook.VaultHook;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
@@ -33,7 +34,7 @@ import java.util.function.Function;
  * <p>
  * It uses Foundation for fast and efficient development process.
  */
-public final class LaserTurrets extends SimplePlugin { // TODO use HookManager.deposit(); instead of vault hook
+public final class LaserTurrets extends SimplePlugin {
 
 	/**
 	 * Automatically perform login ONCE when the plugin starts.
@@ -74,7 +75,7 @@ public final class LaserTurrets extends SimplePlugin { // TODO use HookManager.d
 		});
 	}
 
-	public void moveTurretsFolder() {
+	private void moveTurretsFolder() {
 		final File turretsFolder = new File(this.getDataFolder(), "turrets");
 		final File oldTurretsFolder = new File(this.getDataFolder(), "old-turrets");
 
@@ -170,6 +171,12 @@ public final class LaserTurrets extends SimplePlugin { // TODO use HookManager.d
 		// Add your own plugin parts to load automatically here
 		// Please see @AutoRegister for parts you do not have to register manually
 		//
+		// Load our dependency system
+		try {
+			HookSystem.loadDependencies();
+		} catch (final Throwable throwable) {
+			Common.throwError(throwable, "Error while loading " + this.getDataFolder().getName() + " dependencies!");
+		}
 
 		Common.runTimer(20, new ArrowTask());
 		Common.runTimer(25, new FireballTask());

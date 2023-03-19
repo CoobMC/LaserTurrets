@@ -95,7 +95,7 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO fix pagged men
 
 	@Override
 	public ItemStack getItemAt(final int slot) {
-		if (slot == getSize() - 2)
+		if (slot == getSize() - 1)
 			return changeTypeButton.getItem();
 		if (slot == getBottomCenterSlot())
 			return settingsButton.getItem();

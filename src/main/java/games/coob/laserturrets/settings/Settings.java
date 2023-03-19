@@ -70,6 +70,24 @@ public final class Settings extends SimpleSettings {
 		}
 	}
 
+	public static class RegionSection {
+		public static Boolean USE_WORLDGUARD;
+		public static Boolean RESTRICT_REGIONS;
+
+		/*
+		 * Automatically called method when we load settings.yml to load values in this subclass
+		 */
+		private static void init() {
+
+			// A convenience method to instruct the loader to prepend all paths with Example so you
+			// do not have to call "Example.Key1", "Example.Key2" all the time, only "Key1" and "Key2".
+			setPathPrefix("Region_Settings");
+
+			USE_WORLDGUARD = getBoolean("Use_WorldGuard");
+			RESTRICT_REGIONS = getBoolean("Restrict_Regions");
+		}
+	}
+
 	public static class CurrencySection {
 		public static String CURRENCY_NAME;
 		public static Double DEFAULT_CURRENCY;

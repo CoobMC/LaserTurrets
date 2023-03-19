@@ -5,7 +5,7 @@
 #
 # See https://www.spigotmc.org/wiki/plugin-yml/ for more information.
 # 
-name: ${project.name} 
+name: ${project.name}
 version: ${project.version}
 main: ${main.class}
 author: ${author}
@@ -14,7 +14,7 @@ author: ${author}
 api-version: 1.13
 
 # Load the following libraries
-libraries: 
+libraries:
   # DO NOT EDIT THE FIRST LIBRARY, required to make your plugin work under Java 15+
   - org.openjdk.nashorn:nashorn-core:15.4
   #- org.jsoup:jsoup:1.14.3
@@ -24,7 +24,7 @@ libraries:
 #legacy-libraries:
 
 # Plugins that we support so that we are loaded after them for your convenience.
-softdepend: [AuthMe, BanManager, BungeeChatAPI, CMI, DiscordSRV, Factions, Feudal, ItemsAdder, Essentials, LegacyFactions, Lands, LuckPerms, Multiverse-Core, MVdWPlaceholderAPI, MythicMobs, mcMMO, Nicky, PlaceholderAPI, ProtocolLib, SimpleClans, Towny, TownyChat, Vault, WorldEdit]
+softdepend: [ Residence, Konquest, MedievalFactions, KingdomsX, SaberFactions, UltimateClans, AuthMe, BanManager, BungeeChatAPI, CMI, DiscordSRV, Factions, Feudal, ItemsAdder, Essentials, LegacyFactions, Lands, LuckPerms, Multiverse-Core, MVdWPlaceholderAPI, MythicMobs, mcMMO, Nicky, PlaceholderAPI, ProtocolLib, SimpleClans, Towny, TownyChat, Vault, WorldEdit, WorldGuard, Kingdoms, BetterTeams ]
 
 #
 # The commands are built at runtime so you can change them easily within the settings.

@@ -30,6 +30,7 @@ public class EntityUtil {
 				if (nearby.getType() == EntityType.PLAYER) {
 					if (turretData.isPlayerWhitelistEnabled() == turretData.isPlayerListedAsAlly(nearby.getUniqueId()))
 						foundEntities.add(nearby);
+					//if (AlliesHook.isLandsAlly(center, (Player) nearby))
 				} else {
 					if (turretData.isMobWhitelistEnabled() == turretData.isMobListedAsAlly(nearby.getType()))
 						foundEntities.add(nearby);
