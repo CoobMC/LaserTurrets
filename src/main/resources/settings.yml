@@ -29,6 +29,12 @@ Turret:
   Placement_Particle_Count: 50
   # The sound that is played when the turret is placed
   Placement_Sound: "FIREWORK_BLAST"
+  # If set to true, prevent players from building/placing turrets on enemy territory, they can only build where they're allowed to build.
+  # Supported plugins : WorldGuard, Towny, Residence, Konquest, Residence, Medieval Factions, Towny, SaberFactions, FactionsUUID, Lands, KingdomsX
+  Build_In_Own_Territory: false
+  # If set to true, prevent turrets from targeting allies
+  # Supported plugins : Towny, KingdomsX, Lands, SimpleClans, BetterTeams, SaberFactions, FactionsUUID, UltimateClans, Medieval Factions, Konquest, Residence
+  Ally_Protection: true
 
 # -------------------------------------------------------------------------------------------------
 # Edit your currency settings
@@ -40,15 +46,6 @@ Currency_Settings:
   Currency_Name: "coins"
   # How many coins should players get by default (this won't work if your using the Vault economy system)
   Default_Currency: 500
-
-# -------------------------------------------------------------------------------------------------
-# Edit your region settings
-# -------------------------------------------------------------------------------------------------
-Region_Settings:
-  # If set to false, we will use our own built in economy system that supports MySQL!
-  Use_WorldGuard: true
-  # Name your currency
-  Restrict_Regions: true
 
 # -------------------------------------------------------------------------------------------------
 # MySQL settings (a database system that synchronises data across all of your servers)
@@ -98,4 +95,4 @@ Debug: [ ]
 # Do not change this value, otherwise it will corrupt your plugin installation!
 # NB: Don't forget to keep this up-to-date with the getConfigVersion method in your Settings class. 
 # -------------------------------------------------------------------------------------------------
-Version: 2
+Version: 3

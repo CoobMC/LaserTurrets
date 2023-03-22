@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class TurretsMenu extends MenuPagged<TurretData> { // TODO fix pagged menu
+public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all turrets from being modified (blacklist)
 
 	private TurretType turretType;
 
@@ -143,7 +143,7 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO fix pagged men
 		private final Button levelEditButton;
 
 		@Position(13)
-		private final Button blacklistButton;
+		private final Button alliesButton;
 
 		@Position(15)
 		private final Button teleportButton;
@@ -161,7 +161,7 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO fix pagged men
 					Lang.of("Turrets_Menu.Level_Edit_Button_Title"),
 					Lang.ofArray("Turrets_Menu.Level_Edit_Button_Lore"));
 
-			this.blacklistButton = new ButtonMenu(new AlliesMenu(TurretEditMenu.this, turretData, player), CompMaterial.KNOWLEDGE_BOOK,
+			this.alliesButton = new ButtonMenu(new AlliesMenu(TurretEditMenu.this, turretData, player), CompMaterial.KNOWLEDGE_BOOK,
 					Lang.of("Turrets_Menu.Allies_Button_Title"),
 					Lang.ofArray("Turrets_Menu.Allies_Button_Lore"));
 

@@ -142,7 +142,7 @@ public class HookSystem {
 	}
 
 	public static boolean isTownyLoaded() {
-		return worldguardHook != null;
+		return townyHook != null;
 	}
 
 	public static boolean isKingdomsXLoaded() {
@@ -186,10 +186,22 @@ public class HookSystem {
 	}
 
 	// ------------------------------------------------------------------------------------------------------------
+	// Main methods
+	// ------------------------------------------------------------------------------------------------------------
+
+	public static boolean canBuild(final Location location, final Player player) {
+		return canBuildInRegion(location, player) || canBuildKonquest(location, player) || canBuildInResidence(location, player) || canBuildInMedievalFaction(location, player) || canPlaceInTown(location.getBlock(), player) || canPlaceInSaberFaction(location, player) || canPlaceInFaction(location, player) || canPlaceInLand(location, player) || canPlaceInKingdom(location, player);
+	}
+
+	public static boolean isAlly(final Location location, final Player target, final OfflinePlayer turretOwner) {
+		return isTownAlly(location, target) || isKingdomAlly(location, target) || isLandAlly(location, target) || isClanAlly(turretOwner, target) || isTeamAlly(turretOwner, target) || isSaberFactionAlly(location, target) || isFactionAlly(location, target) || isUltimateClanAlly(turretOwner, target) || isMedievalFactionAlly(location, target) || isKonquestAlly(location, target) || isResidenceAlly(location, target);
+	}
+
+	// ------------------------------------------------------------------------------------------------------------
 	// WorldGuard
 	// ------------------------------------------------------------------------------------------------------------
 
-	public static boolean canPlaceInRegion(final Location location, final Player player) {
+	public static boolean canBuildInRegion(final Location location, final Player player) {
 		return isWorldGuardLoaded() && worldguardHook.canBuildInRegion(location, player);
 	}
 

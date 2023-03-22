@@ -1,5 +1,6 @@
 package games.coob.laserturrets.tools;
 
+import games.coob.laserturrets.hook.HookSystem;
 import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
@@ -68,12 +69,11 @@ public abstract class TurretTool extends VisualTool {
 		final Location closestLocation = getClosestLocation(location, registry.getTurretLocations());
 		final TurretSettings settings = TurretSettings.findByName(type);
 		final Block blockUp = block.getRelative(BlockFace.UP);
-		final boolean restrictingRegions = Settings.RegionSection.USE_WORLDGUARD && Settings.RegionSection.RESTRICT_REGIONS;
 
-		/*if (restrictingRegions && !RegionHook.canPlaceTurret(location, player)) { // TODO
+		if (Settings.TurretSection.BUILD_IN_OWN_TERRITORY && !HookSystem.canBuild(location, player) && !registry.isRegistered(block)) {
 			Messenger.error(player, "You cannot place turrets in this region.");
 			return;
-		}*/
+		}
 
 		if (registry.getTurretsOfType(type).size() >= settings.getTurretLimit() && !registry.isRegistered(block)) {
 			Messenger.error(player, Lang.of("Tool.Turret_Limit_Reached", "{turretType}", this.displayName, "{turretLimit}", settings.getTurretLimit()));

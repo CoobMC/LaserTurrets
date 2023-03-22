@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class AlliesMenu extends Menu {
+public class AlliesMenu extends Menu { // TODO only sync turrets with owner turrets | Error only occurs when creating the turrets
 
 	private final TurretData turretData;
 
@@ -51,6 +51,8 @@ public class AlliesMenu extends Menu {
 
 		this.parent = parent;
 		this.turretData = turretData;
+
+		System.out.println("Data: " + this.turretData);
 
 		this.setViewer(player);
 		this.setSize(27);

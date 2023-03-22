@@ -47,6 +47,8 @@ public final class Settings extends SimpleSettings {
 		public static Integer PLACEMENT_PARTICLE_COUNT;
 		public static CompSound CREATION_SOUND;
 		public static CompSound PLACEMENT_SOUND;
+		public static Boolean BUILD_IN_OWN_TERRITORY;
+		public static Boolean ALLY_PROTECTION;
 
 		/*
 		 * Automatically called method when we load settings.yml to load values in this subclass
@@ -67,24 +69,8 @@ public final class Settings extends SimpleSettings {
 			PLACEMENT_PARTICLE = get("Placement_Particle", CompParticle.class);
 			PLACEMENT_PARTICLE_COUNT = getInteger("Placement_Particle_Count");
 			PLACEMENT_SOUND = get("Placement_Sound", CompSound.class);
-		}
-	}
-
-	public static class RegionSection {
-		public static Boolean USE_WORLDGUARD;
-		public static Boolean RESTRICT_REGIONS;
-
-		/*
-		 * Automatically called method when we load settings.yml to load values in this subclass
-		 */
-		private static void init() {
-
-			// A convenience method to instruct the loader to prepend all paths with Example so you
-			// do not have to call "Example.Key1", "Example.Key2" all the time, only "Key1" and "Key2".
-			setPathPrefix("Region_Settings");
-
-			USE_WORLDGUARD = getBoolean("Use_WorldGuard");
-			RESTRICT_REGIONS = getBoolean("Restrict_Regions");
+			BUILD_IN_OWN_TERRITORY = getBoolean("Build_In_Own_Territory");
+			ALLY_PROTECTION = getBoolean("Ally_Protection");
 		}
 	}
 
@@ -139,6 +125,6 @@ public final class Settings extends SimpleSettings {
 	 */
 	@Override
 	protected int getConfigVersion() {
-		return 2;
+		return 3;
 	}
 }

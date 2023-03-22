@@ -1,15 +1,15 @@
 package games.coob.laserturrets.util;
 
+import games.coob.laserturrets.hook.HookSystem;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.settings.Settings;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.*;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
+import org.mineacademy.fo.remain.Remain;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -28,9 +28,10 @@ public class EntityUtil {
 		for (final Entity nearby : center.getWorld().getNearbyEntities(center, range3D, range3D, range3D)) {
 			if (nearby instanceof LivingEntity && entityClass.isAssignableFrom(nearby.getClass()) && !(nearby instanceof ArmorStand)) {
 				if (nearby.getType() == EntityType.PLAYER) {
-					if (turretData.isPlayerWhitelistEnabled() == turretData.isPlayerListedAsAlly(nearby.getUniqueId()))
+					final boolean isAlly = HookSystem.isAlly(center, (Player) nearby, Remain.getOfflinePlayerByUUID(turretData.getOwner()));
+
+					if ((turretData.isPlayerWhitelistEnabled() == turretData.isPlayerListedAsAlly(nearby.getUniqueId())) && (Settings.TurretSection.ALLY_PROTECTION && !isAlly))
 						foundEntities.add(nearby);
-					//if (AlliesHook.isLandsAlly(center, (Player) nearby))
 				} else {
 					if (turretData.isMobWhitelistEnabled() == turretData.isMobListedAsAlly(nearby.getType()))
 						foundEntities.add(nearby);
