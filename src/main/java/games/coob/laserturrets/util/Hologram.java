@@ -1,7 +1,6 @@
 package games.coob.laserturrets.util;
 
 import games.coob.laserturrets.model.TurretData;
-import games.coob.laserturrets.model.TurretRegistry;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
@@ -29,7 +28,7 @@ public class Hologram implements ConfigSerializable {
 	private static double loreLineHeight = 0.26D;
 
 	/**
-	 * A registry of created animated items
+	 * A turretData of created animated items
 	 */
 	@Getter
 	private static final Set<Hologram> registeredItems = new HashSet<>();
@@ -303,7 +302,7 @@ public class Hologram implements ConfigSerializable {
 		for (int i = 0; i < list.size(); i++) {
 			if (this.getLoreEntities().get(i) == null)
 				this.getLoreEntities().add(this.createLoreEntity(this.getLoreEntities().get(i - 1).getLocation()));
-			
+
 			Remain.setCustomName(this.getLoreEntities().get(i), list.get(i));
 		}
 
@@ -331,7 +330,7 @@ public class Hologram implements ConfigSerializable {
 	public static void deleteAll() {
 		final Set<Hologram> holograms = new HashSet<>();
 
-		for (final TurretData turretData : TurretRegistry.getInstance().getRegisteredTurrets())
+		for (final TurretData turretData : TurretData.getRegisteredTurrets())
 			holograms.add(turretData.getHologram());
 
 		for (final Iterator<Hologram> it = holograms.iterator(); it.hasNext(); ) {

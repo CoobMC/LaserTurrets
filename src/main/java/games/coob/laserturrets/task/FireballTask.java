@@ -1,7 +1,7 @@
 package games.coob.laserturrets.task;
 
 import games.coob.laserturrets.model.TurretData;
-import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.util.EntityUtil;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,9 +16,7 @@ public class FireballTask extends BukkitRunnable {
 
 	@Override
 	public void run() {
-		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
-
-		for (final TurretData turretData : turretRegistry.getTurretsOfType("fireball")) {
+		for (final TurretData turretData : TurretData.getTurretsOfType("fireball")) {
 			if (turretData.isBroken())
 				continue;
 

@@ -1,7 +1,7 @@
 package games.coob.laserturrets.task;
 
 import games.coob.laserturrets.model.TurretData;
-import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.util.Beam_v1_8;
 import games.coob.laserturrets.util.EntityUtil;
 import games.coob.laserturrets.util.Laser;
@@ -17,8 +17,7 @@ public class BeamTask extends BukkitRunnable {
 
 	@Override
 	public void run() {
-		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
-		for (final TurretData turretData : turretRegistry.getTurretsOfType("beam")) {
+		for (final TurretData turretData : TurretData.getTurretsOfType("beam")) {
 			if (turretData.isBroken())
 				continue;
 

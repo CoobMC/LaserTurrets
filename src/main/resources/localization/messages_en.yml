@@ -28,7 +28,7 @@ Commands:
   Header_Secondary_Color: RED
   Reloading: "reloading"
   Disabled: "disabled"
-  Use_While_Null: "&cCannot use this command while the plugin is {state}."
+  Use_While_Null: "&cCannot use thxis command while the plugin is {state}."
   Incompatible: "This command requires Minecraft {0} or greater."
   Toggled_Plugin_Part: "'&7You are ' + (ignoring ? '&2no longer' : '&cnow') + ' &7ignoring {0}.'"
   Use_Alternative_Header: false
@@ -185,7 +185,7 @@ Manage_Allies_Menu:
   Player_Available_For_Selection_Lore: "Click to add"
   Player_Already_Selected_Lore: "&aAlready in the {listType}"
   Player_Selection_Animated_Message: "&aAdded {playerName}"
-  Player_Prompt_Message: "&6What player shouldn't be targeted by this turret? You can add more players to the {listType} by using the /turret blacklist add <player> command."
+  Player_Prompt_Message: "&6What player shouldn't be targeted by this turret?"
   Player_Prompt_Invalid_Text: "Player '{invalidPlayer}' doesn't exist."
   Player_Prompt_Success: "You have successfully added {playerName} to the {listType}!"
 

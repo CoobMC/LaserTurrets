@@ -2,7 +2,6 @@ package games.coob.laserturrets.menu;
 
 import games.coob.laserturrets.PlayerCache;
 import games.coob.laserturrets.model.TurretData;
-import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.Lang;
@@ -65,7 +64,7 @@ public class UpgradeMenu extends Menu {
 						animateTitle(Lang.of("Menu.Not_Enough_Money_Animated_Message", "{moneyNeeded}", MathUtil.formatTwoDigits(price - funds), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
 					else {
 						cache.takeCurrency(price, false);
-						TurretRegistry.getInstance().setCurrentTurretLevel(turretData, nextLevel);
+						TurretData.findById(turretData.getId()).setCurrentTurretLevel(nextLevel);
 
 						CompSound.LEVEL_UP.play(player);
 
@@ -118,17 +117,18 @@ public class UpgradeMenu extends Menu {
 
 			@Override
 			public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
-				final TurretRegistry registry = TurretRegistry.getInstance();
 				final ItemStack skull = SkullCreator.itemFromBase64(settings.getHeadTexture());
 				final ItemStack turret = ItemCreator.of(skull).name(Lang.of("Tool.Unplaced_Turret_Title", "{turretType}", ChatUtil.capitalize(turretData.getType()), "{turretId}", turretData.getId()))
 						.lore(Lang.ofArray("Tool.Unplaced_Turret_Lore", "{turretType}", turretData.getType(), "{turretId}", turretData.getId(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName()))
 						.tag("id", turretData.getId()).make();
 
 				player.getInventory().addItem(turret);
-				registry.registerToUnplaced(turretData, turret);
+				turretData.setUnplacedTurret(turret);
+				//turretData.registerToUnplaced(turretData, turret);
 				player.closeInventory();
 				CompSound.BLOCK_ANVIL_DESTROY.play(player);
-				registry.unregister(turretData);
+				turretData.unregister();
+				//turretData.unregister(turretData);
 				Messenger.success(player, Lang.of("Turret_Commands.Take_Turret_Message", "{turretType}", turretData.getType(), "{turretId}", turretData.getId()));
 			}
 

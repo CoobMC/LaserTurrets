@@ -19,7 +19,7 @@ import java.util.List;
  * file in your jar.
  */
 @SuppressWarnings("unused")
-public final class Settings extends SimpleSettings {
+public final class Settings extends SimpleSettings { // TODO add block pass through list
 
 	/**
 	 * Place the sections where user can create new "key: value" pairs

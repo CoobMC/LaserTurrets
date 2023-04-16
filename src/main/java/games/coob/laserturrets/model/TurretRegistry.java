@@ -1,11 +1,13 @@
-package games.coob.laserturrets.model;
+/*package games.coob.laserturrets.model;
 
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
+import games.coob.laserturrets.settings.TurretType;
 import games.coob.laserturrets.util.Hologram;
 import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.TurretUtil;
 import lombok.Getter;
+import lombok.NonNull;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -15,52 +17,37 @@ import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.MathUtil;
 import org.mineacademy.fo.Valid;
-import org.mineacademy.fo.constants.FoConstants;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.Remain;
+import org.mineacademy.fo.settings.ConfigItems;
 import org.mineacademy.fo.settings.YamlConfig;
 
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class TurretRegistry extends YamlConfig { // TODO test out turret type
+public class TurretData extends YamlConfig {
+
+
+
+import org.kingdoms.constants.land.turrets.TurretData;
+
+private static final String FOLDER = "turrets";
+
+	private static final ConfigItems<TurretData> loadedFiles = ConfigItems.fromFolder(FOLDER, TurretData.class);
 
 	@Getter
-	private static final TurretRegistry instance = new TurretRegistry();
+	private TurretData turret;
 
-	@Getter
-	private Set<TurretData> registeredTurrets = new HashSet<>();
-
-	// TODO add all the created turrets in the data
-	private Set<String> turretTypes = new HashSet<>();
-
-	@Getter
-	private List<Tuple<TurretData, ItemStack>> registeredUnplacedTurrets = new ArrayList<>();
-
-	private TurretRegistry() {
-		this.loadConfiguration(NO_DEFAULT, FoConstants.File.DATA);
-	}
-
-	@Override
-	protected void onLoad() {
-		this.turretTypes = this.getSet("Turret_Types", String.class, new HashSet<>(Arrays.asList("arrow", "fireball", "beam")));
-		this.registeredTurrets = this.getSet("Turrets", TurretData.class);
-		this.registeredUnplacedTurrets = this.getTupleList("Unplaced", TurretData.class, ItemStack.class);
-	}
-
-	@Override
-	protected void onSave() {
-		this.set("Turret_Types", this.turretTypes);
-		this.set("Turrets", this.registeredTurrets);
-		this.set("Unplaced", this.registeredUnplacedTurrets);
+	protected TurretData(final String type, final String id) {
+		this.loadConfiguration(NO_DEFAULT, FOLDER + "/" + type.toLowerCase() + "-" + id + ".yml");
 	}
 
 	public void register(final Player player, final Block block, final String type) {
-		final TurretData turretData = new TurretData();
 		final String uniqueID = UUID.randomUUID().toString().substring(0, 6);
+		final TurretData turretData = new TurretData();
 
-		Valid.checkBoolean(!this.registeredTurrets.contains(turretData), Lang.of("Tool.Already_Registered", "{location}", Common.shortLocation(block.getLocation())));
+		Valid.checkBoolean(!loadedFiles.isItemLoaded(uniqueID), Lang.of("Tool.Already_Registered", "{location}", Common.shortLocation(block.getLocation())));
 
 		turretData.setLocation(block.getLocation());
 		turretData.setMaterial(CompMaterial.fromMaterial(block.getType()));
@@ -86,22 +73,26 @@ public class TurretRegistry extends YamlConfig { // TODO test out turret type
 
 		turretData.setCurrentHealth(turretData.getLevel(1).getMaxHealth());
 		turretData.setHologram(createHologram(turretData));
-		this.registeredTurrets.add(turretData);
+		this.turret = turretData;
 
 		this.save();
 	}
 
-	public void registerToUnplaced(final TurretData turretData, final ItemStack itemStack) {
-		this.registeredUnplacedTurrets.add(new Tuple<>(turretData, itemStack));
+	public void registerUnplacedTurret(final Block block) {
+		final TurretData turretData = this.turret;
+
+		if (turretData.getUnplacedTurret() != null) {
+
+			turretData.setUnplacedTurret(null);
+			turretData.setLocation(block.getLocation());
+			turretData.setMaterial(CompMaterial.fromMaterial(block.getType()));
+			turretData.setHologram(createHologram(turretData));
+		}
+
 		this.save();
 	}
 
-	public void unregisterUnplaced(final TurretData turretData) {
-		this.registeredUnplacedTurrets.removeIf(tuple -> tuple.getKey().equals(turretData));
-		this.save();
-	}
-
-	public void registerTurretById(final Block block, final String turretId) {
+	public void registerTurretById(final Block block, final String turretId) { // TODO create unplaced boolean value
 		final TurretData turretData = getUnplacedTurretById(turretId);
 
 		this.registeredUnplacedTurrets.removeIf(tuple -> tuple.getKey().equals(turretData));
@@ -114,15 +105,9 @@ public class TurretRegistry extends YamlConfig { // TODO test out turret type
 		this.save();
 	}
 
-	public TurretData getUnplacedTurretById(final String turretId) {
-		for (final Tuple<TurretData, ItemStack> tuple : this.registeredUnplacedTurrets)
-			if (tuple.getKey().getId().equals(turretId))
-				return tuple.getKey();
+import org.kingdoms.constants.land.turrets.TurretData;
 
-		return null;
-	}
-
-	private Hologram createHologram(final TurretData turretData) {
+private Hologram createHologram(final TurretData turretData) {
 		final List<String> lore = Lang.ofList("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth());
 		final List<String> loreList = new ArrayList<>(lore);
 
@@ -139,7 +124,7 @@ public class TurretRegistry extends YamlConfig { // TODO test out turret type
 		return hologram;
 	}
 
-	public void unregister(final Block block) {
+	/*public void unregister(final Block block) {
 		final TurretData turretData = getTurretByBlock(block);
 
 		if (turretData.getHologram() != null)
@@ -149,9 +134,9 @@ public class TurretRegistry extends YamlConfig { // TODO test out turret type
 		this.registeredTurrets.remove(turretData);
 
 		this.save();
-	}
+	}*/
 
-	public void unregister(final TurretData turretData) {
+	/*public void unregister(final TurretData turretData) {
 		if (turretData.getHologram() != null)
 			turretData.getHologram().remove();
 
@@ -161,7 +146,9 @@ public class TurretRegistry extends YamlConfig { // TODO test out turret type
 		this.save();
 	}
 
-	public void unregister(final String turretID) {
+import org.kingdoms.constants.land.turrets.TurretData;
+
+public void unregister(final String turretID) {
 		final TurretData turretData = getTurretByID(turretID);
 
 		if (turretData.getHologram() != null)
@@ -173,36 +160,16 @@ public class TurretRegistry extends YamlConfig { // TODO test out turret type
 		this.save();
 	}
 
-	public boolean isRegistered(final Block block) {
-		for (final TurretData turretData : this.registeredTurrets) {
-			if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation()))
-				return true;
-		}
+import org.kingdoms.constants.land.turrets.TurretData;
 
-		return false;
-	}
+public void setUnplacedTurret(@Nullable final ItemStack turretItem) {
+		this.turret.setUnplacedTurret(turretItem);
 
-	public boolean isRegistered(final String turretID) {
-		for (final TurretData turretData : this.registeredTurrets) {
-			if (turretData.getId().equals(turretID))
-				return true;
-		}
-
-		return false;
-	}
-
-	public Set<TurretData> getTurretsOfType(final String turretType) {
-		final Set<TurretData> dataList = new HashSet<>();
-
-		for (final TurretData turretData : this.registeredTurrets)
-			if (turretData.getType().equals(turretType))
-				dataList.add(turretData);
-
-		return dataList;
+		this.save();
 	}
 
 	public void addPlayerToBlacklist(final TurretData turretData, final UUID uuid) {
-		turretData.addPlayerToBlacklist(uuid);
+		this.turret.addPlayerToBlacklist(uuid);
 
 		this.save();
 	}
@@ -287,9 +254,8 @@ public class TurretRegistry extends YamlConfig { // TODO test out turret type
 	}
 
 	public void setTurretHealth(final Block block, final double health) {
-		for (final TurretData turretData : this.registeredTurrets)
-			if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation()))
-				turretData.setCurrentHealth(health);
+		if (isRegistered(block))
+			this.turret.setCurrentHealth(health);
 
 		this.save();
 	}
@@ -301,12 +267,10 @@ public class TurretRegistry extends YamlConfig { // TODO test out turret type
 	}
 
 	public void setBrokenAndFill(final Block block, final boolean destroyed) {
-		for (final TurretData turretData : this.registeredTurrets) {
-			if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation())) {
-				turretData.setBrokenAndFill(destroyed);
+		if (isRegistered(block)) {
+			this.turret.setBrokenAndFill(destroyed);
 
-				this.save();
-			}
+			this.save();
 		}
 	}
 
@@ -323,8 +287,7 @@ public class TurretRegistry extends YamlConfig { // TODO test out turret type
 		return turretData.getLevel(level).getLootChances();
 	}
 
-	public void setTurretLootChances(final TurretData turretData, final int level,
-									 final List<Tuple<ItemStack, Double>> lootChances) {
+	public void setTurretLootChances(final TurretData turretData, final int level, final List<Tuple<ItemStack, Double>> lootChances) {
 		turretData.getLevel(level).setLootChances(lootChances);
 
 		this.save();
@@ -342,58 +305,27 @@ public class TurretRegistry extends YamlConfig { // TODO test out turret type
 		this.save();
 	}
 
-	public TurretData getTurretByBlock(final Block block) {
-		for (final TurretData turretData : this.registeredTurrets)
-			if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation()))
-				return turretData;
-
-		return null;
-	}
-
-	public TurretData getTurretByID(final String turretID) {
-		for (final TurretData turretData : this.registeredTurrets)
-			if (turretData.getId().equals(turretID))
-				return turretData;
-
-		return null;
-	}
-
-	public List<Location> getTurretLocationsOfType(final String type) {
-		final List<Location> locations = new ArrayList<>();
-
-		for (final TurretData turretData : getTurretsOfType(type))
-			locations.add(turretData.getLocation());
-
-		return locations;
-	}
-
-	public List<Location> getTurretLocations() {
-		final List<Location> locations = new ArrayList<>();
-
-		for (final TurretData turretData : this.registeredTurrets)
-			locations.add(turretData.getLocation());
-
-		return locations;
-	}
-
-	public Set<String> getTurretIDs() {
-		final Set<String> turretIDs = new HashSet<>();
-
-		for (final TurretData turretData : this.registeredTurrets)
-			turretIDs.add(turretData.getId());
-
-		return turretIDs;
-	}
-
-	public boolean isTurretOfType(final Block block, final String type) {
-		for (final TurretData turretData : getTurretsOfType(type))
-			if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation()))
-				return true;
-
+	@Override
+	protected boolean saveComments() {
 		return false;
 	}
 
-	public void syncTurretDataWithSettings(final TurretSettings settings, final TurretData turretData) {
+	@Override
+	protected void onLoad() {
+		this.turret = this.get("Registered_Turret", TurretData.class);
+	}
+
+	@Override
+	protected void onSave() {
+		this.set("Registered_Turret", this.turret);
+	}
+
+	// -----------------------------------------------------------------
+	// Static TODO check how to use these methods
+	// -----------------------------------------------------------------
+
+	public static void syncTurretDataWithSettings(final TurretSettings settings, final TurretData turretData) {
+		final TurretData turretData = TurretData.findByName(turretData.getId());
 		turretData.setMobBlacklist(settings.getMobList());
 		turretData.setPlayerBlacklist(settings.getPlayerList());
 		turretData.setPlayerWhitelistEnabled(settings.isEnablePlayerWhitelist());
@@ -417,6 +349,132 @@ public class TurretRegistry extends YamlConfig { // TODO test out turret type
 
 		TurretUtil.updateHologramAndTexture(turretData);
 
-		this.save();
+		turretData.save();
 	}
-}
+
+	public static boolean isRegistered(final Block block) {
+		for (final TurretData turretData : getTurrets())
+			return turretData.turret.getLocation().getBlock().getLocation().equals(block.getLocation());
+
+		return false;
+	}
+
+	public static TurretData getTurretByBlock(final Block block) {
+		for (final TurretData turretData : getTurrets())
+			if (turretData.turret.getLocation().getBlock().getLocation().equals(block.getLocation()))
+				return turretData.turret;
+
+		return null;
+	}
+
+	public static Set<TurretData> getTurretsOfType(final String turretType) {
+		final Set<TurretData> dataList = new HashSet<>();
+
+		for (final TurretData turretData : getTurrets())
+			if (turretData.turret.getType().equals(turretType))
+				dataList.add(turretData.turret);
+
+		return dataList;
+	}
+
+	public static Set<TurretData> getRegisteredTurrets() {
+		final Set<TurretData> dataList = new HashSet<>();
+
+		for (final TurretData turretData : getTurrets())
+			dataList.add(turretData.turret);
+
+		return dataList;
+	}
+
+	public static List<Location> getTurretLocations() {
+		final List<Location> locations = new ArrayList<>();
+
+		for (final TurretData turretData : getTurrets())
+			locations.add(turretData.turret.getLocation());
+
+		return locations;
+	}
+
+	public static List<TurretData> getUnplacedTurrets() {
+		final List<TurretData> turretData = new ArrayList<>();
+
+		for (final TurretData turretData : getTurrets())
+			if (turretData.turret.getUnplacedTurret() != null)
+				turretData.add(turretData.turret);
+
+		return turretData;
+	}
+
+	public static Set<String> getTurretIDs() {
+		final Set<String> turretIDs = new HashSet<>();
+
+		for (final TurretData turretData : getTurrets())
+			turretIDs.add(turretData.turret.getId());
+
+		return turretIDs;
+	}
+
+	public static List<Location> getTurretLocationsOfType(final String type) {
+		final List<Location> locations = new ArrayList<>();
+
+		for (final TurretData turretData : getTurretsOfType(type))
+			locations.add(turretData.getLocation());
+
+		return locations;
+	}
+
+	public static boolean isTurretOfType(final Block block, final String type) {
+		for (final TurretData turretData : getTurretsOfType(type))
+			if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation()))
+				return true;
+
+		return false;
+	}
+
+
+
+import org.kingdoms.constants.land.turrets.TurretData;
+
+public static List<? extends TurretData> getTurrets() {
+		return loadedFiles.getItems();
+	}
+
+
+	public static Set<String> getTurretNames() {
+		return loadedFiles.getItemNames();
+	}
+
+	public static void createTurret(@NonNull final String name, @NonNull final TurretType type) {
+		//loadedFiles.loadOrCreateItem(name, () -> type.instantiate(name));
+	}
+
+	public static void createSettings(@NonNull final String turretType, final String string) {
+		//loadedFiles.loadOrCreateItem(turretType, () -> new TurretData(string, turretType));
+	}
+
+	// 1) /game new bedwars Arena1
+	// 2) when we load a disk file
+
+
+	public static void loadTurrets() {
+		loadedFiles.loadItems();
+	}
+
+	public static void removeTurret(final TurretData turretData) {
+		if (turretData.getHologram() != null)
+			turretData.getHologram().remove();
+
+		turretData.getLocation().getBlock().getRelative(BlockFace.UP).setType(CompMaterial.AIR.getMaterial());
+		loadedFiles.removeItemByName(turretData.getId());
+	}
+
+
+	public static boolean isTurretLoaded(final String id) {
+		return loadedFiles.isItemLoaded(id);
+	}
+
+
+	public static TurretData findByName(@NonNull final String id) {
+		return loadedFiles.findItem(id);
+	}
+}*/

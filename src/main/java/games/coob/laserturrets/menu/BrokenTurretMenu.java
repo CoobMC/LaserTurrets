@@ -2,7 +2,6 @@ package games.coob.laserturrets.menu;
 
 import games.coob.laserturrets.PlayerCache;
 import games.coob.laserturrets.model.TurretData;
-import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.TurretUtil;
@@ -33,6 +32,8 @@ import java.util.List;
 
 public class BrokenTurretMenu extends Menu {
 
+	private final TurretData turretData;
+
 	private final ViewMode viewMode;
 
 	private final Button repairButton;
@@ -45,6 +46,7 @@ public class BrokenTurretMenu extends Menu {
 
 	public BrokenTurretMenu(final TurretData turretData, final ViewMode viewMode) {
 		this.viewMode = viewMode;
+		this.turretData = turretData;
 
 		this.setTitle(viewMode.menuTitle);
 		this.setSize(27);
@@ -54,7 +56,6 @@ public class BrokenTurretMenu extends Menu {
 		this.repairButton = new Button() {
 			@Override
 			public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
-				final TurretRegistry registry = TurretRegistry.getInstance();
 				final PlayerCache cache = PlayerCache.from(player);
 
 				if (cache.getCurrency(false) - price < 0) {
@@ -64,7 +65,7 @@ public class BrokenTurretMenu extends Menu {
 
 				cache.takeCurrency(price, false);
 				CompSound.ANVIL_USE.play(turretData.getLocation());
-				registry.setBroken(turretData, false);
+				turretData.setBroken(false);
 				player.closeInventory();
 				Common.tell(player, Lang.of("Broken_Turret_Menu.Repair_Button_Click_Message", "{price}", price, "{currencyName}", currencyName));
 
@@ -81,7 +82,7 @@ public class BrokenTurretMenu extends Menu {
 			}
 		};
 
-		this.lootTurretButton = new ButtonMenu(new LootTurretMenu(turretData), ItemCreator.of(CompMaterial.CHEST, Lang.of("Broken_Turret_Menu.Loot_Button_Title"),
+		this.lootTurretButton = new ButtonMenu(new LootTurretMenu(), ItemCreator.of(CompMaterial.CHEST, Lang.of("Broken_Turret_Menu.Loot_Button_Title"),
 				Lang.ofArray("Broken_Turret_Menu.Loot_Button_Lore")).make());
 
 		this.destroyButton = new Button() {
@@ -89,11 +90,10 @@ public class BrokenTurretMenu extends Menu {
 
 			@Override
 			public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
-				final TurretRegistry registry = TurretRegistry.getInstance();
 				final PlayerCache cache = PlayerCache.from(player);
 
 				CompSound.EXPLODE.play(turretData.getLocation());
-				registry.unregister(turretData.getLocation().getBlock());
+				turretData.unregister();
 				cache.giveCurrency(this.earnings, false);
 				player.closeInventory();
 				Common.tell(player, Lang.of("Broken_Turret_Menu.Destroy_Button_Click_Message", "{earnings}", this.earnings, "{currencyName}", currencyName));
@@ -133,15 +133,11 @@ public class BrokenTurretMenu extends Menu {
 
 	private class LootTurretMenu extends MenuContainer {
 
-		private final TurretData turretData;
-
 		@Position(start = StartPosition.BOTTOM_CENTER)
 		private final Button lootAllButton;
 
-		LootTurretMenu(final TurretData turretData) {
+		LootTurretMenu() {
 			super(BrokenTurretMenu.this);
-
-			this.turretData = turretData;
 
 			this.setSize(27);
 			this.setTitle(Lang.of("Broken_Turret_Menu.Loot_Menu_Title"));
@@ -152,10 +148,8 @@ public class BrokenTurretMenu extends Menu {
 					if (turretData.getCurrentLoot() == null)
 						return;
 
-					final TurretRegistry registry = TurretRegistry.getInstance();
-
 					PlayerUtil.addItems(player.getInventory(), turretData.getCurrentLoot());
-					registry.setCurrentLoot(turretData, new ArrayList<>());
+					turretData.setCurrentLoot(new ArrayList<>());
 					CompSound.LAVA_POP.play(player);
 					restartMenu(Lang.of("Broken_Turret_Menu.Loot_All_Button_Animated_Message"));
 				}
@@ -175,12 +169,10 @@ public class BrokenTurretMenu extends Menu {
 
 		@Override
 		protected ItemStack onItemClick(final int slot, final ClickType clickType, @Nullable final ItemStack item) {
-			final TurretRegistry registry = TurretRegistry.getInstance();
-
-			if (this.turretData.getCurrentLoot() == null)
+			if (turretData.getCurrentLoot() == null)
 				return item;
 
-			registry.removeCurrentLoot(this.turretData, item);
+			turretData.removeCurrentLoot(item);
 
 			return item;
 		}
@@ -191,9 +183,9 @@ public class BrokenTurretMenu extends Menu {
 
 		@Override
 		protected ItemStack getDropAt(final int slot) {
-			final List<ItemStack> items = this.turretData.getCurrentLoot();
+			final List<ItemStack> items = turretData.getCurrentLoot();
 
-			if (this.turretData.getCurrentLoot() == null)
+			if (turretData.getCurrentLoot() == null)
 				return NO_ITEM;
 
 			return slot < items.size() ? items.get(slot) : NO_ITEM;
@@ -206,7 +198,7 @@ public class BrokenTurretMenu extends Menu {
 
 		@Override
 		public Menu newInstance() {
-			return new LootTurretMenu(this.turretData);
+			return new LootTurretMenu();
 		}
 	}
 

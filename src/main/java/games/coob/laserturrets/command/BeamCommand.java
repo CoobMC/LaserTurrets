@@ -3,14 +3,17 @@ package games.coob.laserturrets.command;
 import games.coob.laserturrets.util.Beam_v1_8;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.EntityUtil;
 import org.mineacademy.fo.command.SimpleSubCommand;
 import org.mineacademy.fo.plugin.SimplePlugin;
+import org.mineacademy.fo.remain.CompParticle;
+import org.mineacademy.fo.remain.CompProperty;
 
 import java.util.List;
 
@@ -22,7 +25,9 @@ public class BeamCommand extends SimpleSubCommand {
 	@Override
 	protected void onCommand() {
 		final Location location = getPlayer().getEyeLocation();
-		final LivingEntity entity = EntityUtil.findNearestEntity(location, 50, Player.class);
+		final LivingEntity entity = EntityUtil.findNearestEntity(location, 50, Villager.class);
+
+		CompProperty.GLOWING.apply(entity, true);
 
 		if (args.length == 1) {
 			final String param = this.args[0];
@@ -37,13 +42,15 @@ public class BeamCommand extends SimpleSubCommand {
 			} else if (param.equals("particle"))
 				//spawnParticlesInArc(location, entity.getEyeLocation(), 400, 1.5, Particle.VILLAGER_HAPPY, 10, 0.1, 9.81, 10.0);
 				spawnParticlesInArc(location, entity.getEyeLocation(), 12, Particle.EXPLOSION_NORMAL, Particle.FLAME);
+			else if (param.equals("laser"))
+				spawnLaser(location, entity.getEyeLocation());
 		}
 	}
 
 	@Override
 	protected List<String> tabComplete() {
 		if (this.args.length == 1)
-			return completeLastWord("beam", "particle");
+			return completeLastWord("beam", "particle", "laser");
 
 		return NO_COMPLETE;
 	}
@@ -116,5 +123,37 @@ public class BeamCommand extends SimpleSubCommand {
 
 		final Location explodeLocation = blockHitLocation;
 		Common.runLater((int) (distance / trajectoryInterval), () -> explodeLocation.getWorld().createExplosion(new Location(explodeLocation.getWorld(), explodeLocation.getX(), explodeLocation.getY(), explodeLocation.getZ()), 2f));
+	}
+
+	public void spawnArchedLaser(final Location locationA, final Location locationB, final double heightOffset) {
+		final World world = locationA.getWorld();
+		final double distance = locationA.distance(locationB);
+		final double xDiff = locationB.getX() - locationA.getX();
+		final double yDiff = locationB.getY() - locationA.getY();
+		final double zDiff = locationB.getZ() - locationA.getZ();
+
+		final int trajectoryCount = 80; // Smaller count for smoother trajectory
+		final double trajectoryInterval = distance / trajectoryCount;
+
+		for (double totalDistance = 0; totalDistance <= distance; totalDistance += trajectoryInterval) {
+			final double s = totalDistance / distance;
+			final double trajectoryX = locationA.getX() + xDiff * s;
+			final double trajectoryY = locationA.getY() + yDiff * s + heightOffset * Math.sin(Math.PI * s);
+			final double trajectoryZ = locationA.getZ() + zDiff * s;
+			
+			final Location particleLocation = new Location(world, trajectoryX, trajectoryY, trajectoryZ);
+			CompParticle.REDSTONE.spawn(particleLocation);
+		}
+	}
+
+	public void spawnLaser(final Location locationA, final Location locationB) {
+		final double distance = locationA.distance(locationB);
+		final Vector vector = locationB.clone().subtract(locationA).toVector().normalize().multiply(0.5);
+		final Location laserLocation = locationA.clone();
+
+		for (double waypoint = 1; waypoint < distance; waypoint += 0.5) {
+			laserLocation.add(vector);
+			CompParticle.REDSTONE.spawn(laserLocation);
+		}
 	}
 }

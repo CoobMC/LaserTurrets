@@ -1,7 +1,6 @@
 package games.coob.laserturrets.menu;
 
 import games.coob.laserturrets.model.TurretData;
-import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.TurretUtil;
 import org.bukkit.Bukkit;
@@ -34,7 +33,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class AlliesMenu extends Menu { // TODO only sync turrets with owner turrets | Error only occurs when creating the turrets
+public class AlliesMenu extends Menu { // TODO only sync turrets with owner turrets | Error only occurs when creating the  | remove data type
 
 	private final TurretData turretData;
 
@@ -51,8 +50,6 @@ public class AlliesMenu extends Menu { // TODO only sync turrets with owner turr
 
 		this.parent = parent;
 		this.turretData = turretData;
-
-		System.out.println("Data: " + this.turretData);
 
 		this.setViewer(player);
 		this.setSize(27);
@@ -93,10 +90,9 @@ public class AlliesMenu extends Menu { // TODO only sync turrets with owner turr
 			this.mobListTypeButton = new Button() {
 				@Override
 				public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
-					final TurretRegistry registry = TurretRegistry.getInstance();
 					final boolean isWhitelist = turretData.isMobWhitelistEnabled();
 
-					registry.enableMobWhitelist(turretData, !isWhitelist);
+					turretData.enableMobWhitelist(!isWhitelist);
 					setTitle(Lang.of("Manage_Allies_Menu.Mob_List_Type_Menu_Title", "{listType}", turretData.isMobWhitelistEnabled() ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist"))));
 					restartMenu(Lang.of("Manage_Allies_Menu.Mob_List_Type_Menu_Animated_Message", "{listType}", isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured")));
 				}
@@ -119,7 +115,7 @@ public class AlliesMenu extends Menu { // TODO only sync turrets with owner turr
 
 		@Override
 		protected void onPageClick(final Player player, final EntityType entityType, final ClickType clickType) {
-			TurretRegistry.getInstance().removeMobFromBlacklist(turretData, entityType);
+			TurretData.findById(turretData.getId()).removeMobFromBlacklist(entityType);
 			this.restartMenu(Lang.of("Manage_Allies_Menu.Mob_Egg_Animated_Message", "{entityName}", entityType.name()));
 		}
 
@@ -168,7 +164,7 @@ public class AlliesMenu extends Menu { // TODO only sync turrets with owner turr
 
 			@Override
 			protected void onPageClick(final org.bukkit.entity.Player player, final EntityType entityType, final ClickType clickType) {
-				TurretRegistry.getInstance().addMobToBlacklist(turretData, entityType);
+				TurretData.findById(turretData.getId()).addMobToBlacklist(entityType);
 				this.restartMenu(Lang.of("Manage_Allies_Menu.Mob_Selection_Animated_Message", "{entityName}", entityType.name()));
 			}
 
@@ -208,10 +204,9 @@ public class AlliesMenu extends Menu { // TODO only sync turrets with owner turr
 			this.playerListTypeButton = new Button() {
 				@Override
 				public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
-					final TurretRegistry registry = TurretRegistry.getInstance();
 					final boolean isWhitelist = turretData.isPlayerWhitelistEnabled();
 
-					registry.enablePlayerWhitelist(turretData, !isWhitelist);
+					turretData.enablePlayerWhitelist(!isWhitelist);
 					setTitle(Lang.of("Manage_Allies_Menu.Player_List_Type_Menu_Title", "{listType}", turretData.isPlayerWhitelistEnabled() ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist"))));
 					restartMenu(Lang.of("Manage_Allies_Menu.Player_List_Type_Menu_Animated_Message", "{listType}", isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured")));
 				}
@@ -241,7 +236,7 @@ public class AlliesMenu extends Menu { // TODO only sync turrets with owner turr
 		protected void onPageClick(final Player player, final UUID item, final ClickType click) {
 			final OfflinePlayer target = Remain.getOfflinePlayerByUUID(item);
 
-			TurretRegistry.getInstance().removePlayerFromBlacklist(turretData, target.getUniqueId());
+			TurretData.findById(turretData.getId()).removePlayerFromBlacklist(target.getUniqueId());
 			this.restartMenu(Lang.of("Manage_Allies_Menu.Player_Head_Animated_Message", "{playerName}", target.getName()));
 		}
 
@@ -290,7 +285,9 @@ public class AlliesMenu extends Menu { // TODO only sync turrets with owner turr
 
 			@Override
 			protected void onPageClick(final Player player, final Player item, final ClickType click) {
-				TurretRegistry.getInstance().addPlayerToBlacklist(turretData, item.getUniqueId());
+				System.out.println("Turret id:" + turretData.getId());
+
+				TurretData.findById(turretData.getId()).addPlayerToBlacklist(item.getUniqueId());
 				this.restartMenu(Lang.of("Manage_Allies_Menu.Player_Selection_Animated_Message", "{playerName}", player.getName()));
 			}
 
@@ -328,9 +325,7 @@ public class AlliesMenu extends Menu { // TODO only sync turrets with owner turr
 		@Nullable
 		@Override
 		protected Prompt acceptValidatedInput(@NotNull final ConversationContext context, @NotNull final String input) {
-			final TurretRegistry registry = TurretRegistry.getInstance();
-
-			registry.addPlayerToBlacklist(turretData, Bukkit.getOfflinePlayer(input).getUniqueId());
+			turretData.addPlayerToBlacklist(Bukkit.getOfflinePlayer(input).getUniqueId());
 			tellSuccess(Lang.of("Manage_Allies_Menu.Player_Prompt_Success", "{playerName}", input, "{listType}", turretData.isPlayerWhitelistEnabled() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist")));
 
 			return END_OF_CONVERSATION;

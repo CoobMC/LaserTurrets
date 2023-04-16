@@ -1,7 +1,6 @@
 package games.coob.laserturrets.util;
 
 import games.coob.laserturrets.model.TurretData;
-import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
 import org.bukkit.block.Block;
@@ -38,7 +37,7 @@ public class TurretUtil {
 		}
 
 		if (Settings.TurretSection.DISPLAY_HOLOGRAM)
-			TurretRegistry.getInstance().updateHologram(turretData);
+			TurretData.findById(turretData.getId()).updateHologram();
 	}
 
 	public static String capitalizeWord(final String word) {

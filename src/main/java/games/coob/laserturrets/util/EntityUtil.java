@@ -2,7 +2,6 @@ package games.coob.laserturrets.util;
 
 import games.coob.laserturrets.hook.HookSystem;
 import games.coob.laserturrets.model.TurretData;
-import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.Settings;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -22,8 +21,7 @@ public class EntityUtil {
 			return null;
 
 		final List<Entity> foundEntities = new ArrayList<>();
-		final TurretRegistry registry = TurretRegistry.getInstance();
-		final TurretData turretData = registry.getTurretByBlock(turret);
+		final TurretData turretData = TurretData.findByBlock(turret);
 
 		for (final Entity nearby : center.getWorld().getNearbyEntities(center, range3D, range3D, range3D)) {
 			if (nearby instanceof LivingEntity && entityClass.isAssignableFrom(nearby.getClass()) && !(nearby instanceof ArmorStand)) {

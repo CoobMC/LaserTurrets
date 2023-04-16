@@ -2,7 +2,6 @@ package games.coob.laserturrets.command;
 
 import games.coob.laserturrets.model.Permissions;
 import games.coob.laserturrets.model.TurretData;
-import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.Lang;
 import org.bukkit.block.Block;
@@ -39,7 +38,6 @@ final class TakeCommand extends SimpleSubCommand {
 	protected void onCommand() {
 		checkConsole();
 
-		final TurretRegistry registry = TurretRegistry.getInstance();
 		final Player player = getPlayer();
 		TurretData turretData = null;
 		String turretId = null;
@@ -47,14 +45,14 @@ final class TakeCommand extends SimpleSubCommand {
 
 		if (this.args.length == 1) {
 			turretId = args[0];
-			turretData = registry.getTurretByID(turretId);
+			turretData = TurretData.findById(turretId);
 		} else if (this.args.length == 0) {
 			block = player.getTargetBlock(null, 5);
-			turretData = registry.getTurretByBlock(block);
+			turretData = TurretData.findByBlock(block);
 		}
 
 		if (turretId == null) {
-			if (registry.isRegistered(block)) {
+			if (TurretData.isRegistered(block)) {
 				final TurretSettings settings = TurretSettings.findByName(turretData.getType());
 				final ItemStack skull = SkullCreator.itemFromBase64(settings.getHeadTexture());
 				final ItemStack turret = ItemCreator.of(skull).name(Lang.of("Tool.Unplaced_Turret_Title", "{turretType}", ChatUtil.capitalize(turretData.getType()), "{turretId}", turretData.getId()))
@@ -62,13 +60,13 @@ final class TakeCommand extends SimpleSubCommand {
 						.tag("id", turretData.getId()).make();
 
 				player.getInventory().addItem(turret);
-				registry.registerToUnplaced(turretData, turret);
-				registry.unregister(block);
+				turretData.registerUnplacedTurret(block);
+				turretData.unregister();
 				Messenger.success(player, Lang.of("Turret_Commands.Take_Turret_Message", "{turretType}", turretData.getType(), "{turretId}", turretData.getId()));
 			} else
 				Messenger.error(player, Lang.of("Turret_Commands.Error_Not_Looking_At_Turret"));
 		} else {
-			if (registry.isRegistered(turretId)) {
+			if (TurretData.isRegistered(turretId)) {
 				final TurretSettings settings = TurretSettings.findByName(turretData.getType());
 				final ItemStack skull = SkullCreator.itemFromBase64(settings.getHeadTexture());
 				final ItemStack turret = ItemCreator.of(skull).name(Lang.of("Tool.Unplaced_Turret_Title", "{turretType}", ChatUtil.capitalize(turretData.getType()), "{turretId}", turretData.getId()))
@@ -76,8 +74,8 @@ final class TakeCommand extends SimpleSubCommand {
 						.tag("id", turretData.getId()).make();
 
 				player.getInventory().addItem(turret);
-				registry.registerToUnplaced(turretData, turret);
-				registry.unregister(turretId);
+				turretData.setUnplacedTurret(turret);
+				turretData.unregister();
 				Messenger.success(player, Lang.of("Turret_Commands.Take_Turret_Message", "{turretType}", turretData.getType(), "{turretId}", turretData.getId()));
 			} else
 				Messenger.error(player, Lang.of("Turret_Commands.Turret_ID_Does_Not_Exist", "{invalidID}", turretId));
@@ -93,8 +91,6 @@ final class TakeCommand extends SimpleSubCommand {
 	}
 
 	private List<String> completeTurretIDs() {
-		final TurretRegistry registry = TurretRegistry.getInstance();
-
-		return TabUtil.complete(this.getLastArg(), registry.getTurretIDs());
+		return TabUtil.complete(this.getLastArg(), TurretData.getTurretIDs());
 	}
 }

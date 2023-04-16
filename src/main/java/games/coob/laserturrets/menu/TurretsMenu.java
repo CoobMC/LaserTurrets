@@ -1,7 +1,6 @@
 package games.coob.laserturrets.menu;
 
 import games.coob.laserturrets.model.TurretData;
-import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.TurretUtil;
@@ -173,9 +172,7 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 					});
 
 			this.removeTurret = Button.makeSimple(CompMaterial.BARRIER, Lang.of("Turrets_Menu.Remove_Turret_Button_Title"), Lang.of("Turrets_Menu.Remove_Turret_Button_Lore"), player1 -> {
-				final TurretRegistry registry = TurretRegistry.getInstance();
-
-				registry.unregister(turretData);
+				turretData.unregister();
 
 				final Menu previousMenu = new TurretsMenu(player1, turretType);
 
@@ -230,7 +227,6 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 				super(TurretEditMenu.this, true);
 
 				final boolean nextLevelExists = turretLevel < turretData.getLevels() || turretData.getLevels() == 0;
-				final TurretRegistry registry = TurretRegistry.getInstance();
 
 				this.turretLevel = turretLevel;
 				this.level = getOrMakeLevel(turretLevel);
@@ -241,16 +237,15 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 				this.rangeButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.BOW).name(Lang.of("Turrets_Menu.Range_Button_Title"))
 								.lore(Lang.ofArray("Turrets_Menu.Range_Button_Lore", "{range}", turretData.getLevel(turretLevel).getRange())),
 						Lang.of("Turrets_Menu.Range_Prompt_Message", "{range}", turretData.getLevel(turretLevel).getRange()),
-						new RangedValue(1, 40), () -> turretData.getLevel(turretLevel).getRange(), (Integer input) -> registry.setRange(turretData, turretLevel, input));
+						new RangedValue(1, 40), () -> turretData.getLevel(turretLevel).getRange(), (Integer input) -> turretData.setRange(turretLevel, input));
 
 
 				this.laserEnabledButton = new Button() {
 					@Override
 					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
-						final TurretRegistry registry = TurretRegistry.getInstance();
 						final boolean isEnabled = turretData.getLevel(turretLevel).isLaserEnabled();
 
-						registry.setLaserEnabled(turretData, turretLevel, !isEnabled);
+						turretData.setLaserEnabled(turretLevel, !isEnabled);
 						restartMenu((Lang.of("Turrets_Menu.Laser_Enabled_Button_Animated_Message", "{enabledOrDisabled}", isEnabled ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Enabled")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Disabled")))));
 					}
 
@@ -266,7 +261,7 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 				this.laserDamageButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.BLAZE_POWDER).name(Lang.of("Turrets_Menu.Laser_Damage_Button_Title"))
 								.lore(Lang.ofArray("Turrets_Menu.Laser_Damage_Button_Lore", "{damage}", turretData.getLevel(turretLevel).getLaserDamage())),
 						Lang.of("Turrets_Menu.Laser_Damage_Prompt_Message", "{damage}", turretData.getLevel(turretLevel).getLaserDamage()),
-						new RangedValue(0.0, 500.0), () -> turretData.getLevel(turretLevel).getLaserDamage(), (Double input) -> registry.setLaserDamage(turretData, turretLevel, input));
+						new RangedValue(0.0, 500.0), () -> turretData.getLevel(turretLevel).getLaserDamage(), (Double input) -> turretData.setLaserDamage(turretLevel, input));
 
 				this.lootButton = new ButtonMenu(new LevelMenu.TurretLootChancesMenu(), CompMaterial.CHEST,
 						Lang.of("Turrets_Menu.Loot_Drop_Button_Title"),
@@ -303,7 +298,7 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 						final Menu nextLevelMenu;
 
 						if (!nextLevelExists)
-							TurretRegistry.getInstance().createLevel(turretData);
+							turretData.createLevel();
 
 						nextLevelMenu = new LevelMenu(turretLevel + 1);
 						nextLevelMenu.displayTo(player);
@@ -320,7 +315,7 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 
 					@Override
 					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
-						TurretRegistry.getInstance().removeLevel(turretData, turretLevel);
+						TurretData.findById(turretData.getId()).removeLevel(turretLevel);
 
 						final Menu previousMenu = new LevelMenu(turretLevel - 1);
 
@@ -339,7 +334,7 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 								Lang.of("Turrets_Menu.Price_Button_Title"),
 								Lang.ofArray("Turrets_Menu.Price_Button_Lore", "{price}", this.level.getPrice(), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME)),
 						Lang.of("Turrets_Menu.Price_Prompt_Message", "{price}", this.level.getPrice(), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME),
-						this.getTitle(), RangedValue.parse("0-100000"), () -> turretData.getLevel(turretLevel).getPrice(), (Double input) -> registry.setLevelPrice(turretData, turretLevel, input));
+						this.getTitle(), RangedValue.parse("0-100000"), () -> turretData.getLevel(turretLevel).getPrice(), (Double input) -> turretData.setLevelPrice(turretLevel, input));
 			}
 
 			private TurretData.TurretLevel getOrMakeLevel(final int turretLevel) {
@@ -399,17 +394,14 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 				}
 
 				private Tuple<ItemStack, Double> getTuple(final int slot) {
-					final TurretRegistry registry = TurretRegistry.getInstance();
-					final List<Tuple<ItemStack, Double>> items = registry.getTurretLootChances(turretData, turretLevel);
+					final List<Tuple<ItemStack, Double>> items = turretData.getTurretLootChances(turretLevel);
 
 					return slot < items.size() ? items.get(slot) : null;
 				}
 
 				@Override
 				protected void onMenuClose(final StrictMap<Integer, Tuple<ItemStack, Double>> items) {
-					final TurretRegistry registry = TurretRegistry.getInstance();
-
-					registry.setTurretLootChances(turretData, turretLevel, new ArrayList<>(items.values()));
+					turretData.setTurretLootChances(turretLevel, new ArrayList<>(items.values()));
 				}
 
 				@Override
@@ -426,10 +418,10 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 
 	@RequiredArgsConstructor
 	private enum TurretType {
-		ALL("all", TurretRegistry.getInstance().getRegisteredTurrets()),
-		ARROW("arrow", TurretRegistry.getInstance().getTurretsOfType("arrow")),
-		FIREBALL("fireball", TurretRegistry.getInstance().getTurretsOfType("fireball")),
-		BEAM("beam", TurretRegistry.getInstance().getTurretsOfType("beam"));
+		ALL("all", TurretData.getRegisteredTurrets()),
+		ARROW("arrow", TurretData.getTurretsOfType("arrow")),
+		FIREBALL("fireball", TurretData.getTurretsOfType("fireball")),
+		BEAM("beam", TurretData.getTurretsOfType("beam"));
 
 		private final String typeName;
 		private final Set<TurretData> turretTypeList;

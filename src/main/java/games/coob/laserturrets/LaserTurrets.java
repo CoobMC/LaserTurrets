@@ -4,7 +4,6 @@ import games.coob.laserturrets.database.TurretsDatabase;
 import games.coob.laserturrets.hook.HookSystem;
 import games.coob.laserturrets.hook.VaultHook;
 import games.coob.laserturrets.model.TurretData;
-import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
@@ -41,12 +40,10 @@ public final class LaserTurrets extends SimplePlugin {
 	 */
 	@Override
 	protected void onPluginStart() {
-		if (folderContainsOldTurretFiles("turrets")) {
+		if (folderContainsOldTurretFiles("types")) {
 			moveTurretsFolder();
 			createReadmeFile();
 		}
-
-		Common.runLater(TurretRegistry::getInstance);
 
 		for (final String type : getTypes()) {
 			final TurretType turretType = findEnum(TurretType.class, type, null, "No such such turret type. Available: " + Arrays.toString(getTypes()) + ".");
@@ -76,7 +73,7 @@ public final class LaserTurrets extends SimplePlugin {
 	}
 
 	private void moveTurretsFolder() {
-		final File turretsFolder = new File(this.getDataFolder(), "turrets");
+		final File turretsFolder = new File(this.getDataFolder(), "types");
 		final File oldTurretsFolder = new File(this.getDataFolder(), "old-turrets");
 
 		if (oldTurretsFolder.exists())
@@ -144,14 +141,12 @@ public final class LaserTurrets extends SimplePlugin {
 
 	@Override
 	protected void onPluginReload() {
-		TurretRegistry.getInstance().save();
 		Sequence.reload();
 		Hologram.deleteAll();
 	}
 
 	@Override
 	protected void onPluginStop() {
-		TurretRegistry.getInstance().save();
 		Sequence.reload();
 		Hologram.deleteAll();
 	}
@@ -167,6 +162,7 @@ public final class LaserTurrets extends SimplePlugin {
 	 */
 	@Override
 	protected void onReloadablesStart() {
+		TurretData.loadTurrets(); // TODO fix error
 		//
 		// Add your own plugin parts to load automatically here
 		// Please see @AutoRegister for parts you do not have to register manually
@@ -184,7 +180,7 @@ public final class LaserTurrets extends SimplePlugin {
 		Common.runTimer(2, new LaserPointerTask());
 
 		Common.runLater(() -> {
-			for (final TurretData turretData : TurretRegistry.getInstance().getRegisteredTurrets()) {
+			for (final TurretData turretData : TurretData.getRegisteredTurrets()) {
 				TurretUtil.updateHologramAndTexture(turretData);
 			}
 		});

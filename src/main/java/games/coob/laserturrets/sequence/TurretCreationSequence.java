@@ -1,6 +1,6 @@
 package games.coob.laserturrets.sequence;
 
-import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.SkullCreator;
@@ -14,6 +14,8 @@ import org.mineacademy.fo.Common;
 import org.mineacademy.fo.PlayerUtil;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.plugin.SimplePlugin;
+
+import java.util.UUID;
 
 public final class TurretCreationSequence extends Sequence {
 
@@ -61,11 +63,14 @@ public final class TurretCreationSequence extends Sequence {
 
 		final TurretSettings turretSettings = TurretSettings.findByName(this.type);
 		final Block skullBlock = this.block.getRelative(BlockFace.UP);
-		final TurretRegistry registry = TurretRegistry.getInstance();
+		final String uniqueID = UUID.randomUUID().toString().substring(0, 6);
 
 		SkullCreator.blockWithBase64(skullBlock, turretSettings.getHeadTexture());
 		SkullCreator.rotateSkull((Skull) skullBlock.getState(), PlayerUtil.getFacing(this.player));
-		Common.runLater(() -> registry.register(this.player, this.block, this.type));
+
+		final TurretData turretData = TurretData.createTurret(uniqueID);
+		Common.runLater(() -> turretData.register(this.player, this.block, this.type, uniqueID));
+		//Common.runLater(() -> turretData.register(this.player, this.block, this.type, uniqueID));
 
 		this.removeLast();
 		this.block.removeMetadata("IsCreating", SimplePlugin.getInstance());

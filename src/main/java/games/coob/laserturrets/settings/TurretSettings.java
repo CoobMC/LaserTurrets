@@ -28,7 +28,7 @@ public abstract class TurretSettings extends YamlConfig {
 	/**
 	 * The folder name where all items are stored
 	 */
-	private static final String FOLDER = "turrets";
+	private static final String FOLDER = "types";
 
 	/**
 	 * The config helper instance which loads and saves items

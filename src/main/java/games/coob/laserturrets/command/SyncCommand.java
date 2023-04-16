@@ -2,7 +2,7 @@ package games.coob.laserturrets.command;
 
 import games.coob.laserturrets.model.Permissions;
 import games.coob.laserturrets.model.TurretData;
-import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.Lang;
 import org.mineacademy.fo.Messenger;
@@ -31,18 +31,16 @@ final class SyncCommand extends SimpleSubCommand {
 	protected void onCommand() {
 		checkConsole();
 
-		final TurretRegistry registry = TurretRegistry.getInstance();
-
 		if (args.length == 0)
 			returnInvalidArgs();
 
 		final String type = args[0];
 		final TurretSettings settings = TurretSettings.findByName(type);
-		final Set<TurretData> turretDataSet = registry.getTurretsOfType(type);
+		final Set<TurretData> turretDataSet = TurretData.getTurretsOfType(type);
 		int amount = 0;
 
 		for (final TurretData turretData : turretDataSet) {
-			registry.syncTurretDataWithSettings(settings, turretData);
+			TurretData.syncTurretDataWithSettings(settings, turretData);
 			amount = amount + 1;
 		}
 

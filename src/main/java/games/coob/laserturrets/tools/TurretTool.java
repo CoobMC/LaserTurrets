@@ -1,7 +1,7 @@
 package games.coob.laserturrets.tools;
 
 import games.coob.laserturrets.hook.HookSystem;
-import games.coob.laserturrets.model.TurretRegistry;
+import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
@@ -64,33 +64,32 @@ public abstract class TurretTool extends VisualTool {
 	@Override
 	protected void handleBlockClick(final Player player, final ClickType click, final Block block) {
 		final String type = this.turretType;
-		final TurretRegistry registry = TurretRegistry.getInstance();
 		final Location location = block.getLocation();
-		final Location closestLocation = getClosestLocation(location, registry.getTurretLocations());
+		final Location closestLocation = getClosestLocation(location, TurretData.getTurretLocations());
 		final TurretSettings settings = TurretSettings.findByName(type);
 		final Block blockUp = block.getRelative(BlockFace.UP);
 
-		if (Settings.TurretSection.BUILD_IN_OWN_TERRITORY && !HookSystem.canBuild(location, player) && !registry.isRegistered(block)) {
+		if (Settings.TurretSection.BUILD_IN_OWN_TERRITORY && !HookSystem.canBuild(location, player) && !TurretData.isRegistered(block)) {
 			Messenger.error(player, "You cannot place turrets in this region.");
 			return;
 		}
 
-		if (registry.getTurretsOfType(type).size() >= settings.getTurretLimit() && !registry.isRegistered(block)) {
+		if (TurretData.getTurretsOfType(type).size() >= settings.getTurretLimit() && !TurretData.isRegistered(block)) {
 			Messenger.error(player, Lang.of("Tool.Turret_Limit_Reached", "{turretType}", this.displayName, "{turretLimit}", settings.getTurretLimit()));
 			return;
 		}
 
-		if (!block.getType().isSolid() || (!CompMaterial.isAir(blockUp) && !registry.isRegistered(block))) {
+		if (!block.getType().isSolid() || (!CompMaterial.isAir(blockUp) && !TurretData.isRegistered(block))) {
 			Messenger.error(player, Lang.of("Tool.Turret_Cannot_Be_Placed"));
 			return;
 		}
 
-		if (registry.isRegistered(block) && !Objects.equals(registry.getTurretByBlock(block).getType(), this.turretType)) {
+		if (TurretData.isRegistered(block) && !Objects.equals(TurretData.findByBlock(block).getType(), this.turretType)) {
 			Messenger.error(player, Lang.of("Tool.Block_Is_Already_Turret"));
 			return;
 		}
 
-		if (closestLocation != null && !registry.isRegistered(block) && Settings.TurretSection.TURRET_MIN_DISTANCE > closestLocation.distance(location)) {
+		if (closestLocation != null && !TurretData.isRegistered(block) && Settings.TurretSection.TURRET_MIN_DISTANCE > closestLocation.distance(location)) {
 			Messenger.error(player, Lang.of("Tool.Turret_Min_Distance_Breached", "{distance}", Settings.TurretSection.TURRET_MIN_DISTANCE));
 			return;
 		}
@@ -101,10 +100,11 @@ public abstract class TurretTool extends VisualTool {
 		}
 
 		final boolean oneUse = this.oneUse;
-		final boolean isTurret = registry.isTurretOfType(block, type);
+		final boolean isTurret = TurretData.isTurretOfType(block, type);
 
 		if (isTurret && !oneUse) {
-			registry.unregister(block);
+			final TurretData turretData = TurretData.findByBlock(block);
+			turretData.unregister();
 			Messenger.success(player, Lang.of("Tool.Unregistered_Turret_Message", "{turretType}", this.displayName, "{location}", Common.shortLocation(location)));
 		} else if (!isTurret) {
 			if (oneUse)
@@ -117,7 +117,7 @@ public abstract class TurretTool extends VisualTool {
 		}
 	}
 
-	private Location getClosestLocation(final Location centerLocation, final List<Location> locations) { // TODO add to foundation BlockUtil
+	private Location getClosestLocation(final Location centerLocation, final List<Location> locations) {
 		Location closestLocation = null;
 
 		for (final Location location : locations) {
@@ -134,7 +134,7 @@ public abstract class TurretTool extends VisualTool {
 	@Override
 	protected List<Location> getVisualizedPoints(final Player player) {
 		if (!this.oneUse)
-			return TurretRegistry.getInstance().getTurretLocationsOfType(this.turretType);
+			return TurretData.getTurretLocationsOfType(this.turretType);
 
 		return new ArrayList<>();
 	}

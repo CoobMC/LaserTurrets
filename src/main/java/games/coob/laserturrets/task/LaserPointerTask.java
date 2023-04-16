@@ -1,7 +1,6 @@
 package games.coob.laserturrets.task;
 
 import games.coob.laserturrets.model.TurretData;
-import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.util.EntityUtil;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -13,13 +12,14 @@ public class LaserPointerTask extends BukkitRunnable {
 
 	@Override
 	public void run() {
-		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
-		
-		for (final TurretData turretData : turretRegistry.getRegisteredTurrets()) {
+		for (final TurretData turretData : TurretData.getRegisteredTurrets()) {
 			if (turretData.isBroken())
 				continue;
 
 			final int level = turretData.getCurrentLevel();
+
+			if (turretData.getLevel(level) == null)
+				continue;
 
 			if (!turretData.getLevel(level).isLaserEnabled())
 				continue;

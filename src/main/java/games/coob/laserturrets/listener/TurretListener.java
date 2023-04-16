@@ -5,7 +5,6 @@ import games.coob.laserturrets.database.TurretsDatabase;
 import games.coob.laserturrets.menu.BrokenTurretMenu;
 import games.coob.laserturrets.menu.UpgradeMenu;
 import games.coob.laserturrets.model.TurretData;
-import games.coob.laserturrets.model.TurretRegistry;
 import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.util.CompAttribute;
@@ -34,7 +33,6 @@ import org.mineacademy.fo.MathUtil;
 import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.annotation.AutoRegister;
 import org.mineacademy.fo.menu.tool.Tool;
-import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMetadata;
 import org.mineacademy.fo.remain.CompParticle;
 import org.mineacademy.fo.remain.CompSound;
@@ -71,24 +69,22 @@ public final class TurretListener implements Listener {
 	public void onBlockBreak(final BlockBreakEvent event) {
 		final Block block = event.getBlock();
 		final Block blockUnder = block.getRelative(BlockFace.DOWN);
-		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
 
-		if (turretRegistry.isRegistered(block) || turretRegistry.isRegistered(blockUnder))
+		if (TurretData.isRegistered(block) || TurretData.isRegistered(blockUnder))
 			event.setCancelled(true);
 	}
 
 	@EventHandler
 	public void onBlockExplode(final BlockExplodeEvent event) {
-		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
 		final List<Block> blockList = new ArrayList<>();
 
 		for (final Block block : event.blockList()) {
 			final Block blockUnder = block.getRelative(BlockFace.DOWN);
 
-			if (turretRegistry.isRegistered(block)) {
+			if (TurretData.isRegistered(block)) {
 				blockList.add(block);
 				damageTurretQuiet(block, 40);
-			} else if (turretRegistry.isRegistered(blockUnder))
+			} else if (TurretData.isRegistered(blockUnder))
 				blockList.add(block);
 		}
 
@@ -98,16 +94,15 @@ public final class TurretListener implements Listener {
 
 	@EventHandler
 	public void onEntityExplode(final EntityExplodeEvent event) {
-		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
 		final List<Block> blockList = new ArrayList<>();
 
 		for (final Block block : event.blockList()) {
 			final Block blockUnder = block.getRelative(BlockFace.DOWN);
 
-			if (turretRegistry.isRegistered(block)) {
+			if (TurretData.isRegistered(block)) {
 				blockList.add(block);
 				damageTurretQuiet(block, 40);
-			} else if (turretRegistry.isRegistered(blockUnder))
+			} else if (TurretData.isRegistered(blockUnder))
 				blockList.add(block);
 		}
 
@@ -119,9 +114,8 @@ public final class TurretListener implements Listener {
 	public void onBlockBurn(final BlockBurnEvent event) {
 		final Block block = event.getBlock();
 		final Block blockUnder = block.getRelative(BlockFace.DOWN);
-		final TurretRegistry turretRegistry = TurretRegistry.getInstance();
 
-		if (turretRegistry.isRegistered(block) || turretRegistry.isRegistered(blockUnder))
+		if (TurretData.isRegistered(block) || TurretData.isRegistered(blockUnder))
 			event.setCancelled(true);
 	}
 
@@ -133,7 +127,6 @@ public final class TurretListener implements Listener {
 			return;
 
 		final Block blockUnder = block.getRelative(BlockFace.DOWN);
-		final TurretRegistry registry = TurretRegistry.getInstance();
 		final Action action = event.getAction();
 		final Player player = event.getPlayer();
 		final ItemStack item = player.getItemInHand();
@@ -141,14 +134,14 @@ public final class TurretListener implements Listener {
 		if (Tool.getTool(item) == null) {
 			final double damage = CompAttribute.GENERIC_ATTACK_DAMAGE.get(player);
 
-			if (registry.isRegistered(block)) {
+			if (TurretData.isRegistered(block)) {
 				event.setCancelled(true);
 
 				if (action == Action.RIGHT_CLICK_BLOCK)
 					openTurretMenu(player, block);
 				else if (action == Action.LEFT_CLICK_BLOCK)
 					damageTurret(player, block, damage);
-			} else if (registry.isRegistered(blockUnder)) {
+			} else if (TurretData.isRegistered(blockUnder)) {
 				if (action == Action.RIGHT_CLICK_BLOCK)
 					openTurretMenu(player, blockUnder);
 				else if (action == Action.LEFT_CLICK_BLOCK)
@@ -161,8 +154,7 @@ public final class TurretListener implements Listener {
 		if (Tool.getTool(player.getInventory().getItemInHand()) != null)
 			return;
 
-		final TurretRegistry registry = TurretRegistry.getInstance();
-		final TurretData turretData = registry.getTurretByBlock(block);
+		final TurretData turretData = TurretData.findByBlock(block);
 
 		if (turretData.isBroken()) {
 			if (turretData.getOwner().equals(player.getUniqueId()))
@@ -176,7 +168,6 @@ public final class TurretListener implements Listener {
 
 	@EventHandler
 	public void onProjectileHit(final ProjectileHitEvent event) {
-		final TurretRegistry registry = TurretRegistry.getInstance();
 		final Projectile projectile = event.getEntity();
 
 		if (projectile instanceof Arrow) {
@@ -196,10 +187,10 @@ public final class TurretListener implements Listener {
 				final ProjectileSource source = event.getEntity().getShooter();
 				final double damage = 5.0;
 
-				if (registry.isRegistered(blockUnder)) {
+				if (TurretData.isRegistered(blockUnder)) {
 					damageTurret((LivingEntity) source, blockUnder, damage);
 					Common.runLater(60, () -> event.getEntity().remove());
-				} else if (registry.isRegistered(block)) {
+				} else if (TurretData.isRegistered(block)) {
 					damageTurret((LivingEntity) source, block, damage);
 					Common.runLater(60, () -> event.getEntity().remove());
 				}
@@ -208,8 +199,7 @@ public final class TurretListener implements Listener {
 	}
 
 	private void damageTurret(final LivingEntity entity, final Block block, final double damage) {
-		final TurretRegistry registry = TurretRegistry.getInstance();
-		final TurretData turretData = registry.getTurretByBlock(block);
+		final TurretData turretData = TurretData.findByBlock(block);
 
 		if (entity instanceof Player) {
 			final Player player = (Player) entity;
@@ -234,16 +224,18 @@ public final class TurretListener implements Listener {
 	}
 
 	private void damageTurretQuiet(final Block block, final double damage) {
-		final TurretRegistry registry = TurretRegistry.getInstance();
-		final TurretData turretData = registry.getTurretByBlock(block);
+		final TurretData turretData = TurretData.findByBlock(block);
 		final Location location = block.getLocation().clone();
 		final boolean canDisplayHologram = Settings.TurretSection.DISPLAY_HOLOGRAM;
 
-		registry.setTurretHealth(block, turretData.getCurrentHealth() - damage);
+		if (turretData == null)
+			return;
+
+		turretData.setTurretHealth(block, turretData.getCurrentHealth() - damage);
 		CompSound.ITEM_BREAK.play(location);
 
 		if (turretData.getCurrentHealth() <= 0 && !turretData.isBroken()) {
-			registry.setBrokenAndFill(block, true);
+			turretData.setBrokenAndFill(block, true);
 			CompSound.EXPLODE.play(location);
 			CompParticle.EXPLOSION_LARGE.spawn(location.add(0.5, 1, 0.5), 2);
 		}
@@ -262,39 +254,37 @@ public final class TurretListener implements Listener {
 	@EventHandler
 	public void onPlayerArmorStandManipulate(final PlayerArmorStandManipulateEvent event) {
 		final ArmorStand armorStand = event.getRightClicked();
-		
+
 		if (armorStand.hasMetadata("AnimatedStand"))
 			event.setCancelled(true);
 	}
 
 	@EventHandler
 	public void onItemDespawn(final ItemDespawnEvent event) {
-		final TurretRegistry registry = TurretRegistry.getInstance();
 		final ItemStack despawnedItem = event.getEntity().getItemStack();
 
-		for (final Tuple<TurretData, ItemStack> tuple : registry.getRegisteredUnplacedTurrets()) {
-			final ItemStack itemStack = tuple.getValue();
+		for (final TurretData turretData : TurretData.getUnplacedTurrets()) {
+			final ItemStack itemStack = turretData.getUnplacedTurret();
 
 			if (itemStack != null && itemStack.isSimilar(despawnedItem))
-				registry.unregisterUnplaced(tuple.getKey());
+				TurretData.findById(turretData.getId()).setUnplacedTurret(null);
 		}
 	}
 
 	@EventHandler
 	public void onEntityDamage(final EntityDamageEvent event) {
 		final Entity entity = event.getEntity();
-		final TurretRegistry registry = TurretRegistry.getInstance();
 
 		if (entity instanceof Item) {
 			final Item despawnedItem = (Item) event.getEntity();
 
-			for (final Tuple<TurretData, ItemStack> tuple : registry.getRegisteredUnplacedTurrets()) {
-				final ItemStack itemStack = tuple.getValue();
+			for (final TurretData turretData : TurretData.getUnplacedTurrets()) {
+				final ItemStack itemStack = turretData.getUnplacedTurret();
 
 				if (itemStack.isSimilar(despawnedItem.getItemStack()))
 					for (final EntityDamageEvent.DamageCause damageCause : EntityDamageEvent.DamageCause.values())
 						if (event.getCause() == damageCause)
-							Common.runLater(() -> registry.unregisterUnplaced(tuple.getKey()));
+							Common.runLater(() -> TurretData.findById(turretData.getId()).setUnplacedTurret(null));
 			}
 		}
 	}
@@ -303,22 +293,21 @@ public final class TurretListener implements Listener {
 	public void onBlockPlace(final BlockPlaceEvent event) {
 		final Block block = event.getBlock();
 		final Block blockDown = block.getRelative(BlockFace.DOWN);
-		final TurretRegistry registry = TurretRegistry.getInstance();
 		final ItemStack item = event.getItemInHand();
 
 		if (CompMetadata.hasMetadata(item, "id"))
 			placeTurret(item, event);
 
 		for (final BlockFace blockface : BlockFace.values()) {
-			if ((registry.isRegistered(block.getRelative(blockface)) && blockface != BlockFace.UP) || registry.isRegistered(blockDown.getRelative(blockface)))
+			if ((TurretData.isRegistered(block.getRelative(blockface)) && blockface != BlockFace.UP) || TurretData.isRegistered(blockDown.getRelative(blockface)))
 				event.setCancelled(true);
 		}
 	}
 
 	private void placeTurret(final ItemStack item, final BlockPlaceEvent event) {
-		final TurretRegistry registry = TurretRegistry.getInstance();
 		final String id = CompMetadata.getMetadata(item, "id");
-		final String type = registry.getUnplacedTurretById(id).getType();
+		final TurretData turretData = TurretData.findById(id);
+		final String type = turretData.getType();
 		final Player player = event.getPlayer();
 		final Block block = event.getBlockAgainst();
 
@@ -329,7 +318,7 @@ public final class TurretListener implements Listener {
 			return;
 		}
 
-		if (registry.isRegistered(block) && !Objects.equals(registry.getTurretByBlock(block).getType(), type)) {
+		if (TurretData.isRegistered(block) && !Objects.equals(TurretData.findByBlock(block).getType(), type)) {
 			Messenger.error(player, Lang.of("Tool.Block_Is_Already_Turret"));
 			return;
 		}
