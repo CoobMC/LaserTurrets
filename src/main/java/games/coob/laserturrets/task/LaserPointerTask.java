@@ -1,6 +1,7 @@
 package games.coob.laserturrets.task;
 
 import games.coob.laserturrets.model.TurretData;
+import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.EntityUtil;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -12,27 +13,28 @@ public class LaserPointerTask extends BukkitRunnable {
 
 	@Override
 	public void run() {
-		for (final TurretData turretData : TurretData.getRegisteredTurrets()) {
+		for (final TurretData turretData : TurretData.getTurrets()) {
 			if (turretData.isBroken())
 				continue;
 
+			final TurretSettings settings = TurretSettings.findByName(turretData.getType());
 			final int level = turretData.getCurrentLevel();
 
-			if (turretData.getLevel(level) == null)
+			if (settings.getLevel(level) == null)
 				continue;
 
-			if (!turretData.getLevel(level).isLaserEnabled())
+			if (!settings.getLevel(level).isLaserEnabled())
 				continue;
 
 			final Location location = turretData.getLocation();
 			final Location shootLocation = location.clone().add(0.5, 1.4, 0.5);
-			final int range = turretData.getLevel(level).getRange();
+			final int range = settings.getLevel(level).getRange();
 			final LivingEntity nearestEntity = EntityUtil.findNearestEntityNonBlacklisted(shootLocation, range, LivingEntity.class, location.getBlock());
 
 			if (nearestEntity == null)
 				continue;
 
-			final double damage = turretData.getLevel(level).getLaserDamage();
+			final double damage = settings.getLevel(level).getLaserDamage();
 			final Location laserLocation = location.clone().add(0.5, 1.2, 0.5);
 			final Location targetLocation = nearestEntity.getEyeLocation();
 			final double distance = location.clone().add(0.5, 1.2, 0.5).distance(targetLocation);
@@ -60,7 +62,7 @@ public class LaserPointerTask extends BukkitRunnable {
 				CompParticle.REDSTONE.spawn(laserLocation);
 			}
 
-			if (turretData.getLevel(level).isLaserEnabled() && damage > 0)
+			if (settings.getLevel(level).isLaserEnabled() && damage > 0)
 				nearestEntity.damage(damage);
 		}
 	}

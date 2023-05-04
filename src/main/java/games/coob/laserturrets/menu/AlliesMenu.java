@@ -285,8 +285,6 @@ public class AlliesMenu extends Menu { // TODO only sync turrets with owner turr
 
 			@Override
 			protected void onPageClick(final Player player, final Player item, final ClickType click) {
-				System.out.println("Turret id:" + turretData.getId());
-
 				TurretData.findById(turretData.getId()).addPlayerToBlacklist(item.getUniqueId());
 				this.restartMenu(Lang.of("Manage_Allies_Menu.Player_Selection_Animated_Message", "{playerName}", player.getName()));
 			}

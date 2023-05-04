@@ -2,11 +2,13 @@ package games.coob.laserturrets.listener;
 
 import games.coob.laserturrets.PlayerCache;
 import games.coob.laserturrets.database.TurretsDatabase;
+import games.coob.laserturrets.hook.HookSystem;
 import games.coob.laserturrets.menu.BrokenTurretMenu;
 import games.coob.laserturrets.menu.UpgradeMenu;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
+import games.coob.laserturrets.tools.TurretTool;
 import games.coob.laserturrets.util.CompAttribute;
 import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.TurretUtil;
@@ -21,10 +23,10 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
@@ -150,29 +152,36 @@ public final class TurretListener implements Listener {
 		}
 	}
 
-	private void openTurretMenu(final Player player, final Block block) {
-		if (Tool.getTool(player.getInventory().getItemInHand()) != null)
-			return;
+	@EventHandler
+	public void onPlayerSwapHandItems(final PlayerSwapHandItemsEvent event) {
+		final ItemStack swappedItem = event.getOffHandItem();
 
-		final TurretData turretData = TurretData.findByBlock(block);
+		if (TurretTool.getTool(swappedItem) != null)
+			event.setCancelled(true);
+	}
 
-		if (turretData.isBroken()) {
-			if (turretData.getOwner().equals(player.getUniqueId()))
-				BrokenTurretMenu.openOwnerMenu(turretData, player);
-			else BrokenTurretMenu.openPlayerMenu(turretData, player);
-		} else {
-			if (turretData.getOwner().equals(player.getUniqueId()))
-				new UpgradeMenu(turretData, turretData.getCurrentLevel(), player).displayTo(player);
-		}
+	@EventHandler
+	public void onInventoryClick(final InventoryClickEvent event) {
+		final ItemStack itemStack = event.getCursor();
+
+		if ((event.getSlotType() == InventoryType.SlotType.ARMOR || event.getRawSlot() == 45) && itemStack != null && TurretTool.getTool(itemStack) != null)
+			event.setCancelled(true);
+	}
+
+	@EventHandler
+	public void onInventoryDrag(final InventoryDragEvent event) {
+		for (final int slot : event.getInventorySlots())
+			if ((slot >= 36 && slot <= 39) || slot == 45)
+				for (final ItemStack item : event.getNewItems().values())
+					if (item != null && TurretTool.getTool(item) != null)
+						event.setCancelled(true);
 	}
 
 	@EventHandler
 	public void onProjectileHit(final ProjectileHitEvent event) {
 		final Projectile projectile = event.getEntity();
 
-		if (projectile instanceof Arrow) {
-			final Arrow arrow = (Arrow) projectile;
-
+		if (projectile instanceof final Arrow arrow) {
 			Common.runLater(() -> {
 				if (!arrow.isOnGround())
 					return;
@@ -195,59 +204,6 @@ public final class TurretListener implements Listener {
 					Common.runLater(60, () -> event.getEntity().remove());
 				}
 			});
-		}
-	}
-
-	private void damageTurret(final LivingEntity entity, final Block block, final double damage) {
-		final TurretData turretData = TurretData.findByBlock(block);
-
-		if (entity instanceof Player) {
-			final Player player = (Player) entity;
-			final PlayerCache cache = PlayerCache.from(player);
-
-			if (cache.isTurretHit())
-				return;
-
-			cache.setTurretHit(true);
-			Common.runLater(20, () -> cache.setTurretHit(false));
-		}
-
-		if (!Settings.TurretSection.ENABLE_DAMAGEABLE_TURRETS)
-			return;
-
-		damageTurretQuiet(block, damage);
-
-		if (entity instanceof Player && Settings.TurretSection.DISPLAY_ACTION_BAR) {
-			final String health = Lang.of("Turret_Display.Action_Bar_Damage", "{health}", turretData.getCurrentHealth());
-			Remain.sendActionBar((Player) entity, turretData.getCurrentHealth() > 0 ? health : Lang.of("Turret_Display.Action_Bar_Damage_But_Broken"));
-		}
-	}
-
-	private void damageTurretQuiet(final Block block, final double damage) {
-		final TurretData turretData = TurretData.findByBlock(block);
-		final Location location = block.getLocation().clone();
-		final boolean canDisplayHologram = Settings.TurretSection.DISPLAY_HOLOGRAM;
-
-		if (turretData == null)
-			return;
-
-		turretData.setTurretHealth(block, turretData.getCurrentHealth() - damage);
-		CompSound.ITEM_BREAK.play(location);
-
-		if (turretData.getCurrentHealth() <= 0 && !turretData.isBroken()) {
-			turretData.setBrokenAndFill(block, true);
-			CompSound.EXPLODE.play(location);
-			CompParticle.EXPLOSION_LARGE.spawn(location.add(0.5, 1, 0.5), 2);
-		}
-
-		if (canDisplayHologram) {
-			if (turretData.isBroken()) {
-				final String[] lore = Lang.ofArray("Turret_Display.Broken_Turret_Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()));
-				turretData.getHologram().updateLore(lore);
-			} else {
-				final String[] loreHologram = Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth());
-				turretData.getHologram().updateLore(loreHologram);
-			}
 		}
 	}
 
@@ -304,14 +260,21 @@ public final class TurretListener implements Listener {
 		}
 	}
 
+
 	private void placeTurret(final ItemStack item, final BlockPlaceEvent event) {
 		final String id = CompMetadata.getMetadata(item, "id");
 		final TurretData turretData = TurretData.findById(id);
 		final String type = turretData.getType();
 		final Player player = event.getPlayer();
 		final Block block = event.getBlockAgainst();
+		final Location location = block.getLocation();
 
 		event.setCancelled(true);
+
+		if (Settings.TurretSection.BUILD_IN_OWN_TERRITORY && !HookSystem.canBuild(location, player) && !TurretData.isRegistered(block)) {
+			Messenger.error(player, "You cannot place turrets in this region.");
+			return;
+		}
 
 		if (!block.getType().isSolid()) {
 			Messenger.error(player, Lang.of("Tool.Turret_Cannot_Be_Placed"));
@@ -324,6 +287,75 @@ public final class TurretListener implements Listener {
 		}
 
 		player.getInventory().remove(item);
-		Sequence.TURRET_PLACE(player, block, type, id).start(block.getLocation());
+		Sequence.TURRET_PLACE(player, block, type, id).start(location);
+	}
+
+	private void damageTurret(final LivingEntity entity, final Block block, final double damage) {
+		final TurretData turretData = TurretData.findByBlock(block);
+
+		if (entity instanceof Player) {
+			final Player player = (Player) entity;
+			final PlayerCache cache = PlayerCache.from(player);
+
+			if (cache.isTurretHit())
+				return;
+
+			cache.setTurretHit(true);
+			Common.runLater(20, () -> cache.setTurretHit(false));
+		}
+
+		if (!Settings.TurretSection.ENABLE_DAMAGEABLE_TURRETS)
+			return;
+
+		damageTurretQuiet(block, damage);
+
+		if (entity instanceof Player && Settings.TurretSection.DISPLAY_ACTION_BAR) {
+			final String health = Lang.of("Turret_Display.Action_Bar_Damage", "{health}", turretData.getCurrentHealth());
+			Remain.sendActionBar((Player) entity, turretData.getCurrentHealth() > 0 ? health : Lang.of("Turret_Display.Action_Bar_Damage_But_Broken"));
+		}
+	}
+
+	private void damageTurretQuiet(final Block block, final double damage) {
+		final TurretData turretData = TurretData.findByBlock(block);
+		final Location location = block.getLocation().clone();
+		final boolean canDisplayHologram = Settings.TurretSection.DISPLAY_HOLOGRAM;
+
+		if (turretData == null)
+			return;
+
+		turretData.setTurretHealth(block, turretData.getCurrentHealth() - damage);
+		CompSound.ITEM_BREAK.play(location);
+
+		if (turretData.getCurrentHealth() <= 0 && !turretData.isBroken()) {
+			turretData.setBrokenAndFill(block, true);
+			CompSound.EXPLODE.play(location);
+			CompParticle.EXPLOSION_LARGE.spawn(location.add(0.5, 1, 0.5), 2);
+		}
+
+		if (canDisplayHologram) {
+			if (turretData.isBroken()) {
+				final String[] lore = Lang.ofArray("Turret_Display.Broken_Turret_Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()));
+				turretData.getHologram().updateLore(lore);
+			} else {
+				final String[] loreHologram = Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth());
+				turretData.getHologram().updateLore(loreHologram);
+			}
+		}
+	}
+
+	private void openTurretMenu(final Player player, final Block block) {
+		if (Tool.getTool(player.getInventory().getItemInHand()) != null)
+			return;
+
+		final TurretData turretData = TurretData.findByBlock(block);
+
+		if (turretData.isBroken()) {
+			if (turretData.getOwner().equals(player.getUniqueId()))
+				BrokenTurretMenu.openOwnerMenu(turretData, player);
+			else BrokenTurretMenu.openPlayerMenu(turretData, player);
+		} else {
+			if (turretData.getOwner().equals(player.getUniqueId()))
+				new UpgradeMenu(turretData, turretData.getCurrentLevel(), player).displayTo(player);
+		}
 	}
 }

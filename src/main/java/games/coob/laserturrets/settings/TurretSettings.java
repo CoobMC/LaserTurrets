@@ -1,6 +1,5 @@
 package games.coob.laserturrets.settings;
 
-import games.coob.laserturrets.model.TurretData;
 import lombok.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
@@ -217,14 +216,14 @@ public abstract class TurretSettings extends YamlConfig {
 
 		private List<Tuple<ItemStack, Double>> lootChances;
 
-		public void setLevelData(final TurretData.TurretLevel turretLevel) {
+		/*public void setLevelData(final TurretData.TurretLevel turretLevel) {
 			turretLevel.setRange(this.range);
 			turretLevel.setPrice(this.price);
 			turretLevel.setLaserEnabled(this.laserEnabled);
 			turretLevel.setLaserDamage(this.laserDamage);
 			turretLevel.setMaxHealth(this.health);
 			turretLevel.setLootChances(this.lootChances);
-		}
+		}*/
 
 		public void setLevelSettings(final LevelData levelData, final LevelData newLevel) {
 			newLevel.setRange(levelData.getRange());

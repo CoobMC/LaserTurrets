@@ -12,18 +12,28 @@ import games.coob.laserturrets.task.*;
 import games.coob.laserturrets.util.Hologram;
 import games.coob.laserturrets.util.SkullCreator;
 import games.coob.laserturrets.util.TurretUtil;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.Common;
+import org.mineacademy.fo.FileUtil;
 import org.mineacademy.fo.ReflectionUtil;
 import org.mineacademy.fo.Valid;
+import org.mineacademy.fo.collection.SerializedMap;
 import org.mineacademy.fo.exception.CommandException;
 import org.mineacademy.fo.plugin.SimplePlugin;
+import org.mineacademy.fo.settings.YamlConfig;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 
 /**
@@ -40,9 +50,11 @@ public final class LaserTurrets extends SimplePlugin {
 	 */
 	@Override
 	protected void onPluginStart() {
-		if (folderContainsOldTurretFiles("types")) {
-			moveTurretsFolder();
-			createReadmeFile();
+		Common.setLogPrefix("[LaserTurrets]");
+
+		if (YamlConfig.fromFileFast(FileUtil.getFile("data.db")).isSet("Turrets")) {
+			convert();
+			TurretData.loadTurrets();
 		}
 
 		for (final String type : getTypes()) {
@@ -72,71 +84,60 @@ public final class LaserTurrets extends SimplePlugin {
 		});
 	}
 
-	private void moveTurretsFolder() {
-		final File turretsFolder = new File(this.getDataFolder(), "types");
-		final File oldTurretsFolder = new File(this.getDataFolder(), "old-turrets");
+	private void convert() { // TODO remove Turrets key if set in data.db
+		final Path source = Paths.get(SimplePlugin.getInstance().getDataFolder().getPath(), "turrets");
+		final Path target = Paths.get(SimplePlugin.getInstance().getDataFolder().getPath(), "types");
 
-		if (oldTurretsFolder.exists())
-			return;
-
-		if (!oldTurretsFolder.mkdir()) {
-			Common.log("Error: failed to create old-turrets folder");
-			return;
-		}
-
-		for (final File file : turretsFolder.listFiles()) {
-			try {
-				Files.move(file.toPath(), new File(oldTurretsFolder, file.getName()).toPath());
-			} catch (final IOException e) {
-				Common.log("Error moving file " + file.getName() + ": " + e.getMessage());
-			}
-		}
-
-		Common.log("All files from turrets folder moved to old-turrets folder");
-	}
-
-	public boolean folderContainsOldTurretFiles(final String folderName) {
-		final File pluginDataFolder = new File(this.getDataFolder(), folderName);
-
-		if (!pluginDataFolder.isDirectory()) {
-			return false;
-		}
-
-		for (final File file : pluginDataFolder.listFiles()) {
-			if (file.getName().contains("turret")) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-
-	public void createReadmeFile() {
-		final File oldTurretsFolder = new File(this.getDataFolder(), "old-turrets");
-
-		if (!oldTurretsFolder.exists() || !oldTurretsFolder.isDirectory()) {
-			Common.log("Error: old-turrets folder not found or is not a directory");
-			return;
-		}
-
-		final File readmeFile = new File(oldTurretsFolder, "README.txt");
-
-		try (FileWriter writer = new FileWriter(readmeFile)) {
-			writer.write("Update to v2.0.0 information\n\n");
-			writer.write("This folder contains all the files that were previously in the 'turrets' folder. ");
-			writer.write("These files have been moved here because I've made some new changes and recoded some parts of the plugin.\n\n");
-			writer.write("If you would like to maintain your previous settings, you can copy paste the specific sections from the 'old-turrets' to the files in the 'turrets' folder. ");
-			writer.write("Feel free to delete this folder if you no longer need these files.\n\n");
-			writer.write("You may use a YAML validator to check if your files are correctly formatted and prevent the plugin from breaking. ");
-			writer.write("If you encounter any issues, you can contact me on our discord server (https://discord.gg/2rgvQbHsSW).\n\n");
-			writer.write("NOTE: This update does not impact already created turrets, only the settings have been modified.");
+		try {
+			Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+			Common.log("Folder renamed successfully from 'turrets' to 'types'.");
 		} catch (final IOException e) {
-			Common.log("Error creating README file: " + e.getMessage());
-			return;
+			Common.log("An error occurred while renaming the folder 'turrets': " + e.getMessage());
 		}
 
-		Common.log("README file created in the old-turrets folder");
+		final File dataFile = FileUtil.getFile("data.db");
+		final YamlConfig datadb = YamlConfig.fromFileFast(dataFile);
+		final Set<SerializedMap> turrets = datadb.getSet("Turrets", SerializedMap.class);
+
+		for (final SerializedMap turret : turrets) {
+			final File turretFile = FileUtil.getOrMakeFile("turrets/" + turret.getString("Id") + ".yml"); // TODO get id
+			final YamlConfig turretConfig = YamlConfig.fromFile(turretFile);
+
+			turretConfig.set("Block", turret.getString("Block"));
+			turretConfig.set("Id", turret.getString("Id"));
+			turretConfig.set("Type", turret.getString("Type"));
+			turretConfig.set("Owner", turret.get("Owner", UUID.class));
+			turretConfig.set("Player_Blacklist", turret.getSet("Player_Blacklist", UUID.class));
+			turretConfig.set("Mob_Blacklist", turret.getSet("Mob_Blacklist", EntityType.class));
+			turretConfig.set("Current_Loot", turret.getList("Current_Loot", ItemStack.class));
+			turretConfig.set("Use_Player_Whitelist", turret.getBoolean("Use_Player_Whitelist"));
+			turretConfig.set("Use_Mob_Whitelist", turret.getBoolean("Use_Mob_Whitelist"));
+			turretConfig.set("Current_Level", turret.getInteger("Current_Level"));
+			turretConfig.set("Current_Health", turret.getDouble("Current_Health"));
+			turretConfig.set("Broken", turret.getBoolean("Broken"));
+
+			turretConfig.save();
+		}
+
+		datadb.set("Turrets", null);
+		datadb.save(dataFile);
+
+		try {
+			renameKey(dataFile, "Currency", "Balance");
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
+
+		Common.log("Successfully updated folder.");
+	}
+
+	private void renameKey(final File file, final String key, final String replacement) throws IOException {
+		final Charset charset = StandardCharsets.UTF_8;
+		final Path path = file.toPath();
+
+		String content = Files.readString(path, charset);
+		content = content.replaceAll(key, replacement);
+		Files.writeString(path, content, charset);
 	}
 
 	@Override
@@ -162,7 +163,8 @@ public final class LaserTurrets extends SimplePlugin {
 	 */
 	@Override
 	protected void onReloadablesStart() {
-		TurretData.loadTurrets(); // TODO fix error
+		if (!YamlConfig.fromFileFast(FileUtil.getFile("data.db")).isSet("Turrets"))
+			TurretData.loadTurrets();
 		//
 		// Add your own plugin parts to load automatically here
 		// Please see @AutoRegister for parts you do not have to register manually
@@ -179,8 +181,8 @@ public final class LaserTurrets extends SimplePlugin {
 		Common.runTimer(30, new BeamTask());
 		Common.runTimer(2, new LaserPointerTask());
 
-		Common.runLater(() -> {
-			for (final TurretData turretData : TurretData.getRegisteredTurrets()) {
+		Common.runLater(10, () -> {
+			for (final TurretData turretData : TurretData.getTurrets()) {
 				TurretUtil.updateHologramAndTexture(turretData);
 			}
 		});

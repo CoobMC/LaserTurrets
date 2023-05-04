@@ -3,6 +3,7 @@ package games.coob.laserturrets.menu;
 import games.coob.laserturrets.PlayerCache;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.settings.Settings;
+import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.TurretUtil;
 import lombok.RequiredArgsConstructor;
@@ -44,14 +45,17 @@ public class BrokenTurretMenu extends Menu {
 
 	private final String currencyName = Settings.CurrencySection.CURRENCY_NAME;
 
+	private TurretSettings settings;
+
 	public BrokenTurretMenu(final TurretData turretData, final ViewMode viewMode) {
 		this.viewMode = viewMode;
 		this.turretData = turretData;
+		this.settings = TurretSettings.findByName(turretData.getType());
 
 		this.setTitle(viewMode.menuTitle);
 		this.setSize(27);
 
-		final double price = turretData.getLevel(turretData.getCurrentLevel()).getPrice();
+		final double price = this.settings.getLevel(turretData.getCurrentLevel()).getPrice();
 
 		this.repairButton = new Button() {
 			@Override
@@ -86,7 +90,7 @@ public class BrokenTurretMenu extends Menu {
 				Lang.ofArray("Broken_Turret_Menu.Loot_Button_Lore")).make());
 
 		this.destroyButton = new Button() {
-			final double earnings = turretData.getLevel(turretData.getCurrentLevel()).getPrice() / 2;
+			final double earnings = settings.getLevel(turretData.getCurrentLevel()).getPrice() / 2;
 
 			@Override
 			public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {

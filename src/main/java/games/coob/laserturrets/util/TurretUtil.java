@@ -11,18 +11,14 @@ import org.mineacademy.fo.remain.CompMaterial;
 
 public class TurretUtil {
 	public static String getDisplayName(final String turretType) {
-		switch (turretType) {
-			case "all":
-				return Lang.of("Placeholders.All");
-			case "arrow":
-				return Lang.of("Placeholders.Arrow");
-			case "beam":
-				return Lang.of("Placeholders.Beam");
-			case "fireball":
-				return Lang.of("Placeholders.Fireball");
-		}
+		return switch (turretType) {
+			case "all" -> Lang.of("Placeholders.All");
+			case "arrow" -> Lang.of("Placeholders.Arrow");
+			case "beam" -> Lang.of("Placeholders.Beam");
+			case "fireball" -> Lang.of("Placeholders.Fireball");
+			default -> null;
+		};
 
-		return null;
 	}
 
 	public static void updateHologramAndTexture(final TurretData turretData) {

@@ -1,41 +1,34 @@
 package games.coob.laserturrets.menu;
 
 import games.coob.laserturrets.model.TurretData;
-import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.TurretUtil;
-import lombok.RequiredArgsConstructor;
+import lombok.NonNull;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import org.mineacademy.fo.ChatUtil;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.Messenger;
-import org.mineacademy.fo.collection.StrictMap;
 import org.mineacademy.fo.conversation.SimplePrompt;
 import org.mineacademy.fo.menu.Menu;
-import org.mineacademy.fo.menu.MenuContainerChances;
 import org.mineacademy.fo.menu.MenuPagged;
 import org.mineacademy.fo.menu.button.Button;
 import org.mineacademy.fo.menu.button.ButtonConversation;
 import org.mineacademy.fo.menu.button.ButtonMenu;
 import org.mineacademy.fo.menu.button.annotation.Position;
 import org.mineacademy.fo.menu.model.ItemCreator;
-import org.mineacademy.fo.menu.model.MenuClickLocation;
-import org.mineacademy.fo.model.RangedValue;
-import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all turrets from being modified (blacklist)
+public class TurretsMenu extends MenuPagged<TurretData> {
 
-	private TurretType turretType;
+	//private TurretType turretType;
+
+	private String typeName;
 
 	private TurretData turretData;
 
@@ -45,13 +38,13 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 
 	private final Button settingsButton;
 
-	private TurretsMenu(final Player player, final TurretType turretType) {
-		super(9 * 4, null, compileTurrets(turretType), true);
+	private TurretsMenu(final Player player, final String typeName) {
+		super(9 * 4, null, compileTurrets(typeName), true);
 
-		this.turretType = turretType;
+		this.typeName = typeName;
 		this.player = player;
 
-		this.setTitle(Lang.of("Turrets_Menu.Menu_Title", "{turretType}", TurretUtil.capitalizeWord(TurretUtil.getDisplayName(turretType.typeName))));
+		this.setTitle(Lang.of("Turrets_Menu.Menu_Title", "{turretType}", ChatUtil.capitalize(TurretUtil.getDisplayName(typeName))));
 
 		this.changeTypeButton = new ButtonConversation(new EditMenuTypePrompt(),
 				ItemCreator.of(CompMaterial.BEACON, Lang.of("Turrets_Menu.Change_Turret_Type_Button_Title"),
@@ -66,8 +59,11 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 		return Lang.ofArray("Turrets_Menu.Info_Button");
 	}
 
-	private static List<TurretData> compileTurrets(final TurretType viewMode) {
-		return new ArrayList<>(viewMode.turretTypeList);
+	private static List<TurretData> compileTurrets(final String typeName) {
+		if (!typeName.equals("all"))
+			return TurretData.getTurretsOfType(typeName);
+
+		return (List<TurretData>) TurretData.getTurrets();
 	}
 
 	@Override
@@ -77,9 +73,9 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 		final String type = TurretUtil.capitalizeWord(TurretUtil.getDisplayName(turretData.getType()));
 		final String[] lore = Lang.ofArray("Turrets_Menu.Turrets_Lore", "{level}", level, "{turretType}", type);
 
-		if (this.turretType.typeName.equalsIgnoreCase("all"))
+		if (this.typeName.equalsIgnoreCase("all"))
 			return ItemCreator.of(turretData.getMaterial()).name(Lang.of("Turrets_Menu.Turrets_Title", "{turretType}", type, "{turretId}", id)).lore(lore).makeMenuTool();
-		else if (type.equalsIgnoreCase(this.turretType.typeName))
+		else if (type.equalsIgnoreCase(this.typeName))
 			return ItemCreator.of(turretData.getMaterial()).name(Lang.of("Turrets_Menu.Turrets_Title", "{turretType}", type, "{turretId}", id)).lore(lore).makeMenuTool();
 
 		return NO_ITEM;
@@ -104,7 +100,7 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 
 	@Override
 	public Menu newInstance() {
-		return new TurretsMenu(this.player, this.turretType);
+		return new TurretsMenu(this.player, this.typeName);
 	}
 
 	private final class EditMenuTypePrompt extends SimplePrompt {
@@ -129,8 +125,8 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 		}
 
 		@Override
-		protected Prompt acceptValidatedInput(@NotNull final ConversationContext context, @NotNull final String input) {
-			turretType = TurretType.valueOf(input.toUpperCase());
+		protected Prompt acceptValidatedInput(@NonNull final ConversationContext context, @NonNull final String input) {
+			typeName = input.toLowerCase();
 
 			return Prompt.END_OF_CONVERSATION;
 		}
@@ -138,13 +134,13 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 
 	private final class TurretEditMenu extends Menu {
 
-		@Position(11)
-		private final Button levelEditButton;
+		//@Position(11)
+		//private final Button levelEditButton;
 
-		@Position(13)
+		@Position(12)
 		private final Button alliesButton;
 
-		@Position(15)
+		@Position(14)
 		private final Button teleportButton;
 
 		@Position(31)
@@ -156,9 +152,9 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 			this.setSize(9 * 4);
 			this.setTitle(Lang.of("Turrets_Menu.Turret_Edit_Menu_Title", "{turretType}", TurretUtil.capitalizeWord(TurretUtil.getDisplayName(turretData.getType())), "{turretId}", turretData.getId()));
 
-			this.levelEditButton = new ButtonMenu(new LevelMenu(turretData.getCurrentLevel()), CompMaterial.EXPERIENCE_BOTTLE,
+			/*this.levelEditButton = new ButtonMenu(new LevelMenu(turretData.getCurrentLevel()), CompMaterial.EXPERIENCE_BOTTLE,
 					Lang.of("Turrets_Menu.Level_Edit_Button_Title"),
-					Lang.ofArray("Turrets_Menu.Level_Edit_Button_Lore"));
+					Lang.ofArray("Turrets_Menu.Level_Edit_Button_Lore"));*/
 
 			this.alliesButton = new ButtonMenu(new AlliesMenu(TurretEditMenu.this, turretData, player), CompMaterial.KNOWLEDGE_BOOK,
 					Lang.of("Turrets_Menu.Allies_Button_Title"),
@@ -174,7 +170,7 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 			this.removeTurret = Button.makeSimple(CompMaterial.BARRIER, Lang.of("Turrets_Menu.Remove_Turret_Button_Title"), Lang.of("Turrets_Menu.Remove_Turret_Button_Lore"), player1 -> {
 				turretData.unregister();
 
-				final Menu previousMenu = new TurretsMenu(player1, turretType);
+				final Menu previousMenu = new TurretsMenu(player1, typeName);
 
 				previousMenu.displayTo(player1);
 				Common.runLater(() -> previousMenu.restartMenu(Lang.of("Turrets_Menu.Remove_Turret_Animated_Message", "{turretType}", TurretUtil.getDisplayName(turretData.getType()), "{turretId}", turretData.getId())));
@@ -191,7 +187,7 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 			return new TurretEditMenu(getParent());
 		}
 
-		private class LevelMenu extends Menu {
+		/*private class LevelMenu extends Menu { // TODO remove messages
 
 			private final int turretLevel;
 
@@ -381,6 +377,11 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 				}
 
 				@Override
+				protected void onMenuClose(final StrictMap<Integer, Tuple<ItemStack, Double>> items) {
+					turretData.setTurretLootChances(turretLevel, new ArrayList<>(items.values()));
+				}
+
+				@Override
 				protected ItemStack getDropAt(final int slot) {
 					final Tuple<ItemStack, Double> tuple = this.getTuple(slot);
 					return tuple != null ? tuple.getKey() : NO_ITEM;
@@ -400,46 +401,41 @@ public class TurretsMenu extends MenuPagged<TurretData> { // TODO prevent all tu
 				}
 
 				@Override
-				protected void onMenuClose(final StrictMap<Integer, Tuple<ItemStack, Double>> items) {
-					turretData.setTurretLootChances(turretLevel, new ArrayList<>(items.values()));
-				}
-
-				@Override
 				public boolean allowDecimalQuantities() {
 					return true;
 				}
 			}
-		}
+		}*/
 	}
 
 	/*private final class ValidateMenu extends Menu {
 
 	}*/ // TODO
 
-	@RequiredArgsConstructor
+	/*@RequiredArgsConstructor
 	private enum TurretType {
-		ALL("all", TurretData.getRegisteredTurrets()),
+		ALL("all", TurretData.getTurrets()),
 		ARROW("arrow", TurretData.getTurretsOfType("arrow")),
 		FIREBALL("fireball", TurretData.getTurretsOfType("fireball")),
 		BEAM("beam", TurretData.getTurretsOfType("beam"));
 
 		private final String typeName;
-		private final Set<TurretData> turretTypeList;
-	}
+		private final List<? extends TurretData> turretTypeList;
+	}*/
 
 	public static void openAllTurretsSelectionMenu(final Player player) {
-		new TurretsMenu(player, TurretType.ALL).displayTo(player);
+		new TurretsMenu(player, "all").displayTo(player);
 	}
 
 	public static void openArrowTurretsSelectionMenu(final Player player) {
-		new TurretsMenu(player, TurretType.ARROW).displayTo(player);
+		new TurretsMenu(player, "arrow").displayTo(player);
 	}
 
 	public static void openFireballTurretsSelectionMenu(final Player player) {
-		new TurretsMenu(player, TurretType.FIREBALL).displayTo(player);
+		new TurretsMenu(player, "fireball").displayTo(player);
 	}
 
 	public static void openBeamTurretsSelectionMenu(final Player player) {
-		new TurretsMenu(player, TurretType.BEAM).displayTo(player);
+		new TurretsMenu(player, "beam").displayTo(player);
 	}
 }

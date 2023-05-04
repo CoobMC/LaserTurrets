@@ -1,7 +1,7 @@
 package games.coob.laserturrets.task;
 
 import games.coob.laserturrets.model.TurretData;
-import games.coob.laserturrets.model.TurretData;
+import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.Beam_v1_8;
 import games.coob.laserturrets.util.EntityUtil;
 import games.coob.laserturrets.util.Laser;
@@ -21,10 +21,11 @@ public class BeamTask extends BukkitRunnable {
 			if (turretData.isBroken())
 				continue;
 
+			final TurretSettings settings = TurretSettings.findByName(turretData.getType());
 			final Location location = turretData.getLocation();
 			final Location shootLocation = location.clone().add(0.5, 1.4, 0.5);
 			final int level = turretData.getCurrentLevel();
-			final int range = turretData.getLevel(level).getRange();
+			final int range = settings.getLevel(level).getRange();
 			final LivingEntity nearestEntity = EntityUtil.findNearestEntityNonBlacklisted(shootLocation, range, LivingEntity.class, location.getBlock());
 
 			if (nearestEntity == null)

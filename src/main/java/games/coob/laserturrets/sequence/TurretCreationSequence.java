@@ -68,9 +68,8 @@ public final class TurretCreationSequence extends Sequence {
 		SkullCreator.blockWithBase64(skullBlock, turretSettings.getHeadTexture());
 		SkullCreator.rotateSkull((Skull) skullBlock.getState(), PlayerUtil.getFacing(this.player));
 
-		final TurretData turretData = TurretData.createTurret(uniqueID);
+		final TurretData turretData = TurretData.createTurret(uniqueID, this.block);
 		Common.runLater(() -> turretData.register(this.player, this.block, this.type, uniqueID));
-		//Common.runLater(() -> turretData.register(this.player, this.block, this.type, uniqueID));
 
 		this.removeLast();
 		this.block.removeMetadata("IsCreating", SimplePlugin.getInstance());

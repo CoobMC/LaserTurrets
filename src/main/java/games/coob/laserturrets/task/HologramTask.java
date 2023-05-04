@@ -1,7 +1,6 @@
 package games.coob.laserturrets.task;
 
 import games.coob.laserturrets.model.TurretData;
-import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.util.Hologram;
 import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.TurretUtil;
@@ -20,7 +19,7 @@ public final class HologramTask extends BukkitRunnable {
 
 	@Override
 	public void run() {
-		for (final TurretData turretData : TurretData.getRegisteredTurrets()) {
+		for (final TurretData turretData : TurretData.getTurrets()) {
 			final Hologram hologram = turretData.getHologram();
 
 			if (hologram == null)

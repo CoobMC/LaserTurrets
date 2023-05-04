@@ -38,6 +38,8 @@ public class UpgradeMenu extends Menu {
 
 	private final Button takeButton;
 
+	private TurretSettings settings;
+
 	public UpgradeMenu(final TurretData turretData, final int turretLevel, final Player player) {
 		this.setSize(27);
 		this.setTitle(Lang.of("Upgrade_Menu.Menu_Title", "{turretType}", TurretUtil.capitalizeWord(TurretUtil.getDisplayName(turretData.getType())), "{level}", turretLevel));
@@ -45,10 +47,11 @@ public class UpgradeMenu extends Menu {
 
 		this.turretData = turretData;
 		this.level = turretLevel;
+		this.settings = TurretSettings.findByName(turretData.getType());
 
 		final int currentLevel = turretData.getCurrentLevel();
 		final int nextLevel = currentLevel + 1;
-		final boolean hasMaxTier = currentLevel == turretData.getLevels();
+		final boolean hasMaxTier = currentLevel == this.settings.getLevelsSize();
 
 		this.upgradeButton = new Button() {
 
@@ -58,13 +61,14 @@ public class UpgradeMenu extends Menu {
 					final PlayerCache cache = PlayerCache.from(player);
 
 					final double funds = cache.getCurrency(false);
-					final double price = turretData.getLevel(nextLevel).getPrice();
+					final double price = settings.getLevel(nextLevel).getPrice();
 
 					if (funds < price)
 						animateTitle(Lang.of("Menu.Not_Enough_Money_Animated_Message", "{moneyNeeded}", MathUtil.formatTwoDigits(price - funds), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
 					else {
 						cache.takeCurrency(price, false);
-						TurretData.findById(turretData.getId()).setCurrentTurretLevel(nextLevel);
+						turretData.setCurrentTurretLevel(nextLevel);
+						turretData.setCurrentHealth(settings.getLevel(nextLevel).getHealth());
 
 						CompSound.LEVEL_UP.play(player);
 
@@ -97,11 +101,11 @@ public class UpgradeMenu extends Menu {
 				String[] lore = new String[0];
 
 				if (!hasMaxTier) {
-					final double price = turretData.getLevel(nextLevel).getPrice();
-					final TurretData.TurretLevel currentLevel = turretData.getLevel(turretData.getCurrentLevel());
-					final TurretData.TurretLevel upgradedLevel = turretData.getLevel(nextLevel);
+					final double price = settings.getLevel(nextLevel).getPrice();
+					final TurretSettings.LevelData currentLevel = settings.getLevel(turretData.getCurrentLevel());
+					final TurretSettings.LevelData upgradedLevel = settings.getLevel(nextLevel);
 
-					lore = Lang.ofArray("Upgrade_Menu.Upgrade_Button_Lore", "{price}", price, "{level}", turretData.getCurrentLevel(), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME, "{currentRange}", currentLevel.getRange(), "{upgradedRange}", upgradedLevel.getRange(), "{currentDamage}", currentLevel.getLaserDamage(), "{upgradedDamage}", upgradedLevel.getLaserDamage(), "{currentHealth}", currentLevel.getMaxHealth(), "{upgradedHealth}", upgradedLevel.getMaxHealth());
+					lore = Lang.ofArray("Upgrade_Menu.Upgrade_Button_Lore", "{price}", price, "{level}", turretData.getCurrentLevel(), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME, "{currentRange}", currentLevel.getRange(), "{upgradedRange}", upgradedLevel.getRange(), "{currentDamage}", currentLevel.getLaserDamage(), "{upgradedDamage}", upgradedLevel.getLaserDamage(), "{currentHealth}", currentLevel.getHealth(), "{upgradedHealth}", upgradedLevel.getHealth());
 				}
 
 				return ItemCreator
@@ -127,7 +131,7 @@ public class UpgradeMenu extends Menu {
 				//turretData.registerToUnplaced(turretData, turret);
 				player.closeInventory();
 				CompSound.BLOCK_ANVIL_DESTROY.play(player);
-				turretData.unregister();
+
 				//turretData.unregister(turretData);
 				Messenger.success(player, Lang.of("Turret_Commands.Take_Turret_Message", "{turretType}", turretData.getType(), "{turretId}", turretData.getId()));
 			}

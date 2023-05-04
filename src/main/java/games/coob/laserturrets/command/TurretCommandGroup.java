@@ -79,7 +79,6 @@ public final class TurretCommandGroup extends SimpleCommandGroup {
 		registerSubcommand(new RemoveCommand());
 		registerSubcommand(new MenuCommand());
 		registerSubcommand(new BalanceCommand());
-		registerSubcommand(new SyncCommand());
 		//registerSubcommand(new BeamCommand()); // TODO
 
 		// Register the premade commands from Foundation

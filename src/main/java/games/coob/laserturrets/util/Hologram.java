@@ -330,7 +330,7 @@ public class Hologram implements ConfigSerializable {
 	public static void deleteAll() {
 		final Set<Hologram> holograms = new HashSet<>();
 
-		for (final TurretData turretData : TurretData.getRegisteredTurrets())
+		for (final TurretData turretData : TurretData.getTurrets())
 			holograms.add(turretData.getHologram());
 
 		for (final Iterator<Hologram> it = holograms.iterator(); it.hasNext(); ) {

@@ -60,8 +60,8 @@ final class TakeCommand extends SimpleSubCommand {
 						.tag("id", turretData.getId()).make();
 
 				player.getInventory().addItem(turret);
-				turretData.registerUnplacedTurret(block);
-				turretData.unregister();
+				turretData.unplaceTurret(turret);
+
 				Messenger.success(player, Lang.of("Turret_Commands.Take_Turret_Message", "{turretType}", turretData.getType(), "{turretId}", turretData.getId()));
 			} else
 				Messenger.error(player, Lang.of("Turret_Commands.Error_Not_Looking_At_Turret"));
@@ -74,8 +74,8 @@ final class TakeCommand extends SimpleSubCommand {
 						.tag("id", turretData.getId()).make();
 
 				player.getInventory().addItem(turret);
-				turretData.setUnplacedTurret(turret);
-				turretData.unregister();
+				turretData.unplaceTurret(turret);
+				
 				Messenger.success(player, Lang.of("Turret_Commands.Take_Turret_Message", "{turretType}", turretData.getType(), "{turretId}", turretData.getId()));
 			} else
 				Messenger.error(player, Lang.of("Turret_Commands.Turret_ID_Does_Not_Exist", "{invalidID}", turretId));

@@ -62,7 +62,7 @@ public final class PlayerCache extends YamlConfig {
 
 	@Override
 	protected void onLoad() {
-		this.currency = getDouble("Currency", Settings.CurrencySection.DEFAULT_CURRENCY);
+		this.currency = getDouble("Balance", Settings.CurrencySection.DEFAULT_CURRENCY);
 	}
 
 	/**
@@ -70,7 +70,7 @@ public final class PlayerCache extends YamlConfig {
 	 */
 	@Override
 	public void onSave() {
-		this.set("Currency", Double.parseDouble(currency + "000" + String.valueOf(Math.random()).replace(".", "")));
+		this.set("Balance", Double.parseDouble(this.currency + "000" + String.valueOf(Math.random()).replace(".", "")));
 	}
 
 	/* ------------------------------------------------------------------------------- */
