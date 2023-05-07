@@ -69,6 +69,9 @@ public abstract class TurretTool extends VisualTool {
 		final TurretSettings settings = TurretSettings.findByName(type);
 		final Block blockUp = block.getRelative(BlockFace.UP);
 
+		if (block.getType().isInteractable())
+			return;
+
 		if (Settings.TurretSection.BUILD_IN_OWN_TERRITORY && !HookSystem.canBuild(location, player) && !TurretData.isRegistered(block)) {
 			Messenger.error(player, "You cannot place turrets in this region.");
 			return;

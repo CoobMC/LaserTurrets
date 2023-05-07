@@ -26,7 +26,10 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
@@ -153,14 +156,6 @@ public final class TurretListener implements Listener {
 	}
 
 	@EventHandler
-	public void onPlayerSwapHandItems(final PlayerSwapHandItemsEvent event) {
-		final ItemStack swappedItem = event.getOffHandItem();
-
-		if (TurretTool.getTool(swappedItem) != null)
-			event.setCancelled(true);
-	}
-
-	@EventHandler
 	public void onInventoryClick(final InventoryClickEvent event) {
 		final ItemStack itemStack = event.getCursor();
 
@@ -181,7 +176,9 @@ public final class TurretListener implements Listener {
 	public void onProjectileHit(final ProjectileHitEvent event) {
 		final Projectile projectile = event.getEntity();
 
-		if (projectile instanceof final Arrow arrow) {
+		if (projectile instanceof Arrow) {
+			Arrow arrow = (Arrow) projectile;
+
 			Common.runLater(() -> {
 				if (!arrow.isOnGround())
 					return;
@@ -260,7 +257,6 @@ public final class TurretListener implements Listener {
 		}
 	}
 
-
 	private void placeTurret(final ItemStack item, final BlockPlaceEvent event) {
 		final String id = CompMetadata.getMetadata(item, "id");
 		final TurretData turretData = TurretData.findById(id);
@@ -271,6 +267,9 @@ public final class TurretListener implements Listener {
 
 		event.setCancelled(true);
 
+		if (block.getType().isInteractable())
+			return;
+		
 		if (Settings.TurretSection.BUILD_IN_OWN_TERRITORY && !HookSystem.canBuild(location, player) && !TurretData.isRegistered(block)) {
 			Messenger.error(player, "You cannot place turrets in this region.");
 			return;

@@ -259,16 +259,18 @@ public class SkullCreator {
 
 		try {
 			final Class<?> gameProfileClass = ReflectionUtil.lookupClass("com.mojang.authlib.GameProfile");
-
-			final Object profile = ReflectionUtil.instantiate(gameProfileClass.getConstructor(UUID.class, String.class), id, "aaaaa");
-
 			final Class<?> propertyClass = ReflectionUtil.lookupClass("com.mojang.authlib.properties.Property");
-			final Object property = ReflectionUtil.instantiate(propertyClass.getConstructor(String.class, String.class), "textures", b64);
-			final Object propertyMap = ReflectionUtil.invoke("getProperties", profile);
 
-			ReflectionUtil.invoke("put", propertyMap, "textures", property);
+			final Object fakeProfileInstance = gameProfileClass.getConstructor(UUID.class, String.class).newInstance(id, "aaaaa");
+			final Object propertyInstance = propertyClass.getConstructor(String.class, String.class).newInstance("textures", b64);
 
-			return profile;
+			final Method getProperties = fakeProfileInstance.getClass().getMethod("getProperties");
+			final Object propertyMap = getProperties.invoke(fakeProfileInstance);
+
+			final Method putMethod = propertyMap.getClass().getMethod("put", Object.class, Object.class);
+			putMethod.invoke(propertyMap, "textures", propertyInstance);
+
+			return fakeProfileInstance;
 
 		} catch (final ReflectiveOperationException ex) {
 			Common.throwError(ex);
@@ -324,28 +326,8 @@ public class SkullCreator {
 	 * @param skull
 	 * @param blockFace
 	 */
-	public static void rotateSkull(final Skull skull, final BlockFace blockFace) { // TODO Use try catch
-		/*try {
-			//final Rotatable skullRotation = (Rotatable) skull.getBlockData();
-			final Directional skullRotation = (Directional) skull.getBlockData();
-
-			skullRotation.setFacing(blockFace);
-			skull.setBlockData(skullRotation);
-		} catch (final Throwable t) {*/
+	public static void rotateSkull(final Skull skull, final BlockFace blockFace) {
 		skull.setRotation(blockFace);
-		//}
-
 		skull.update(true);
 	}
-
-	/*public static void rotateSkull(final Skull skull, final BlockFace blockFace) { // TODO Use try catch
-		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_13)) {
-			final Rotatable skullRotation = (Rotatable) skull.getBlockData();
-
-			skullRotation.setRotation(blockFace);
-			skull.setBlockData(skullRotation);
-		} else skull.setRotation(blockFace);
-
-		skull.update(true);
-	}*/
 }

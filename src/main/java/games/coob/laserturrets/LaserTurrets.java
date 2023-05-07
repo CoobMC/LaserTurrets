@@ -3,6 +3,7 @@ package games.coob.laserturrets;
 import games.coob.laserturrets.database.TurretsDatabase;
 import games.coob.laserturrets.hook.HookSystem;
 import games.coob.laserturrets.hook.VaultHook;
+import games.coob.laserturrets.listener.TurretListenerLatest;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
@@ -14,19 +15,13 @@ import games.coob.laserturrets.util.SkullCreator;
 import games.coob.laserturrets.util.TurretUtil;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
-import org.mineacademy.fo.Common;
-import org.mineacademy.fo.FileUtil;
-import org.mineacademy.fo.ReflectionUtil;
-import org.mineacademy.fo.Valid;
+import org.mineacademy.fo.*;
 import org.mineacademy.fo.collection.SerializedMap;
 import org.mineacademy.fo.exception.CommandException;
 import org.mineacademy.fo.plugin.SimplePlugin;
 import org.mineacademy.fo.settings.YamlConfig;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -57,8 +52,11 @@ public final class LaserTurrets extends SimplePlugin {
 			TurretData.loadTurrets();
 		}
 
+		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_9))
+			registerEvents(new TurretListenerLatest());
+
 		for (final String type : getTypes()) {
-			final TurretType turretType = findEnum(TurretType.class, type, null, "No such such turret type. Available: " + Arrays.toString(getTypes()) + ".");
+			final TurretType turretType = findEnum(TurretType.class, type, null, "No such turret type. Available: " + Arrays.toString(getTypes()) + ".");
 			TurretSettings.createTurretType(type, turretType);
 
 			final TurretSettings settings = TurretSettings.findByName(type);
@@ -131,13 +129,35 @@ public final class LaserTurrets extends SimplePlugin {
 		Common.log("Successfully updated folder.");
 	}
 
-	private void renameKey(final File file, final String key, final String replacement) throws IOException {
+	/*private void renameKey(final File file, final String key, final String replacement) throws IOException {
 		final Charset charset = StandardCharsets.UTF_8;
 		final Path path = file.toPath();
 
 		String content = Files.readString(path, charset);
 		content = content.replaceAll(key, replacement);
 		Files.writeString(path, content, charset);
+	}*/
+
+	private static void renameKey(final File file, final String key, final String replacement) throws IOException {
+		final File tempFile = new File(file.getAbsolutePath() + ".tmp");
+
+		try (BufferedReader reader = new BufferedReader(new FileReader(file));
+			 BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+			String line;
+
+			while ((line = reader.readLine()) != null) {
+				writer.write(line.replace(key, replacement));
+				writer.newLine();
+			}
+		}
+
+		if (!file.delete()) {
+			throw new IOException("Unable to delete original file: " + file.getAbsolutePath());
+		}
+
+		if (!tempFile.renameTo(file)) {
+			throw new IOException("Unable to rename temporary file: " + tempFile.getAbsolutePath());
+		}
 	}
 
 	@Override

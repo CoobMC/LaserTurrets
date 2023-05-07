@@ -34,11 +34,11 @@
              but if you use "11" or "17" then it will NOT load on servers
              with previous Java versions. We recommend you stick with 1.8.
              -->
-        <java.version>17</java.version>
+        <java.version>1.8</java.version>
 
         <!-- Change to the latest version from https://github.com/kangarko/Foundation/releases
              or change to "LATEST" if you downloaded Foundation to your disk and compiled it. -->
-        <foundation.version>6.3.2</foundation.version>
+        <foundation.version>6.3.4</foundation.version>
 
         <lands.version>6.28.11</lands.version>
         <kingdoms.version>1.15.4.2-SNAPSHOT</kingdoms.version>
@@ -114,6 +114,14 @@
         </dependency>
 
         <dependency>
+            <groupId>paper-server</groupId>
+            <artifactId>Paper-1.19.4</artifactId>
+            <version>1</version>
+            <scope>system</scope>
+            <systemPath>/Users/jack.bikar/Desktop/Test Servers/1.19/paperclip.jar</systemPath>
+        </dependency>
+
+        <dependency>
             <groupId>com.github.angeschossen</groupId>
             <artifactId>LandsAPI</artifactId>
             <version>${lands.version}</version>
@@ -147,13 +155,13 @@
             <version>${uclans.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>Factions</groupId>
-            <artifactId>MedievalFactions</artifactId>
-            <version>LATEST</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/Medieval-Factions.jar</systemPath>
-        </dependency>
+        <!-- <dependency>
+             <groupId>Factions</groupId>
+             <artifactId>MedievalFactions</artifactId>
+             <version>LATEST</version>
+             <scope>system</scope>
+             <systemPath>${project.basedir}/libs/Medieval-Factions.jar</systemPath>
+         </dependency>-->
 
         <dependency>
             <groupId>me.glaremasters</groupId>

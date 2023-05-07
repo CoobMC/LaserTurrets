@@ -4,6 +4,7 @@ import games.coob.laserturrets.model.Permissions;
 import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.Lang;
+import games.coob.laserturrets.util.SkullCreator;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -13,7 +14,6 @@ import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.TabUtil;
 import org.mineacademy.fo.command.SimpleSubCommand;
 import org.mineacademy.fo.menu.model.ItemCreator;
-import org.mineacademy.fo.menu.model.SkullCreator;
 import org.mineacademy.fo.remain.Remain;
 
 import java.util.List;
@@ -75,7 +75,7 @@ final class TakeCommand extends SimpleSubCommand {
 
 				player.getInventory().addItem(turret);
 				turretData.unplaceTurret(turret);
-				
+
 				Messenger.success(player, Lang.of("Turret_Commands.Take_Turret_Message", "{turretType}", turretData.getType(), "{turretId}", turretData.getId()));
 			} else
 				Messenger.error(player, Lang.of("Turret_Commands.Turret_ID_Does_Not_Exist", "{invalidID}", turretId));

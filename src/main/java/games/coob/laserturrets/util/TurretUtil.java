@@ -6,18 +6,22 @@ import games.coob.laserturrets.settings.TurretSettings;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Skull;
-import org.mineacademy.fo.menu.model.SkullCreator;
 import org.mineacademy.fo.remain.CompMaterial;
 
 public class TurretUtil {
 	public static String getDisplayName(final String turretType) {
-		return switch (turretType) {
-			case "all" -> Lang.of("Placeholders.All");
-			case "arrow" -> Lang.of("Placeholders.Arrow");
-			case "beam" -> Lang.of("Placeholders.Beam");
-			case "fireball" -> Lang.of("Placeholders.Fireball");
-			default -> null;
-		};
+		switch (turretType) {
+			case "all":
+				return Lang.of("Placeholders.All");
+			case "arrow":
+				return Lang.of("Placeholders.Arrow");
+			case "beam":
+				return Lang.of("Placeholders.Beam");
+			case "fireball":
+				return Lang.of("Placeholders.Fireball");
+			default:
+				return null;
+		}
 
 	}
 
@@ -28,7 +32,7 @@ public class TurretUtil {
 
 		if (CompMaterial.isSkull(skullBlock.getType())) {
 			final Skull state = (Skull) skullBlock.getState();
-			games.coob.laserturrets.util.SkullCreator.mutateBlockState(state, settings.getHeadTexture());
+			SkullCreator.mutateBlockState(state, settings.getHeadTexture());
 			state.update(false, false);
 		}
 

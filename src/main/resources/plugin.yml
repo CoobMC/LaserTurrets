@@ -18,7 +18,7 @@ libraries:
   # DO NOT EDIT THE FIRST LIBRARY, required to make your plugin work under Java 15+
   - org.openjdk.nashorn:nashorn-core:15.4
   #- org.jsoup:jsoup:1.14.3
-  #- com.zaxxer:HikariCP:5.0.1  
+  #- com.zaxxer:HikariCP:5.0.1
 
 # Same as libraries, but only works on Minecraft <1.16 using our own special method.
 #legacy-libraries:
