@@ -229,11 +229,6 @@ public class TurretData extends YamlConfig {
 		if (!this.isPlayerWhitelistEnabled())
 			this.playerBlacklist.add(player.getUniqueId());
 
-		/*for (final TurretSettings.LevelData levelData : turretSettings.getLevels()) {
-			final TurretData.TurretLevel level = addLevel();
-			levelData.setLevelData(level);
-		}*/
-
 		this.setCurrentHealth(turretSettings.getLevel(1).getHealth());
 		this.setHologram(createHologram());
 
@@ -272,19 +267,6 @@ public class TurretData extends YamlConfig {
 		this.save();
 	}
 
-	/*public void registerTurretById(final Block block, final String turretId) { // TODO create unplaced boolean value
-		final TurretData turretData = getUnplacedTurretById(turretId);
-
-		this.registeredUnplacedTurrets.removeIf(tuple -> tuple.getKey().equals(turretData));
-
-		turretData.setLocation(block.getLocation());
-		turretData.setMaterial(CompMaterial.fromMaterial(block.getType()));
-		turretData.setHologram(createHologram(turretData));
-
-		this.registeredTurrets.add(turretData);
-		this.save();
-	}*/
-
 	private Hologram createHologram() {
 		final List<String> lore = Lang.ofList("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(this.getType()), "{owner}", Remain.getOfflinePlayerByUUID(this.getOwner()).getName(), "{level}", MathUtil.toRoman(this.getCurrentLevel()), "{health}", this.getCurrentHealth());
 		final List<String> loreList = new ArrayList<>(lore);
@@ -301,40 +283,6 @@ public class TurretData extends YamlConfig {
 
 		return hologram;
 	}
-
-	/*public void unregister(final Block block) {
-		final TurretData turretData = getTurretByBlock(block);
-
-		if (turretData.getHologram() != null)
-			turretData.getHologram().remove();
-
-		block.getRelative(BlockFace.UP).setType(CompMaterial.AIR.getMaterial());
-		this.registeredTurrets.remove(turretData);
-
-		this.save();
-	}*/
-
-	/*public void unregister(final TurretData turretData) {
-		if (turretData.getHologram() != null)
-			turretData.getHologram().remove();
-
-		turretData.getLocation().getBlock().getRelative(BlockFace.UP).setType(CompMaterial.AIR.getMaterial());
-		this.registeredTurrets.remove(turretData);
-
-		this.save();
-	}*/
-
-	/*public void unregister(final String turretID) {
-		final TurretData turretData = getTurretByID(turretID);
-
-		if (turretData.getHologram() != null)
-			turretData.getHologram().remove();
-
-		turretData.getLocation().getBlock().getRelative(BlockFace.UP).setType(CompMaterial.AIR.getMaterial());
-		this.registeredTurrets.remove(turretData);
-
-		this.save();
-	}*/
 
 	public void setUnplacedTurret(@Nullable final ItemStack turretItem) {
 		this.unplacedTurret = turretItem;
@@ -389,24 +337,6 @@ public class TurretData extends YamlConfig {
 		else return false;
 	}
 
-	/*public void setRange(final int level, final int range) {
-		this.getLevel(level).setRange(range);
-
-		this.save();
-	}
-
-	public void setLaserEnabled(final int level, final boolean laserEnabled) {
-		this.getLevel(level).setLaserEnabled(laserEnabled);
-
-		this.save();
-	}
-
-	public void setLaserDamage(final int level, final double damage) {
-		this.getLevel(level).setLaserDamage(damage);
-
-		this.save();
-	}*/
-
 	public void updateHologram() {
 		if (this.getHologram() != null)
 			this.getHologram().remove();
@@ -416,54 +346,11 @@ public class TurretData extends YamlConfig {
 		this.save();
 	}
 
-	/*public void setLevelPrice(final int level, final double price) {
-		this.getLevel(level).setPrice(price);
-
-		this.save();
-	}*/
-
-	/*public TurretLevel getLevel(final int level) {
-		final boolean outOfBounds = level <= 0 || level >= this.turretLevels.size() + 1;
-
-		if (!outOfBounds)
-			return this.turretLevels.get(level - 1);
-
-		return null;
-	}*/
-
-	/*public void createLevel() {
-		final TurretLevel level = addLevel();
-		final List<TurretSettings.LevelData> levels = TurretSettings.findByName(this.type).getLevels();
-
-		levels.get(levels.size() - 1).setLevelData(level);
-
-		this.save();
-	}*/
-
-	/*public void removeLevel(final int level) {
-		Valid.checkBoolean(getLevels() >= level, "Cannot remove level " + level + " because the turret only has " + getLevels() + " levels.");
-		this.turretLevels.remove(level - 1);
-
-		this.save();
-	}*/
-
-	/*public int getLevels() {
-		return this.turretLevels.size();
-	}*/
-
 	public void setCurrentTurretLevel(final int level) {
 		this.currentLevel = level;
 
 		this.save();
 	}
-
-	/*public TurretLevel addLevel() {
-		final TurretLevel level = new TurretLevel(this);
-
-		turretLevels.add(level);
-
-		return this.turretLevels.get(this.turretLevels.size() - 1);
-	}*/
 
 	public void setTurretHealth(final Block block, final double health) {
 		if (isRegistered(block))
@@ -520,16 +407,6 @@ public class TurretData extends YamlConfig {
 		this.save();
 	}
 
-	/*public List<Tuple<ItemStack, Double>> getTurretLootChances(final int level) {
-		return this.getLevel(level).getLootChances();
-	}*/
-
-	/*public void setTurretLootChances(final int level, final List<Tuple<ItemStack, Double>> lootChances) {
-		this.getLevel(level).setLootChances(lootChances);
-
-		this.save();
-	}*/
-
 	public void setCurrentLoot(@Nullable final List<ItemStack> items) {
 		this.currentLoot = items;
 
@@ -548,121 +425,8 @@ public class TurretData extends YamlConfig {
 	}
 
 	// -----------------------------------------------------------------
-	// Turret levels
-	// -----------------------------------------------------------------
-/*
-	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-	public final static class TurretLevel implements ConfigSerializable {
-
-		private final TurretData turretData;
-
-		@Getter
-		private double price;
-
-		@Getter
-		private List<Tuple<ItemStack, Double>> lootChances = new ArrayList<>();
-
-		@Getter
-		private int range;
-
-		@Getter
-		private boolean laserEnabled;
-
-		@Getter
-		private double laserDamage;
-
-		@Getter
-		private double maxHealth;
-
-		public void setPrice(final double price) {
-			this.price = price;
-		}
-
-		public void setRange(final int range) {
-			this.range = range;
-		}
-
-		public void setLaserEnabled(final boolean laserEnabled) {
-			this.laserEnabled = laserEnabled;
-		}
-
-		public void setLaserDamage(final double laserDamage) {
-			this.laserDamage = laserDamage;
-		}
-
-		public void setLootChances(final @Nullable List<Tuple<ItemStack, Double>> lootChances) {
-			this.lootChances = lootChances;
-		}
-
-		public void setMaxHealth(final double health) {
-			this.maxHealth = health;
-		}
-
-		public static TurretLevel deserialize(final SerializedMap map, final TurretData turretData) {
-			final double price = map.getDouble("Price");
-			final List<Tuple<ItemStack, Double>> lootChances = map.getTupleList("Loot_Chances", ItemStack.class, Double.class);
-			final int range = map.getInteger("Range");
-			final boolean laserEnabled = map.getBoolean("Laser_Enabled");
-			final double laserDamage = map.getDouble("Laser_Damage");
-			final double maxHealth = map.getDouble("Max_Health");
-
-			final TurretLevel level = new TurretLevel(turretData);
-
-			level.setPrice(price);
-			level.setLootChances(lootChances);
-			level.setRange(range);
-			level.setLaserEnabled(laserEnabled);
-			level.setLaserDamage(laserDamage);
-			level.setMaxHealth(maxHealth);
-
-			return level;
-		}
-
-		@Override
-		public SerializedMap serialize() {
-			final SerializedMap map = new SerializedMap();
-
-			map.put("Price", this.price);
-			map.put("Range", this.range);
-			map.put("Max_Health", this.maxHealth);
-			map.put("Laser_Enabled", this.laserEnabled);
-			map.put("Laser_Damage", this.laserDamage);
-			map.putIf("Loot_Chances", this.lootChances);
-
-			return map;
-		}
-	}*/
-
-	// -----------------------------------------------------------------
 	// Static
 	// -----------------------------------------------------------------
-
-	/*public static void syncTurretDataWithSettings(final TurretSettings settings, final TurretData turretData) {
-		turretData.setMobBlacklist(settings.getMobList());
-		turretData.setPlayerBlacklist(settings.getPlayerList());
-		turretData.setPlayerWhitelistEnabled(settings.isEnablePlayerWhitelist());
-		turretData.setMobWhitelistEnabled(settings.isEnableMobWhitelist());
-
-		if (!turretData.isPlayerWhitelistEnabled())
-			turretData.addPlayerToBlacklist(turretData.getOwner());
-
-		for (int i = 1; i <= turretData.getLevels() + 2; i++)
-			turretData.removeLevel(1);
-
-		for (final TurretSettings.LevelData levelData : settings.getLevels()) {
-			final TurretLevel level = turretData.addLevel();
-			levelData.setLevelData(level);
-		}
-
-		final double maxHealth = turretData.getLevel(turretData.getCurrentLevel()).getMaxHealth();
-
-		if (turretData.getCurrentHealth() > maxHealth)
-			turretData.setCurrentHealth(maxHealth);
-
-		TurretUtil.updateHologramAndTexture(turretData);
-
-		turretData.save();
-	}*/
 
 	public static boolean isRegistered(final Block block) {
 		for (final TurretData turretData : getTurrets()) {
@@ -718,15 +482,6 @@ public class TurretData extends YamlConfig {
 
 		return turretDataList;
 	}
-
-	/*public static Set<String> getTurretIDs() {
-		final Set<String> turretIDs = new HashSet<>();
-
-		for (final TurretData turretData : getTurrets())
-			turretIDs.add(turretData.getId());
-
-		return turretIDs;
-	}*/
 
 	public static List<Location> getTurretLocationsOfType(final String type) {
 		final List<Location> locations = new ArrayList<>();

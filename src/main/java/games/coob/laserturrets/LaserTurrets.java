@@ -21,11 +21,12 @@ import org.mineacademy.fo.exception.CommandException;
 import org.mineacademy.fo.plugin.SimplePlugin;
 import org.mineacademy.fo.settings.YamlConfig;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.io.File;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.UUID;
@@ -47,7 +48,10 @@ public final class LaserTurrets extends SimplePlugin {
 	protected void onPluginStart() {
 		Common.setLogPrefix("[LaserTurrets]");
 
-		if (YamlConfig.fromFileFast(FileUtil.getFile("data.db")).isSet("Turrets")) {
+		final File dataFile = FileUtil.getFile("data.db");
+		final YamlConfig datadb = YamlConfig.fromFileFast(dataFile);
+
+		if (datadb.isSet("Turrets")) {
 			convert();
 			TurretData.loadTurrets();
 		}
@@ -82,7 +86,7 @@ public final class LaserTurrets extends SimplePlugin {
 		});
 	}
 
-	private void convert() { // TODO remove Turrets key if set in data.db
+	private void convert() {
 		final Path source = Paths.get(SimplePlugin.getInstance().getDataFolder().getPath(), "turrets");
 		final Path target = Paths.get(SimplePlugin.getInstance().getDataFolder().getPath(), "types");
 
@@ -126,39 +130,23 @@ public final class LaserTurrets extends SimplePlugin {
 			e.printStackTrace();
 		}
 
+		datadb.reload();
+
 		Common.log("Successfully updated folder.");
 	}
 
-	/*private void renameKey(final File file, final String key, final String replacement) throws IOException {
+	private static void renameKey(final File file, final String oldKey, final String newKey) throws IOException {
 		final Charset charset = StandardCharsets.UTF_8;
-		final Path path = file.toPath();
+		String content = new String(Files.readAllBytes(file.toPath()), charset);
 
-		String content = Files.readString(path, charset);
-		content = content.replaceAll(key, replacement);
-		Files.writeString(path, content, charset);
-	}*/
+		content = content.replaceAll(oldKey, newKey);
+		Files.write(file.toPath(), content.getBytes(charset));
 
-	private static void renameKey(final File file, final String key, final String replacement) throws IOException {
-		final File tempFile = new File(file.getAbsolutePath() + ".tmp");
-
-		try (BufferedReader reader = new BufferedReader(new FileReader(file));
-			 BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
-			String line;
-
-			while ((line = reader.readLine()) != null) {
-				writer.write(line.replace(key, replacement));
-				writer.newLine();
-			}
-		}
-
-		if (!file.delete()) {
-			throw new IOException("Unable to delete original file: " + file.getAbsolutePath());
-		}
-
-		if (!tempFile.renameTo(file)) {
-			throw new IOException("Unable to rename temporary file: " + tempFile.getAbsolutePath());
+		try (FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.WRITE)) {
+			channel.force(true);
 		}
 	}
+
 
 	@Override
 	protected void onPluginReload() {
