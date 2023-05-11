@@ -6,6 +6,7 @@ import games.coob.laserturrets.hook.HookSystem;
 import games.coob.laserturrets.menu.BrokenTurretMenu;
 import games.coob.laserturrets.menu.UpgradeMenu;
 import games.coob.laserturrets.model.TurretData;
+import games.coob.laserturrets.model.UnplacedData;
 import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.tools.TurretTool;
@@ -177,7 +178,7 @@ public final class TurretListener implements Listener {
 		final Projectile projectile = event.getEntity();
 
 		if (projectile instanceof Arrow) {
-			Arrow arrow = (Arrow) projectile;
+			final Arrow arrow = (Arrow) projectile;
 
 			Common.runLater(() -> {
 				if (!arrow.isOnGround())
@@ -216,11 +217,11 @@ public final class TurretListener implements Listener {
 	public void onItemDespawn(final ItemDespawnEvent event) {
 		final ItemStack despawnedItem = event.getEntity().getItemStack();
 
-		for (final TurretData turretData : TurretData.getUnplacedTurrets()) {
-			final ItemStack itemStack = turretData.getUnplacedTurret();
+		for (final UnplacedData data : UnplacedData.getUnplacedTurrets()) {
+			final ItemStack itemStack = data.getTurretItem();
 
 			if (itemStack != null && itemStack.isSimilar(despawnedItem))
-				TurretData.findById(turretData.getId()).setUnplacedTurret(null);
+				data.unregister();
 		}
 	}
 
@@ -231,13 +232,13 @@ public final class TurretListener implements Listener {
 		if (entity instanceof Item) {
 			final Item despawnedItem = (Item) event.getEntity();
 
-			for (final TurretData turretData : TurretData.getUnplacedTurrets()) {
-				final ItemStack itemStack = turretData.getUnplacedTurret();
+			for (final UnplacedData data : UnplacedData.getUnplacedTurrets()) {
+				final ItemStack itemStack = data.getTurretItem();
 
 				if (itemStack.isSimilar(despawnedItem.getItemStack()))
 					for (final EntityDamageEvent.DamageCause damageCause : EntityDamageEvent.DamageCause.values())
 						if (event.getCause() == damageCause)
-							Common.runLater(() -> TurretData.findById(turretData.getId()).setUnplacedTurret(null));
+							Common.runLater(data::unregister);
 			}
 		}
 	}
@@ -259,7 +260,7 @@ public final class TurretListener implements Listener {
 
 	private void placeTurret(final ItemStack item, final BlockPlaceEvent event) {
 		final String id = CompMetadata.getMetadata(item, "id");
-		final TurretData turretData = TurretData.findById(id);
+		final UnplacedData turretData = UnplacedData.findById(id);
 		final String type = turretData.getType();
 		final Player player = event.getPlayer();
 		final Block block = event.getBlockAgainst();
@@ -269,7 +270,7 @@ public final class TurretListener implements Listener {
 
 		if (block.getType().isInteractable())
 			return;
-		
+
 		if (Settings.TurretSection.BUILD_IN_OWN_TERRITORY && !HookSystem.canBuild(location, player) && !TurretData.isRegistered(block)) {
 			Messenger.error(player, "You cannot place turrets in this region.");
 			return;

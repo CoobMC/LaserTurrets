@@ -57,14 +57,9 @@ public class TurretData extends YamlConfig {
 
 	private boolean playerWhitelistEnabled;
 
-	//private List<TurretLevel> turretLevels = new ArrayList<>();
-
 	private Double currentHealth;
 
 	private int currentLevel;
-
-	@Nullable
-	private ItemStack unplacedTurret;
 
 	private Hologram hologram;
 
@@ -85,7 +80,7 @@ public class TurretData extends YamlConfig {
 
 	@Override
 	protected void onLoad() {
-		if (this.location == null && this.material == null && this.type == null) {
+		if (this.location == null && this.material == null) {
 			Valid.checkBoolean(isSet("Block"), "Corrupted turret file: " + this.getFileName() + ", lacks the 'Block' key to determine the block where the turret is placed.");
 
 			final String hash = this.getString("Block");
@@ -109,8 +104,6 @@ public class TurretData extends YamlConfig {
 		this.mobWhitelistEnabled = this.getBoolean("Use_Mob_Whitelist", false); // Add default value to load it if the key doesn't exist
 		this.currentLevel = this.getInteger("Current_Level", 1);
 		this.broken = this.getBoolean("Broken", false);
-		this.unplacedTurret = this.getItemStack("Unplaced_Turret", null);
-		//this.turretLevels = this.getList("Levels", TurretLevel.class, this);
 
 		this.save();
 	}
@@ -134,8 +127,6 @@ public class TurretData extends YamlConfig {
 		this.set("Current_Level", this.currentLevel);
 		this.set("Broken", this.broken);
 		this.set("Hologram", this.hologram);
-		this.set("Unplaced_Turret", this.unplacedTurret);
-		//this.set("Levels", this.turretLevels);
 	}
 
 	public void setLocation(final Location location) {
@@ -211,7 +202,6 @@ public class TurretData extends YamlConfig {
 	}
 
 	public void register(final Player player, final Block block, final String type, final String uniqueID) { // TODO register and create file
-		//Valid.checkBoolean(!loadedFiles.isItemLoaded(uniqueID), Lang.of("Tool.Already_Registered", "{location}", Common.shortLocation(block.getLocation())));
 		this.setLocation(block.getLocation());
 		this.setMaterial(CompMaterial.fromMaterial(block.getType()));
 		this.setType(type);
@@ -236,33 +226,28 @@ public class TurretData extends YamlConfig {
 	}
 
 	public void unregister() {
+		removeTurret(this.id);
+
 		if (this.getHologram() != null)
 			this.getHologram().remove();
 
 		this.getLocation().getBlock().getRelative(BlockFace.UP).setType(CompMaterial.AIR.getMaterial());
-		removeTurret(this.id);
-
-		this.save();
 	}
 
-	public void placeTurret(final Block block) {
-		if (this.unplacedTurret != null) {
-			this.setUnplacedTurret(null);
-			this.setLocation(block.getLocation());
-			this.setMaterial(CompMaterial.fromMaterial(block.getType()));
-			this.setHologram(createHologram());
-		}
-
-		this.save();
-	}
-
-	public void unplaceTurret(final ItemStack unplacedTurret) {
-		if (this.unplacedTurret == null) {
-			this.setUnplacedTurret(unplacedTurret);
-
-			if (this.getHologram() != null)
-				this.getHologram().remove();
-		}
+	public void registerFromUnplaced(final UnplacedData data, final Block block) {
+		this.setLocation(block.getLocation());
+		this.setMaterial(CompMaterial.fromMaterial(block.getType()));
+		this.setType(data.getType());
+		this.setOwner(data.getOwner());
+		this.setId(data.getId());
+		this.setCurrentLevel(data.getCurrentLevel());
+		this.setMobBlacklist(data.getMobBlacklist());
+		this.setPlayerBlacklist(data.getPlayerBlacklist());
+		this.setPlayerWhitelistEnabled(data.isPlayerWhitelistEnabled());
+		this.setMobWhitelistEnabled(data.isMobWhitelistEnabled());
+		this.setCurrentHealth(data.getCurrentHealth());
+		this.setCurrentLoot(data.getCurrentLoot());
+		this.setHologram(createHologram());
 
 		this.save();
 	}
@@ -282,12 +267,6 @@ public class TurretData extends YamlConfig {
 		hologram.setLore(lines);
 
 		return hologram;
-	}
-
-	public void setUnplacedTurret(@Nullable final ItemStack turretItem) {
-		this.unplacedTurret = turretItem;
-
-		this.save();
 	}
 
 	public void addPlayerToBlacklist(final UUID uuid) {
@@ -473,16 +452,6 @@ public class TurretData extends YamlConfig {
 		return locations;
 	}
 
-	public static List<TurretData> getUnplacedTurrets() {
-		final List<TurretData> turretDataList = new ArrayList<>();
-
-		for (final TurretData turretData : getTurrets())
-			if (turretData.getUnplacedTurret() != null)
-				turretDataList.add(turretData);
-
-		return turretDataList;
-	}
-
 	public static List<Location> getTurretLocationsOfType(final String type) {
 		final List<Location> locations = new ArrayList<>();
 
@@ -507,7 +476,6 @@ public class TurretData extends YamlConfig {
 	public static List<? extends TurretData> getTurrets() {
 		return loadedFiles.getItems();
 	}
-
 
 	/**
 	 * @return

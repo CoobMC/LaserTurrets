@@ -26,8 +26,6 @@ import java.util.List;
 
 public class TurretsMenu extends MenuPagged<TurretData> {
 
-	//private TurretType turretType;
-
 	private String typeName;
 
 	private TurretData turretData;
@@ -134,9 +132,6 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 	private final class TurretEditMenu extends Menu {
 
-		//@Position(11)
-		//private final Button levelEditButton;
-
 		@Position(12)
 		private final Button alliesButton;
 
@@ -151,10 +146,6 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 
 			this.setSize(9 * 4);
 			this.setTitle(Lang.of("Turrets_Menu.Turret_Edit_Menu_Title", "{turretType}", TurretUtil.capitalizeWord(TurretUtil.getDisplayName(turretData.getType())), "{turretId}", turretData.getId()));
-
-			/*this.levelEditButton = new ButtonMenu(new LevelMenu(turretData.getCurrentLevel()), CompMaterial.EXPERIENCE_BOTTLE,
-					Lang.of("Turrets_Menu.Level_Edit_Button_Title"),
-					Lang.ofArray("Turrets_Menu.Level_Edit_Button_Lore"));*/
 
 			this.alliesButton = new ButtonMenu(new AlliesMenu(TurretEditMenu.this, turretData, player), CompMaterial.KNOWLEDGE_BOOK,
 					Lang.of("Turrets_Menu.Allies_Button_Title"),
@@ -186,242 +177,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 		public Menu newInstance() {
 			return new TurretEditMenu(getParent());
 		}
-
-		/*private class LevelMenu extends Menu { // TODO remove messages
-
-			private final int turretLevel;
-
-			private final TurretData.TurretLevel level;
-
-			@Position(11)
-			private final Button rangeButton;
-
-			@Position(13)
-			private final Button laserEnabledButton;
-
-			@Position(15)
-			private final Button laserDamageButton;
-
-			@Position(21)
-			private final Button lootButton;
-
-			@Position(23)
-			private final Button healthButton;
-
-			@Position(39)
-			private final Button previousLevelButton;
-
-			@Position(41)
-			private final Button nextLevelButton;
-
-			private final Button removeLevelButton;
-
-			@Position(40)
-			private final Button priceButton;
-
-			public LevelMenu(final int turretLevel) {
-				super(TurretEditMenu.this, true);
-
-				final boolean nextLevelExists = turretLevel < turretData.getLevels() || turretData.getLevels() == 0;
-
-				this.turretLevel = turretLevel;
-				this.level = getOrMakeLevel(turretLevel);
-
-				this.setTitle(Lang.of("Turrets_Menu.Level_Menu_Title", "{level}", turretLevel));
-				this.setSize(9 * 5);
-
-				this.rangeButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.BOW).name(Lang.of("Turrets_Menu.Range_Button_Title"))
-								.lore(Lang.ofArray("Turrets_Menu.Range_Button_Lore", "{range}", turretData.getLevel(turretLevel).getRange())),
-						Lang.of("Turrets_Menu.Range_Prompt_Message", "{range}", turretData.getLevel(turretLevel).getRange()),
-						new RangedValue(1, 40), () -> turretData.getLevel(turretLevel).getRange(), (Integer input) -> turretData.setRange(turretLevel, input));
-
-
-				this.laserEnabledButton = new Button() {
-					@Override
-					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
-						final boolean isEnabled = turretData.getLevel(turretLevel).isLaserEnabled();
-
-						turretData.setLaserEnabled(turretLevel, !isEnabled);
-						restartMenu((Lang.of("Turrets_Menu.Laser_Enabled_Button_Animated_Message", "{enabledOrDisabled}", isEnabled ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Enabled")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Disabled")))));
-					}
-
-					@Override
-					public ItemStack getItem() {
-						final boolean isEnabled = turretData.getLevel(turretLevel).isLaserEnabled();
-
-						return ItemCreator.of(isEnabled ? CompMaterial.GREEN_WOOL : CompMaterial.RED_WOOL, Lang.of("Turrets_Menu.Laser_Enabled_Button_Title"),
-								Lang.ofArray("Turrets_Menu.Laser_Enabled_Button_Lore", "{enabledOrDisabled}", isEnabled ? Lang.of("Placeholders.Enabled") : Lang.of("Placeholders.Disabled"))).make();
-					}
-				};
-
-				this.laserDamageButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.BLAZE_POWDER).name(Lang.of("Turrets_Menu.Laser_Damage_Button_Title"))
-								.lore(Lang.ofArray("Turrets_Menu.Laser_Damage_Button_Lore", "{damage}", turretData.getLevel(turretLevel).getLaserDamage())),
-						Lang.of("Turrets_Menu.Laser_Damage_Prompt_Message", "{damage}", turretData.getLevel(turretLevel).getLaserDamage()),
-						new RangedValue(0.0, 500.0), () -> turretData.getLevel(turretLevel).getLaserDamage(), (Double input) -> turretData.setLaserDamage(turretLevel, input));
-
-				this.lootButton = new ButtonMenu(new LevelMenu.TurretLootChancesMenu(), CompMaterial.CHEST,
-						Lang.of("Turrets_Menu.Loot_Drop_Button_Title"),
-						Lang.ofArray("Turrets_Menu.Loot_Drop_Button_Lore"));
-
-				this.healthButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.DIAMOND_CHESTPLATE).name(Lang.of("Turrets_Menu.Health_Button_Title"))
-								.lore(Lang.ofArray("Turrets_Menu.Health_Button_Lore", "{health}", turretData.getLevel(turretLevel).getMaxHealth())),
-						Lang.of("Turrets_Menu.Health_Prompt_Message", "{health}", turretData.getLevel(turretLevel).getMaxHealth()),
-						new RangedValue(0.0, 5000.0), () -> turretData.getLevel(turretLevel).getMaxHealth(), (Double input) -> turretData.getLevel(turretLevel).setMaxHealth(input));
-
-
-				this.previousLevelButton = new Button() {
-
-					final boolean aboveFirstLevel = turretLevel > 1;
-
-					@Override
-					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
-						if (aboveFirstLevel)
-							new LevelMenu(turretLevel - 1).displayTo(player);
-					}
-
-					@Override
-					public ItemStack getItem() {
-						return ItemCreator
-								.of(aboveFirstLevel ? CompMaterial.LIME_DYE : CompMaterial.GRAY_DYE,
-										aboveFirstLevel ? Lang.of("Turrets_Menu.Previous_Level_Button_Title_2") : Lang.of("Turrets_Menu.Previous_Level_Button_Title_1")).make();
-					}
-				};
-
-				this.nextLevelButton = new Button() {
-
-					@Override
-					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
-						final Menu nextLevelMenu;
-
-						if (!nextLevelExists)
-							turretData.createLevel();
-
-						nextLevelMenu = new LevelMenu(turretLevel + 1);
-						nextLevelMenu.displayTo(player);
-					}
-
-					@Override
-					public ItemStack getItem() {
-						return ItemCreator.of(nextLevelExists ? CompMaterial.LIME_DYE : CompMaterial.PURPLE_DYE,
-								nextLevelExists ? Lang.of("Turrets_Menu.Next_Level_Button_Title_2") : Lang.of("Turrets_Menu.Next_Level_Button_Title_1")).make();
-					}
-				};
-
-				this.removeLevelButton = new Button() {
-
-					@Override
-					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
-						TurretData.findById(turretData.getId()).removeLevel(turretLevel);
-
-						final Menu previousMenu = new LevelMenu(turretLevel - 1);
-
-						previousMenu.displayTo(player);
-						Common.runLater(() -> previousMenu.animateTitle(Lang.of("Turrets_Menu.Remove_Level_Button_Animated_Message", "{level}", turretLevel)));
-					}
-
-					@Override
-					public ItemStack getItem() {
-						return ItemCreator.of(CompMaterial.BARRIER, Lang.of("Turrets_Menu.Remove_Level_Button_Title", "{level}", turretLevel)).make();
-					}
-				};
-
-				this.priceButton = Button.makeDecimalPrompt(ItemCreator.of(
-								CompMaterial.SUNFLOWER,
-								Lang.of("Turrets_Menu.Price_Button_Title"),
-								Lang.ofArray("Turrets_Menu.Price_Button_Lore", "{price}", this.level.getPrice(), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME)),
-						Lang.of("Turrets_Menu.Price_Prompt_Message", "{price}", this.level.getPrice(), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME),
-						this.getTitle(), RangedValue.parse("0-100000"), () -> turretData.getLevel(turretLevel).getPrice(), (Double input) -> turretData.setLevelPrice(turretLevel, input));
-			}
-
-			private TurretData.TurretLevel getOrMakeLevel(final int turretLevel) {
-				TurretData.TurretLevel level = turretData.getLevel(turretLevel);
-
-				if (level == null)
-					level = turretData.addLevel();
-
-				return level;
-			}
-
-			@Override
-			protected String[] getInfo() {
-				return Lang.ofArray("Turrets_Menu.Level_Menu_Info_Button");
-			}
-
-			@Override
-			public ItemStack getItemAt(final int slot) {
-				final boolean nextLevelExists = this.turretLevel < turretData.getLevels() || turretData.getLevels() == 0;
-
-				if (!nextLevelExists && slot == getBottomCenterSlot() + 3)
-					return this.removeLevelButton.getItem();
-
-				return NO_ITEM;
-			}
-
-			@Override
-			public Menu newInstance() {
-				return new LevelMenu(turretLevel);
-			}
-
-			private class TurretLootChancesMenu extends MenuContainerChances {
-
-				TurretLootChancesMenu() {
-					super(LevelMenu.this);
-
-					this.setSize(54);
-					this.setTitle(Lang.of("Turrets_Menu.Turret_Loot_Menu_Title"));
-				}
-
-				@Override
-				protected boolean canEditItem(final MenuClickLocation location, final int slot, final ItemStack clicked, final ItemStack cursor, final InventoryAction action) {
-					return true;
-				}
-
-				@Override
-				protected void onMenuClose(final StrictMap<Integer, Tuple<ItemStack, Double>> items) {
-					turretData.setTurretLootChances(turretLevel, new ArrayList<>(items.values()));
-				}
-
-				@Override
-				protected ItemStack getDropAt(final int slot) {
-					final Tuple<ItemStack, Double> tuple = this.getTuple(slot);
-					return tuple != null ? tuple.getKey() : NO_ITEM;
-				}
-
-				@Override
-				protected double getDropChance(final int slot) {
-					final Tuple<ItemStack, Double> tuple = this.getTuple(slot);
-
-					return tuple != null ? tuple.getValue() : 0;
-				}
-
-				private Tuple<ItemStack, Double> getTuple(final int slot) {
-					final List<Tuple<ItemStack, Double>> items = turretData.getTurretLootChances(turretLevel);
-
-					return slot < items.size() ? items.get(slot) : null;
-				}
-
-				@Override
-				public boolean allowDecimalQuantities() {
-					return true;
-				}
-			}
-		}*/
 	}
-
-	/*private final class ValidateMenu extends Menu {
-
-	}*/ // TODO
-
-	/*@RequiredArgsConstructor
-	private enum TurretType {
-		ALL("all", TurretData.getTurrets()),
-		ARROW("arrow", TurretData.getTurretsOfType("arrow")),
-		FIREBALL("fireball", TurretData.getTurretsOfType("fireball")),
-		BEAM("beam", TurretData.getTurretsOfType("beam"));
-
-		private final String typeName;
-		private final List<? extends TurretData> turretTypeList;
-	}*/
 
 	public static void openAllTurretsSelectionMenu(final Player player) {
 		new TurretsMenu(player, "all").displayTo(player);

@@ -1,6 +1,7 @@
 package games.coob.laserturrets.sequence;
 
 import games.coob.laserturrets.model.TurretData;
+import games.coob.laserturrets.model.UnplacedData;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.SkullCreator;
@@ -10,12 +11,11 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Skull;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.mineacademy.fo.Common;
 import org.mineacademy.fo.PlayerUtil;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.plugin.SimplePlugin;
 
-public final class TurretPlaceSequence extends Sequence {
+public final class TurretPlaceSequence extends Sequence { // TODO limit turret placement per a player in sec and prevent a turret from being placed on the same block
 
 	private final Player player;
 
@@ -64,11 +64,14 @@ public final class TurretPlaceSequence extends Sequence {
 
 		final TurretSettings turretSettings = TurretSettings.findByName(this.type);
 		final Block skullBlock = this.block.getRelative(BlockFace.UP);
-		final TurretData turretData = TurretData.findById(this.turretId);
+		final UnplacedData unplacedData = UnplacedData.findById(this.turretId);
 
 		SkullCreator.blockWithBase64(skullBlock, turretSettings.getHeadTexture());
 		SkullCreator.rotateSkull((Skull) skullBlock.getState(), PlayerUtil.getFacing(this.player));
-		Common.runLater(() -> turretData.placeTurret(this.block));
+
+		final TurretData turretData = TurretData.createTurret(this.turretId, this.block);
+		turretData.registerFromUnplaced(unplacedData, this.block);
+		unplacedData.unregister();
 
 		this.removeLast();
 		this.block.removeMetadata("IsCreating", SimplePlugin.getInstance());

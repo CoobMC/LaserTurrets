@@ -20,18 +20,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
 
 /**
  * A whole class to create Guardian Lasers and Ender Crystal Beams using packets and reflection.<br>
  * Inspired by the API
  * <a href="https://www.spigotmc.org/resources/guardianbeamapi.18329">GuardianBeamAPI</a><br>
- * <b>1.9 -> 1.19.3</b>
+ * <b>1.9 -> 1.19.4</b>
  *
  * @author SkytAsul
- * @version 2.3.1
+ * @version 2.3.2
  * @see <a href="https://github.com/SkytAsul/GuardianBeam">GitHub repository</a>
  */
 public abstract class Laser {
@@ -665,7 +662,7 @@ public abstract class Laser {
 			return lastIssuedEID.getAndIncrement();
 		}
 
-		private static Logger logger;
+		//private static Logger logger;
 		private static int version;
 		private static int versionMinor;
 		private static String npack = "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
@@ -726,16 +723,6 @@ public abstract class Laser {
 
 		static {
 			try {
-				logger = new Logger("GuardianBeam", null) {
-					@Override
-					public void log(final LogRecord logRecord) {
-						logRecord.setMessage("[GuardianBeam] " + logRecord.getMessage());
-						super.log(logRecord);
-					}
-				};
-				logger.setParent(Bukkit.getServer().getLogger());
-				logger.setLevel(Level.ALL);
-
 				// e.g. Bukkit.getServer().getClass().getPackage().getName() -> org.bukkit.craftbukkit.v1_17_R1
 				String[] versions = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3].substring(1).split("_");
 				version = Integer.parseInt(versions[1]); // 1.X
@@ -744,14 +731,14 @@ public abstract class Laser {
 					versions = Bukkit.getBukkitVersion().split("-R")[0].split("\\.");
 					versionMinor = versions.length <= 2 ? 0 : Integer.parseInt(versions[2]);
 				} else versionMinor = Integer.parseInt(versions[2].substring(1)); // 1.X.Y
-				//logger.info("Found server version 1." + version + "." + versionMinor);
+				Common.log("Found server version 1." + version + "." + versionMinor);
 
 				mappings = ProtocolMappings.getMappings(version);
 				if (mappings == null) {
 					mappings = ProtocolMappings.values()[ProtocolMappings.values().length - 1];
-					logger.warning("Loaded not matching version of the mappings for your server version (1." + version + "." + versionMinor + ")");
+					Common.log("Loaded not matching version of the mappings for your server version (1." + version + "." + versionMinor + ")");
 				}
-				//logger.info("Loaded mappings " + mappings.name());
+				Common.log("Loaded mappings " + mappings.name());
 
 				final Class<?> entityTypesClass = getNMSClass("world.entity", "EntityTypes");
 				final Class<?> entityClass = getNMSClass("world.entity", "Entity");
@@ -794,7 +781,8 @@ public abstract class Laser {
 				packetTeleport = getNMSClass("network.protocol.game", "PacketPlayOutEntityTeleport").getDeclaredConstructor(version < 17 ? new Class<?>[0] : new Class<?>[]{entityClass});
 				packetTeam = getNMSClass("network.protocol.game", "PacketPlayOutScoreboardTeam");
 
-				blockPositionConstructor = getNMSClass("core", "BlockPosition").getConstructor(double.class, double.class, double.class);
+				blockPositionConstructor =
+						getNMSClass("core", "BlockPosition").getConstructor(int.class, int.class, int.class);
 
 				nmsWorld = Class.forName(cpack + "CraftWorld").getDeclaredMethod("getHandle").invoke(Bukkit.getWorlds().get(0));
 
@@ -834,10 +822,7 @@ public abstract class Laser {
 			} catch (final Exception e) {
 				e.printStackTrace();
 				final String errorMsg = "Laser Beam reflection failed to initialize. The util is disabled. Please ensure your version (" + Bukkit.getServer().getClass().getPackage().getName() + ") is supported.";
-				if (logger == null)
-					Common.log(errorMsg);
-				else
-					logger.severe(errorMsg);
+				Common.log(errorMsg);
 			}
 		}
 
@@ -851,9 +836,7 @@ public abstract class Laser {
 
 		public static Object createFakeDataWatcher() throws ReflectiveOperationException {
 			final Object watcher = watcherConstructor.newInstance(fakeSquid);
-			if (version > 13)
-				setField(watcher, "registrationLocked", false);
-
+			if (version > 13) setField(watcher, "registrationLocked", false);
 			return watcher;
 		}
 
@@ -865,7 +848,6 @@ public abstract class Laser {
 			final Object entity = squidConstructor.newInstance(squidType, nmsWorld);
 			setEntityIDs(entity, uuid, id);
 			moveFakeEntity(entity, location);
-
 			return entity;
 		}
 
@@ -924,7 +906,8 @@ public abstract class Laser {
 		}
 
 		public static void setCrystalWatcher(final Object watcher, final Location target) throws ReflectiveOperationException {
-			final Object blockPosition = blockPositionConstructor.newInstance(target.getX(), target.getY(), target.getZ());
+			final Object blockPosition =
+					blockPositionConstructor.newInstance(target.getBlockX(), target.getBlockY(), target.getBlockZ());
 			tryWatcherSet(watcher, watcherObject4, version < 13 ? com.google.common.base.Optional.of(blockPosition) : Optional.of(blockPosition));
 			tryWatcherSet(watcher, watcherObject5, Boolean.FALSE);
 		}
@@ -1053,7 +1036,12 @@ public abstract class Laser {
 					return Packets.versionMinor < 2 ? "aa" : "Z";
 				}
 			},
-			V1_19(19, "Z", "b", "e", "c", "d", 89, 38, null, null, "w", "a", "g") {
+			V1_19(19, null, "b", "e", "c", "d", 89, 38, null, null, "w", "a", "g") {
+				@Override
+				public String getWatcherFlags() {
+					return versionMinor < 4 ? "Z" : "an";
+				}
+
 				@Override
 				public int getGuardianID() {
 					return versionMinor < 3 ? 38 : 39;
@@ -1061,12 +1049,22 @@ public abstract class Laser {
 
 				@Override
 				public String getSquidTypeName() {
-					return versionMinor < 3 ? "aM" : "aN";
+					if (versionMinor < 3)
+						return "aM";
+					else if (versionMinor == 3)
+						return "aN";
+					else
+						return "aT";
 				}
 
 				@Override
 				public String getGuardianTypeName() {
-					return versionMinor < 3 ? "N" : "O";
+					if (versionMinor < 3)
+						return "N";
+					else if (versionMinor == 3)
+						return "O";
+					else
+						return "V";
 				}
 			},
 			;

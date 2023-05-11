@@ -2,6 +2,7 @@ package games.coob.laserturrets.menu;
 
 import games.coob.laserturrets.PlayerCache;
 import games.coob.laserturrets.model.TurretData;
+import games.coob.laserturrets.model.UnplacedData;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.Lang;
@@ -127,12 +128,13 @@ public class UpgradeMenu extends Menu {
 						.tag("id", turretData.getId()).make();
 
 				player.getInventory().addItem(turret);
-				turretData.setUnplacedTurret(turret);
-				//turretData.registerToUnplaced(turretData, turret);
+
+				final UnplacedData unplacedData = UnplacedData.createTurret(turretData.getId(), turretData.getType());
+				unplacedData.registerFromTurret(turretData, turret);
+				turretData.unregister();
+
 				player.closeInventory();
 				CompSound.BLOCK_ANVIL_DESTROY.play(player);
-
-				//turretData.unregister(turretData);
 				Messenger.success(player, Lang.of("Turret_Commands.Take_Turret_Message", "{turretType}", turretData.getType(), "{turretId}", turretData.getId()));
 			}
 

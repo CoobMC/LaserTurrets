@@ -2,6 +2,7 @@ package games.coob.laserturrets.command;
 
 import games.coob.laserturrets.model.Permissions;
 import games.coob.laserturrets.model.TurretData;
+import games.coob.laserturrets.model.UnplacedData;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.SkullCreator;
@@ -60,7 +61,10 @@ final class TakeCommand extends SimpleSubCommand {
 						.tag("id", turretData.getId()).make();
 
 				player.getInventory().addItem(turret);
-				turretData.unplaceTurret(turret);
+
+				final UnplacedData unplacedData = UnplacedData.createTurret(turretData.getId(), turretData.getType());
+				unplacedData.registerFromTurret(turretData, turret);
+				turretData.unregister();
 
 				Messenger.success(player, Lang.of("Turret_Commands.Take_Turret_Message", "{turretType}", turretData.getType(), "{turretId}", turretData.getId()));
 			} else
@@ -74,7 +78,10 @@ final class TakeCommand extends SimpleSubCommand {
 						.tag("id", turretData.getId()).make();
 
 				player.getInventory().addItem(turret);
-				turretData.unplaceTurret(turret);
+
+				final UnplacedData unplacedData = UnplacedData.createTurret(turretData.getId(), turretData.getType());
+				unplacedData.registerFromTurret(turretData, turret);
+				turretData.unregister();
 
 				Messenger.success(player, Lang.of("Turret_Commands.Take_Turret_Message", "{turretType}", turretData.getType(), "{turretId}", turretData.getId()));
 			} else

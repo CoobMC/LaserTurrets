@@ -20,7 +20,7 @@ public class LaserPointerTask extends BukkitRunnable {
 			final TurretSettings settings = TurretSettings.findByName(turretData.getType());
 			final int level = turretData.getCurrentLevel();
 
-			if (settings.getLevel(level) == null)
+			if (settings == null || settings.getLevel(level) == null)
 				continue;
 
 			if (!settings.getLevel(level).isLaserEnabled())
@@ -39,23 +39,6 @@ public class LaserPointerTask extends BukkitRunnable {
 			final Location targetLocation = nearestEntity.getEyeLocation();
 			final double distance = location.clone().add(0.5, 1.2, 0.5).distance(targetLocation);
 			final Vector vector = targetLocation.subtract(laserLocation).toVector().normalize().multiply(0.5);
-
-			/*laserLocation.setY(location.getY() + 1.2);
-			laserLocation.setX(location.getX() + 0.5);
-			laserLocation.setZ(location.getZ() + 0.5);
-
-			final double dX = laserLocation.getX() - nearestEntity.getLocation().getX();
-			final double dY = laserLocation.getY() - nearestEntity.getLocation().getY();
-			final double dZ = laserLocation.getZ() - nearestEntity.getLocation().getZ();
-
-			final double yaw = Math.atan2(dZ, dX);
-			final double pitch = Math.atan2(Math.sqrt(dZ * dZ + dX * dX), dY) + Math.PI;
-
-			final double X = Math.sin(pitch) * Math.cos(yaw);
-			final double Y = Math.sin(pitch) * Math.sin(yaw);
-			final double Z = Math.cos(pitch);
-
-			final Vector vector = new Vector(X, Z, Y);*/
 
 			for (double waypoint = 1; waypoint < distance + 0.5; waypoint += 0.5) {
 				laserLocation.add(vector);
