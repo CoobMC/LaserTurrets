@@ -4,6 +4,15 @@ import com.bekvon.bukkit.residence.Residence;
 import com.bekvon.bukkit.residence.containers.ResidencePlayer;
 import com.bekvon.bukkit.residence.protection.ClaimedResidence;
 import com.booksaw.betterTeams.Team;
+import com.dansplugins.factionsystem.MedievalFactions;
+import com.dansplugins.factionsystem.claim.MfClaimService;
+import com.dansplugins.factionsystem.claim.MfClaimedChunk;
+import com.dansplugins.factionsystem.faction.MfFaction;
+import com.dansplugins.factionsystem.faction.MfFactionService;
+import com.dansplugins.factionsystem.player.MfPlayer;
+import com.dansplugins.factionsystem.player.MfPlayerService;
+import com.dansplugins.factionsystem.relationship.MfFactionRelationshipService;
+import com.dansplugins.factionsystem.service.Services;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownyPermission;
@@ -39,6 +48,7 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.kingdoms.constants.group.Kingdom;
 import org.kingdoms.constants.group.model.relationships.KingdomRelation;
@@ -77,7 +87,7 @@ public class HookSystem {
 
 	private static KonquestHook konquestHook;
 
-	//private static MedievalFactionsHook medievalFactionsHook;
+	private static MedievalFactionsHook medievalFactionsHook;
 
 	private static ResidenceHook residenceHook;
 
@@ -116,8 +126,8 @@ public class HookSystem {
 		if (Common.doesPluginExist("Konquest"))
 			konquestHook = new KonquestHook();
 
-		/*if (Common.doesPluginExist("MedievalFactions"))
-			medievalFactionsHook = new MedievalFactionsHook();*/
+		if (Common.doesPluginExist("MedievalFactions"))
+			medievalFactionsHook = new MedievalFactionsHook();
 
 		if (Common.doesPluginExist("Residence"))
 			residenceHook = new ResidenceHook();
@@ -167,9 +177,9 @@ public class HookSystem {
 		return konquestHook != null;
 	}
 
-	/*public static boolean isMedievalFactionsLoaded() {
+	public static boolean isMedievalFactionsLoaded() {
 		return medievalFactionsHook != null;
-	}*/
+	}
 
 	public static boolean isResidenceLoaded() {
 		return residenceHook != null;
@@ -180,11 +190,11 @@ public class HookSystem {
 	// ------------------------------------------------------------------------------------------------------------
 
 	public static boolean canBuild(final Location location, final Player player) {
-		return canBuildInRegion(location, player) || canBuildKonquest(location, player) || canBuildInResidence(location, player) || /*canBuildInMedievalFaction(location, player) ||*/ canPlaceInTown(location.getBlock(), player) || canPlaceInSaberFaction(location, player) || canPlaceInFaction(location, player) || canPlaceInLand(location, player) || canPlaceInKingdom(location, player);
+		return canBuildInRegion(location, player) || canBuildKonquest(location, player) || canBuildInResidence(location, player) || canBuildInMedievalFaction(location, player) || canPlaceInTown(location.getBlock(), player) || canPlaceInSaberFaction(location, player) || canPlaceInFaction(location, player) || canPlaceInLand(location, player) || canPlaceInKingdom(location, player);
 	}
 
 	public static boolean isAlly(final Location location, final Player target, final OfflinePlayer turretOwner) {
-		return isTownAlly(location, target) || isKingdomAlly(location, target) || isLandAlly(location, target) || isClanAlly(turretOwner, target) || isTeamAlly(turretOwner, target) || isSaberFactionAlly(location, target) || isFactionAlly(location, target) || isUltimateClanAlly(turretOwner, target) || /*isMedievalFactionAlly(location, target) ||*/ isKonquestAlly(location, target) || isResidenceAlly(location, target);
+		return isTownAlly(location, target) || isKingdomAlly(location, target) || isLandAlly(location, target) || isClanAlly(turretOwner, target) || isTeamAlly(turretOwner, target) || isSaberFactionAlly(location, target) || isFactionAlly(location, target) || isUltimateClanAlly(turretOwner, target) || isMedievalFactionAlly(location, target) || isKonquestAlly(location, target) || isResidenceAlly(location, target);
 	}
 
 	// ------------------------------------------------------------------------------------------------------------
@@ -283,13 +293,13 @@ public class HookSystem {
 	// Medieval Factions
 	// ------------------------------------------------------------------------------------------------------------
 
-	/*public static boolean isMedievalFactionAlly(final Location location, final OfflinePlayer target) {
+	public static boolean isMedievalFactionAlly(final Location location, final OfflinePlayer target) {
 		return isMedievalFactionsLoaded() && medievalFactionsHook.isFactionAlly(location, target);
 	}
 
 	public static boolean canBuildInMedievalFaction(final Location location, final Player player) {
 		return isMedievalFactionsLoaded() && medievalFactionsHook.canBuildInFaction(location, player);
-	}*/
+	}
 
 	// ------------------------------------------------------------------------------------------------------------
 	// Konquest
@@ -565,7 +575,7 @@ class UltimateClansHook {
 	}
 }
 
-/*class MedievalFactionsHook {
+class MedievalFactionsHook {
 	public boolean canBuildInFaction(final Location location, final Player player) {
 		final Plugin medievalFactionsPlugin = Bukkit.getPluginManager().getPlugin("MedievalFactions");
 
@@ -617,7 +627,7 @@ class UltimateClansHook {
 
 		return false;
 	}
-}*/
+}
 
 class KonquestHook {
 

@@ -5,6 +5,7 @@ import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
+import games.coob.laserturrets.util.BlockUtil;
 import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.TurretUtil;
 import org.bukkit.Location;
@@ -16,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.Messenger;
+import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.menu.tool.Tool;
 import org.mineacademy.fo.plugin.SimplePlugin;
@@ -69,7 +71,7 @@ public abstract class TurretTool extends VisualTool {
 		final TurretSettings settings = TurretSettings.findByName(type);
 		final Block blockUp = block.getRelative(BlockFace.UP);
 
-		if (block.getType().isInteractable())
+		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_13) ? block.getType().isInteractable() : BlockUtil.isInteractable(block.getType()))
 			return;
 
 		if (Settings.TurretSection.BUILD_IN_OWN_TERRITORY && !HookSystem.canBuild(location, player) && !TurretData.isRegistered(block)) {

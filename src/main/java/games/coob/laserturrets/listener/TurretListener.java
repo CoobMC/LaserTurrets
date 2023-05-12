@@ -10,6 +10,7 @@ import games.coob.laserturrets.model.UnplacedData;
 import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.tools.TurretTool;
+import games.coob.laserturrets.util.BlockUtil;
 import games.coob.laserturrets.util.CompAttribute;
 import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.TurretUtil;
@@ -37,6 +38,7 @@ import org.bukkit.util.Vector;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.MathUtil;
 import org.mineacademy.fo.Messenger;
+import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.annotation.AutoRegister;
 import org.mineacademy.fo.menu.tool.Tool;
 import org.mineacademy.fo.remain.CompMetadata;
@@ -258,6 +260,10 @@ public final class TurretListener implements Listener {
 		}
 	}
 
+	@EventHandler
+	public void onTurretKill(final TurretKillEvent event) {
+	}
+
 	private void placeTurret(final ItemStack item, final BlockPlaceEvent event) {
 		final String id = CompMetadata.getMetadata(item, "id");
 		final UnplacedData turretData = UnplacedData.findById(id);
@@ -268,7 +274,7 @@ public final class TurretListener implements Listener {
 
 		event.setCancelled(true);
 
-		if (block.getType().isInteractable())
+		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_13) ? block.getType().isInteractable() : BlockUtil.isInteractable(block.getType()))
 			return;
 
 		if (Settings.TurretSection.BUILD_IN_OWN_TERRITORY && !HookSystem.canBuild(location, player) && !TurretData.isRegistered(block)) {

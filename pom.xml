@@ -13,7 +13,7 @@
     <name>LaserTurrets</name>
 
     <!-- Change to the appropriate plugin's version, starting at 1.0.0. -->
-    <version>3.0.2</version>
+    <version>3.0.3</version>
 
     <!-- DO NOT EDIT. -->
     <packaging>jar</packaging>
@@ -155,13 +155,13 @@
             <version>${uclans.version}</version>
         </dependency>
 
-        <!-- <dependency>
-             <groupId>Factions</groupId>
-             <artifactId>MedievalFactions</artifactId>
-             <version>LATEST</version>
-             <scope>system</scope>
-             <systemPath>${project.basedir}/libs/Medieval-Factions.jar</systemPath>
-         </dependency>-->
+        <dependency>
+            <groupId>Factions</groupId>
+            <artifactId>MedievalFactions</artifactId>
+            <version>LATEST</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/Medieval-Factions.jar</systemPath>
+        </dependency>
 
         <dependency>
             <groupId>me.glaremasters</groupId>
