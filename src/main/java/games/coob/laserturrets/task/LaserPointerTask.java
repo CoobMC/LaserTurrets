@@ -5,8 +5,10 @@ import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.EntityUtil;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.mineacademy.fo.plugin.SimplePlugin;
 import org.mineacademy.fo.remain.CompParticle;
 
 public class LaserPointerTask extends BukkitRunnable {
@@ -45,8 +47,10 @@ public class LaserPointerTask extends BukkitRunnable {
 				CompParticle.REDSTONE.spawn(laserLocation);
 			}
 
-			if (settings.getLevel(level).isLaserEnabled() && damage > 0)
+			if (settings.getLevel(level).isLaserEnabled() && damage > 0) {
+				nearestEntity.setMetadata("TurretDamage", new FixedMetadataValue(SimplePlugin.getInstance(), turretData.getId()));
 				nearestEntity.damage(damage);
+			}
 		}
 	}
 }

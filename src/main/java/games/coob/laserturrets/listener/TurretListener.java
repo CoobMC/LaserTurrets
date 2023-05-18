@@ -14,6 +14,7 @@ import games.coob.laserturrets.util.BlockUtil;
 import games.coob.laserturrets.util.CompAttribute;
 import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.TurretUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -21,10 +22,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.ItemDespawnEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -33,6 +31,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 import org.mineacademy.fo.Common;
@@ -41,6 +40,7 @@ import org.mineacademy.fo.Messenger;
 import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.annotation.AutoRegister;
 import org.mineacademy.fo.menu.tool.Tool;
+import org.mineacademy.fo.plugin.SimplePlugin;
 import org.mineacademy.fo.remain.CompMetadata;
 import org.mineacademy.fo.remain.CompParticle;
 import org.mineacademy.fo.remain.CompSound;
@@ -231,7 +231,9 @@ public final class TurretListener implements Listener {
 	public void onEntityDamage(final EntityDamageEvent event) {
 		final Entity entity = event.getEntity();
 
-		if (entity instanceof Item) {
+		if (entity instanceof LivingEntity && entity.hasMetadata("TurretDamage")) {
+			Common.runLater(2, () -> entity.removeMetadata("TurretDamage", SimplePlugin.getInstance()));
+		} else if (entity instanceof Item) {
 			final Item despawnedItem = (Item) event.getEntity();
 
 			for (final UnplacedData data : UnplacedData.getUnplacedTurrets()) {
@@ -261,7 +263,51 @@ public final class TurretListener implements Listener {
 	}
 
 	@EventHandler
-	public void onTurretKill(final TurretKillEvent event) {
+	public void onEntityDeath(final EntityDeathEvent event) {
+		final LivingEntity entity = event.getEntity();
+		final Player player = entity.getKiller();
+		final EntityDamageEvent lastDamageCause = entity.getLastDamageCause();
+
+		if (player != null)
+			return;
+
+		System.out.println("has meta: " + entity.hasMetadata("TurretDamage"));
+
+		if (lastDamageCause instanceof EntityDamageByEntityEvent) {
+			final EntityDamageByEntityEvent entityDamageByEntityEvent = (EntityDamageByEntityEvent) lastDamageCause;
+			final Entity damager = entityDamageByEntityEvent.getDamager();
+
+			if (damager instanceof Projectile) {
+				final Projectile projectile = (Projectile) damager;
+
+				if (projectile.hasMetadata("LaserTurrets"))
+					turretKillAction(projectile, event, "LaserTurrets");
+			}
+		} else if (entity.hasMetadata("TurretDamage"))
+			turretKillAction(entity, event, "TurretDamage");
+	}
+
+	private void turretKillAction(final Entity entity, final EntityDeathEvent event, final String metadataKey) {
+		String turretId = null;
+		final LivingEntity victim = event.getEntity();
+
+		for (final MetadataValue value : entity.getMetadata(metadataKey))
+			turretId = value.asString();
+
+		final TurretKillEvent turretKillEvent = new TurretKillEvent(victim, turretId);
+
+		if (Settings.TurretSection.REMOVE_DROPS_ON_MOB_KILL && !(entity instanceof Player))
+			event.getDrops().clear();
+
+		Bukkit.getPluginManager().callEvent(turretKillEvent);
+
+		if (event instanceof PlayerDeathEvent && Settings.TurretSection.ENABLE_TURRET_KILL_MESSAGE) {
+			final PlayerDeathEvent playerDeathEvent = (PlayerDeathEvent) event;
+			final TurretData turretData = turretKillEvent.getTurretData();
+			final String message = Common.colorize(Lang.of("Turret_Display.Turret_Player_Kill_Message", "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{turretType}", turretData.getType(), "{victim}", victim.getName()));
+
+			playerDeathEvent.setDeathMessage(message);
+		}
 	}
 
 	private void placeTurret(final ItemStack item, final BlockPlaceEvent event) {
@@ -274,11 +320,16 @@ public final class TurretListener implements Listener {
 
 		event.setCancelled(true);
 
+		if (Settings.TurretSection.BLACKLISTED_WORLDS.contains(block.getWorld().getName())) {
+			Messenger.error(player, Lang.of("Tool.Blacklisted_World"));
+			return;
+		}
+
 		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_13) ? block.getType().isInteractable() : BlockUtil.isInteractable(block.getType()))
 			return;
 
 		if (Settings.TurretSection.BUILD_IN_OWN_TERRITORY && !HookSystem.canBuild(location, player) && !TurretData.isRegistered(block)) {
-			Messenger.error(player, "You cannot place turrets in this region.");
+			Messenger.error(player, Lang.of("Tool.Not_Permitted_In_Region"));
 			return;
 		}
 

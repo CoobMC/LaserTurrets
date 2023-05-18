@@ -29,6 +29,13 @@ Turret:
   Placement_Particle_Count: 50
   # The sound that is played when the turret is placed
   Placement_Sound: "FIREWORK_BLAST"
+  # Should we display a message when a turret kills a player (you can edit the message in the your "messages.yml" file under the "Turret_Display.Turret_Player_Kill_Message" section).
+  Enable_Turret_Kill_Message: true
+  # If set to true loot will no longer drop when a turret kills a mob (useful if you would like to prevent players to use turrets for farming mobs)
+  Remove_Drops_On_Mob_Kill: false
+  # Add the worlds you would like turret placement to be disabled
+  Blacklisted_Worlds:
+    - exampleWolrd
   # If set to true, prevent players from building/placing turrets on enemy territory, they can only build where they're allowed to build.
   # Supported plugins : WorldGuard, Towny, Residence, Konquest, Residence, Medieval Factions, Towny, SaberFactions, FactionsUUID, Lands, KingdomsX
   Build_In_Own_Territory: false
@@ -95,4 +102,4 @@ Debug: [ ]
 # Do not change this value, otherwise it will corrupt your plugin installation!
 # NB: Don't forget to keep this up-to-date with the getConfigVersion method in your Settings class. 
 # -------------------------------------------------------------------------------------------------
-Version: 3
+Version: 4

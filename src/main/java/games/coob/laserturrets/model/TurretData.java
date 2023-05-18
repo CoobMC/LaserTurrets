@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 @Getter
-public class TurretData extends YamlConfig {
+public class TurretData extends YamlConfig { // TODO create ammo and number of kills
 
 	/**
 	 * The folder name where all items are stored

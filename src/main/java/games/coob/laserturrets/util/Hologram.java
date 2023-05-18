@@ -135,26 +135,29 @@ public class Hologram implements ConfigSerializable {
 	 */
 	private ArmorStand createEntity() {
 		final Location location = this.getLastTeleportLocation();
+		final ArmorStand armorStand;
 
 		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_11)) {
-			final Consumer<ArmorStand> consumer = armorStand -> {
-				armorStand.setMarker(true);
-				CompProperty.GRAVITY.apply(armorStand, false);
-				armorStand.setSmall(true);
-				armorStand.setVisible(false);
+			final Consumer<ArmorStand> consumer = stand -> {
+				stand.setMarker(true);
+				CompProperty.GRAVITY.apply(stand, false);
+				stand.setSmall(true);
+				stand.setVisible(false);
 			};
 
-			return location.getWorld().spawn(location, ArmorStand.class, consumer);
+			armorStand = location.getWorld().spawn(location, ArmorStand.class, consumer);
 		} else {
-			final ArmorStand armorStand = location.getWorld().spawn(location, ArmorStand.class);
+			final ArmorStand stand = location.getWorld().spawn(location, ArmorStand.class);
 
-			CompProperty.GRAVITY.apply(armorStand, false);
-			armorStand.setVisible(false);
-			armorStand.setMarker(true);
-			armorStand.setSmall(true);
+			CompProperty.GRAVITY.apply(stand, false);
+			stand.setVisible(false);
+			stand.setMarker(true);
+			stand.setSmall(true);
 
-			return armorStand;
+			armorStand = stand;
 		}
+
+		return armorStand;
 	}
 
 	private ArmorStand createLoreEntity(final Location location) {
@@ -288,7 +291,10 @@ public class Hologram implements ConfigSerializable {
 	 * Deletes this armor stand
 	 */
 	public final void remove() {
-		this.removeLore();
+		for (final Entity entity : this.loreEntities)
+			entity.remove();
+
+		this.loreEntities.clear();
 
 		if (this.entity != null)
 			this.entity.remove();
@@ -296,7 +302,7 @@ public class Hologram implements ConfigSerializable {
 		registeredItems.remove(this);
 	}
 
-	public final void updateLore(final String[] loreLines) {
+	public final void updateLore(final String... loreLines) {
 		final List<String> list = new ArrayList<>(Arrays.asList(loreLines));
 
 		for (int i = 0; i < list.size(); i++) {

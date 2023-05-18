@@ -8,9 +8,11 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.SmallFireball;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.mineacademy.fo.Common;
+import org.mineacademy.fo.plugin.SimplePlugin;
 
 public class FireballTask extends BukkitRunnable {
 
@@ -31,11 +33,11 @@ public class FireballTask extends BukkitRunnable {
 			if (nearestEntity == null)
 				continue;
 
-			shootFireball(nearestEntity, block);
+			shootFireball(nearestEntity, block, turretData.getId());
 		}
 	}
 
-	private void shootFireball(final LivingEntity target, final Block block) {
+	private void shootFireball(final LivingEntity target, final Block block, final String turretId) {
 		if (target != null) {
 			final Location blockLocation = block.getLocation().clone().add(0.5, 1.4, 0.5);
 			final Location targetLocation = target.getEyeLocation().clone();
@@ -44,6 +46,7 @@ public class FireballTask extends BukkitRunnable {
 
 			fireball.setDirection(vector);
 			fireball.setIsIncendiary(false);
+			fireball.setMetadata("LaserTurrets", new FixedMetadataValue(SimplePlugin.getInstance(), turretId));
 
 			for (int i = 0; i <= 10; i++) {
 				if (fireball.getLocation().getBlock().getType() != Material.AIR) {

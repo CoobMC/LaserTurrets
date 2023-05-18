@@ -19,7 +19,7 @@ import java.util.List;
  * file in your jar.
  */
 @SuppressWarnings("unused")
-public final class Settings extends SimpleSettings { // TODO add block pass through list
+public final class Settings extends SimpleSettings {
 
 	/**
 	 * Place the sections where user can create new "key: value" pairs
@@ -49,6 +49,9 @@ public final class Settings extends SimpleSettings { // TODO add block pass thro
 		public static CompSound PLACEMENT_SOUND;
 		public static Boolean BUILD_IN_OWN_TERRITORY;
 		public static Boolean ALLY_PROTECTION;
+		public static List<String> BLACKLISTED_WORLDS;
+		public static Boolean ENABLE_TURRET_KILL_MESSAGE;
+		public static Boolean REMOVE_DROPS_ON_MOB_KILL;
 
 		/*
 		 * Automatically called method when we load settings.yml to load values in this subclass
@@ -69,6 +72,9 @@ public final class Settings extends SimpleSettings { // TODO add block pass thro
 			PLACEMENT_PARTICLE = get("Placement_Particle", CompParticle.class);
 			PLACEMENT_PARTICLE_COUNT = getInteger("Placement_Particle_Count");
 			PLACEMENT_SOUND = get("Placement_Sound", CompSound.class);
+			ENABLE_TURRET_KILL_MESSAGE = getBoolean("Enable_Turret_Kill_Message");
+			REMOVE_DROPS_ON_MOB_KILL = getBoolean("Remove_Drops_On_Mob_Kill");
+			BLACKLISTED_WORLDS = getStringList("Blacklisted_Worlds");
 			BUILD_IN_OWN_TERRITORY = getBoolean("Build_In_Own_Territory");
 			ALLY_PROTECTION = getBoolean("Ally_Protection");
 		}
@@ -125,6 +131,6 @@ public final class Settings extends SimpleSettings { // TODO add block pass thro
 	 */
 	@Override
 	protected int getConfigVersion() {
-		return 3;
+		return 4;
 	}
 }

@@ -216,15 +216,6 @@ public abstract class TurretSettings extends YamlConfig {
 
 		private List<Tuple<ItemStack, Double>> lootChances;
 
-		/*public void setLevelData(final TurretData.TurretLevel turretLevel) {
-			turretLevel.setRange(this.range);
-			turretLevel.setPrice(this.price);
-			turretLevel.setLaserEnabled(this.laserEnabled);
-			turretLevel.setLaserDamage(this.laserDamage);
-			turretLevel.setMaxHealth(this.health);
-			turretLevel.setLootChances(this.lootChances);
-		}*/
-
 		public void setLevelSettings(final LevelData levelData, final LevelData newLevel) {
 			newLevel.setRange(levelData.getRange());
 			newLevel.setPrice(levelData.getPrice());
@@ -270,7 +261,7 @@ public abstract class TurretSettings extends YamlConfig {
 	}
 
 	// -----------------------------------------------------------------
-	// Static TODO check how to use these methods
+	// Static
 	// -----------------------------------------------------------------
 
 	/**

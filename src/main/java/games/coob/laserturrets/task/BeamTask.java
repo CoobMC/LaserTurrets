@@ -7,6 +7,7 @@ import games.coob.laserturrets.util.EntityUtil;
 import games.coob.laserturrets.util.Laser;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.MinecraftVersion;
@@ -43,12 +44,17 @@ public class BeamTask extends BukkitRunnable {
 					beam_v1_8.start();
 					CompSound.WITHER_IDLE.play(turretLocation, 0.4F, 2F);
 				}
-
-				nearestEntity.damage(1);
-				Common.runLater(10, () -> nearestEntity.damage(1));
 			} catch (final ReflectiveOperationException e) {
 				e.printStackTrace();
 			}
+
+			nearestEntity.setMetadata("TurretDamage", new FixedMetadataValue(SimplePlugin.getInstance(), turretData.getId()));
+			nearestEntity.damage(1.5);
+
+			Common.runLater(10, () -> {
+				nearestEntity.setMetadata("TurretDamage", new FixedMetadataValue(SimplePlugin.getInstance(), turretData.getId()));
+				nearestEntity.damage(1.5);
+			});
 		}
 	}
 }

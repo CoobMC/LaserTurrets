@@ -122,6 +122,8 @@ Turret_Display:
     - "&c{turretType} Turret"
     - "&cis broken!"
     - "&6Owner: {owner}"
+  # Placeholders : {owner}, {turretType}, {victim}
+  Turret_Player_Kill_Message: "&6{owner}'s {turretType} turret has killed &c{victim}&6!"
 
 # -------------------------------------------------------------------------------------------------
 # Messages that are displayed in the Manage Allies menu
@@ -597,6 +599,8 @@ Tool:
   Turret_Cannot_Be_Placed: "Turrets can only be created on solid blocks and there cannot be any block above it."
   Turret_Min_Distance_Breached: "Turrets must be further apart (minimum distance: {distance} blocks)."
   Block_Is_Already_Turret: "This block is already a turret."
+  Blacklisted_World: "You cannot place turrets in this world because it has been blacklisted."
+  Not_Permitted_In_Region: "You cannot place turrets in this region."
   Wait_Before_Place: "Please wait before placing another turret."
   Registered_Turret_Message: "Successfully &aregistered &7the {turretType} turret at {location}."
   Registered_Turret_Hologram: "&aRegistered {turretType} Turret"

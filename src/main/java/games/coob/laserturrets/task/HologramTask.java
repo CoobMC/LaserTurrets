@@ -33,6 +33,9 @@ public final class HologramTask extends BukkitRunnable {
 
 				hologram.spawn();
 			}
+
+			if (player == null)
+				hologram.remove();
 		}
 	}
 }

@@ -8,9 +8,11 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.mineacademy.fo.Common;
+import org.mineacademy.fo.plugin.SimplePlugin;
 
 public class ArrowTask extends BukkitRunnable {
 
@@ -30,11 +32,11 @@ public class ArrowTask extends BukkitRunnable {
 			if (nearestEntity == null)
 				continue;
 
-			shootArrowFromBlock(nearestEntity, location.getBlock());
+			shootArrowFromBlock(nearestEntity, location.getBlock(), turretData.getId());
 		}
 	}
 
-	private void shootArrowFromBlock(final LivingEntity target, final Block block) {
+	private void shootArrowFromBlock(final LivingEntity target, final Block block, final String turretId) {
 		final Location blockLocation = block.getLocation().clone().add(0.5, 1.4, 0.5);
 		final Location targetLocation = target.getEyeLocation().clone();
 		final double distance = blockLocation.distance(targetLocation);
@@ -56,6 +58,8 @@ public class ArrowTask extends BukkitRunnable {
 		final double power = Math.pow(2, 0.04 * distance);
 		vector.multiply(power);
 		vector.add(new Vector(0, power * 0.15, 0));
+
+		arrow.setMetadata("LaserTurrets", new FixedMetadataValue(SimplePlugin.getInstance(), turretId));
 
 		arrow.setVelocity(vector);
 		Common.runLater(80, arrow::remove);

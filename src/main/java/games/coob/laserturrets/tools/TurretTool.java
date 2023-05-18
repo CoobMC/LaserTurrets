@@ -71,11 +71,16 @@ public abstract class TurretTool extends VisualTool {
 		final TurretSettings settings = TurretSettings.findByName(type);
 		final Block blockUp = block.getRelative(BlockFace.UP);
 
+		if (Settings.TurretSection.BLACKLISTED_WORLDS.contains(block.getWorld().getName())) {
+			Messenger.error(player, Lang.of("Tool.Blacklisted_World"));
+			return;
+		}
+
 		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_13) ? block.getType().isInteractable() : BlockUtil.isInteractable(block.getType()))
 			return;
 
 		if (Settings.TurretSection.BUILD_IN_OWN_TERRITORY && !HookSystem.canBuild(location, player) && !TurretData.isRegistered(block)) {
-			Messenger.error(player, "You cannot place turrets in this region.");
+			Messenger.error(player, Lang.of("Tool.Not_Permitted_In_Region"));
 			return;
 		}
 

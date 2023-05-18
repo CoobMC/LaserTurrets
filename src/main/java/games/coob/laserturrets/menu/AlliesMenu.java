@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class AlliesMenu extends Menu { // TODO only sync turrets with owner turrets | Error only occurs when creating the  | remove data type
+public class AlliesMenu extends Menu {
 
 	private final TurretData turretData;
 
