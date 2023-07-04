@@ -274,6 +274,13 @@ Settings_Menu:
     - "value of this turret."
   Head_Texture_Prompt_Message: "Insert a base64 head texture value for {turretType} turrets. Website: &bhttps://minecraft-heads.com/custom-heads"
   Head_Texture_Prompt_Invalid_Text: "The &e'{invalidType}' &cbase64 value is invalid."
+  Invincible_Button_Title: "Enable/Disable Invincibility"
+  Invincibility_Enabled_Button_Lore:
+    - "Click to enable or disable"
+    - "invincibility for this type of turret."
+    - ""
+    - "Current: {enabledOrDisabled}"
+  Invincibility_Enabled_Button_Animated_Message: "{enableOrDisabled} invincibility"
   Level_Edit_Button_Title: "Level Menu"
   Level_Edit_Button_Lore:
     - "Open this menu to upgrade"

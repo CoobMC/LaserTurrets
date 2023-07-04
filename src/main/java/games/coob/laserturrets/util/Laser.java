@@ -9,7 +9,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
-import org.mineacademy.fo.Common;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -20,15 +19,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 /**
  * A whole class to create Guardian Lasers and Ender Crystal Beams using packets and reflection.<br>
  * Inspired by the API
  * <a href="https://www.spigotmc.org/resources/guardianbeamapi.18329">GuardianBeamAPI</a><br>
- * <b>1.9 -> 1.19.4</b>
+ * <b>1.9 -> 1.20</b>
  *
  * @author SkytAsul
- * @version 2.3.2
+ * @version 2.3.3
  * @see <a href="https://github.com/SkytAsul/GuardianBeam">GitHub repository</a>
  */
 public abstract class Laser {
@@ -662,7 +664,7 @@ public abstract class Laser {
 			return lastIssuedEID.getAndIncrement();
 		}
 
-		//private static Logger logger;
+		private static Logger logger;
 		private static int version;
 		private static int versionMinor;
 		private static String npack = "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
@@ -723,6 +725,16 @@ public abstract class Laser {
 
 		static {
 			try {
+				logger = new Logger("LaserTurrets", null) {
+					@Override
+					public void log(final LogRecord logRecord) {
+						logRecord.setMessage("[LaserTurrets] " + logRecord.getMessage());
+						super.log(logRecord);
+					}
+				};
+				logger.setParent(Bukkit.getServer().getLogger());
+				logger.setLevel(Level.ALL);
+
 				// e.g. Bukkit.getServer().getClass().getPackage().getName() -> org.bukkit.craftbukkit.v1_17_R1
 				String[] versions = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3].substring(1).split("_");
 				version = Integer.parseInt(versions[1]); // 1.X
@@ -731,14 +743,14 @@ public abstract class Laser {
 					versions = Bukkit.getBukkitVersion().split("-R")[0].split("\\.");
 					versionMinor = versions.length <= 2 ? 0 : Integer.parseInt(versions[2]);
 				} else versionMinor = Integer.parseInt(versions[2].substring(1)); // 1.X.Y
-				Common.log("Found server version 1." + version + "." + versionMinor);
+				logger.info("Found server version 1." + version + "." + versionMinor);
 
 				mappings = ProtocolMappings.getMappings(version);
 				if (mappings == null) {
 					mappings = ProtocolMappings.values()[ProtocolMappings.values().length - 1];
-					Common.log("Loaded not matching version of the mappings for your server version (1." + version + "." + versionMinor + ")");
+					logger.warning("Loaded not matching version of the mappings for your server version (1." + version + "." + versionMinor + ")");
 				}
-				Common.log("Loaded mappings " + mappings.name());
+				logger.info("Loaded mappings " + mappings.name());
 
 				final Class<?> entityTypesClass = getNMSClass("world.entity", "EntityTypes");
 				final Class<?> entityClass = getNMSClass("world.entity", "Entity");
@@ -798,7 +810,8 @@ public abstract class Laser {
 				tryWatcherSet(fakeSquidWatcher, watcherObject1, (byte) 32);
 
 				getHandle = Class.forName(cpack + "entity.CraftPlayer").getDeclaredMethod("getHandle");
-				playerConnection = getNMSClass("server.level", "EntityPlayer").getDeclaredField(version < 17 ? "playerConnection" : "b");
+				playerConnection = getNMSClass("server.level", "EntityPlayer")
+						.getDeclaredField(version < 17 ? "playerConnection" : (version < 20 ? "b" : "c"));
 				sendPacket = getNMSClass("server.network", "PlayerConnection").getMethod(version < 18 ? "sendPacket" : "a", getNMSClass("network.protocol", "Packet"));
 
 				if (version >= 17) {
@@ -822,7 +835,10 @@ public abstract class Laser {
 			} catch (final Exception e) {
 				e.printStackTrace();
 				final String errorMsg = "Laser Beam reflection failed to initialize. The util is disabled. Please ensure your version (" + Bukkit.getServer().getClass().getPackage().getName() + ") is supported.";
-				Common.log(errorMsg);
+				if (logger == null)
+					System.err.println(errorMsg);
+				else
+					logger.severe(errorMsg);
 			}
 		}
 
@@ -1067,6 +1083,7 @@ public abstract class Laser {
 						return "V";
 				}
 			},
+			V1_20(20, "an", "b", "e", "c", "d", 89, 38, "V", "aT", "B", "a", "g"),
 			;
 
 			private final int major;
@@ -1177,5 +1194,4 @@ public abstract class Laser {
 	public static interface ReflectiveConsumer<T> {
 		abstract void accept(T t) throws ReflectiveOperationException;
 	}
-
 }

@@ -1,6 +1,5 @@
 package games.coob.laserturrets.model;
 
-import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.Hologram;
 import games.coob.laserturrets.util.Lang;
@@ -252,11 +251,12 @@ public class TurretData extends YamlConfig { // TODO create ammo and number of k
 		this.save();
 	}
 
-	private Hologram createHologram() {
-		final List<String> lore = Lang.ofList("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(this.getType()), "{owner}", Remain.getOfflinePlayerByUUID(this.getOwner()).getName(), "{level}", MathUtil.toRoman(this.getCurrentLevel()), "{health}", this.getCurrentHealth());
+	private Hologram createHologram() { // TODO
+		final String type = this.type;
+		final List<String> lore = Lang.ofList("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(type), "{owner}", Remain.getOfflinePlayerByUUID(this.getOwner()).getName(), "{level}", MathUtil.toRoman(this.getCurrentLevel()), "{health}", this.getCurrentHealth());
 		final List<String> loreList = new ArrayList<>(lore);
 
-		if (!Settings.TurretSection.ENABLE_DAMAGEABLE_TURRETS)
+		if (TurretSettings.findByName(type).isInvincible())
 			loreList.removeIf(line -> line.contains(String.valueOf(this.getCurrentHealth())));
 
 		final Object[] objects = loreList.toArray();

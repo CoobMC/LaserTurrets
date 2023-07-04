@@ -13,8 +13,6 @@ Turret:
   Display_Holograms: true
   # Display an action bar when a player damages a turret
   Display_Action_Bar: true
-  # Should turrets be damageable ?
-  Enable_Damageable_Turrets: true
   # The minimum distance between turrets
   Turret_Min_Distance: 2
   # The particle that spawns when the turret is created

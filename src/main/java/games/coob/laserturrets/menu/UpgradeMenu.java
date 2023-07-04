@@ -84,7 +84,7 @@ public class UpgradeMenu extends Menu {
 							final String[] lore = Lang.ofArray("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(turretData.getType()), "{owner}", Remain.getOfflinePlayerByUUID(turretData.getOwner()).getName(), "{level}", MathUtil.toRoman(turretData.getCurrentLevel()), "{health}", turretData.getCurrentHealth());
 							final List<String> list = new ArrayList<>(Arrays.asList(lore));
 
-							if (!Settings.TurretSection.ENABLE_DAMAGEABLE_TURRETS) {
+							if (TurretSettings.findByName(turretData.getType()).isInvincible()) {
 								list.removeIf(line -> line.contains(String.valueOf(turretData.getCurrentHealth())));
 							}
 

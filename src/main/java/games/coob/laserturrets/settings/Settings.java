@@ -39,7 +39,6 @@ public final class Settings extends SimpleSettings {
 	public static class TurretSection {
 		public static Boolean DISPLAY_HOLOGRAM;
 		public static Boolean DISPLAY_ACTION_BAR;
-		public static Boolean ENABLE_DAMAGEABLE_TURRETS;
 		public static Integer TURRET_MIN_DISTANCE;
 		public static CompParticle CREATION_PARTICLE;
 		public static Integer CREATION_PARTICLE_COUNT;
@@ -64,7 +63,6 @@ public final class Settings extends SimpleSettings {
 
 			DISPLAY_HOLOGRAM = getBoolean("Display_Holograms");
 			DISPLAY_ACTION_BAR = getBoolean("Display_Action_Bar");
-			ENABLE_DAMAGEABLE_TURRETS = getBoolean("Enable_Damageable_Turrets");
 			TURRET_MIN_DISTANCE = getInteger("Turret_Min_Distance");
 			CREATION_PARTICLE = get("Creation_Particle", CompParticle.class);
 			CREATION_PARTICLE_COUNT = getInteger("Creation_Particle_Count");

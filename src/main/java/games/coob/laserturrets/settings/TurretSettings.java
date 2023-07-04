@@ -50,6 +50,8 @@ public abstract class TurretSettings extends YamlConfig {
 
 	private boolean enablePlayerWhitelist;
 
+	private boolean invincible;
+
 	private int turretLimit;
 
 	protected TurretSettings(final String turretName, @Nullable final TurretType type) {
@@ -68,6 +70,7 @@ public abstract class TurretSettings extends YamlConfig {
 		this.mobList = this.getSet("Mob_Blacklist", EntityType.class);
 		this.enableMobWhitelist = this.getBoolean("Use_Mob_Whitelist");
 		this.enablePlayerWhitelist = this.getBoolean("Use_Player_Whitelist");
+		this.invincible = this.getBoolean("Invincible");
 		this.levels = this.getList("Levels", LevelData.class);
 	}
 
@@ -78,6 +81,7 @@ public abstract class TurretSettings extends YamlConfig {
 		this.set("Mob_Blacklist", this.mobList);
 		this.set("Use_Player_Whitelist", this.enablePlayerWhitelist);
 		this.set("Use_Mob_Whitelist", this.enableMobWhitelist);
+		this.set("Invincible", this.invincible);
 		this.set("Levels", this.levels);
 	}
 
@@ -194,6 +198,12 @@ public abstract class TurretSettings extends YamlConfig {
 
 	public void enablePlayerWhitelist(final boolean enablePlayerWhitelist) {
 		this.enablePlayerWhitelist = enablePlayerWhitelist;
+
+		this.save();
+	}
+
+	public void setInvincible(final boolean invincible) {
+		this.invincible = invincible;
 
 		this.save();
 	}

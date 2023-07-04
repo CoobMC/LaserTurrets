@@ -9,6 +9,7 @@ import games.coob.laserturrets.model.TurretData;
 import games.coob.laserturrets.model.UnplacedData;
 import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
+import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.tools.TurretTool;
 import games.coob.laserturrets.util.BlockUtil;
 import games.coob.laserturrets.util.CompAttribute;
@@ -271,8 +272,6 @@ public final class TurretListener implements Listener {
 		if (player != null)
 			return;
 
-		System.out.println("has meta: " + entity.hasMetadata("TurretDamage"));
-
 		if (lastDamageCause instanceof EntityDamageByEntityEvent) {
 			final EntityDamageByEntityEvent entityDamageByEntityEvent = (EntityDamageByEntityEvent) lastDamageCause;
 			final Entity damager = entityDamageByEntityEvent.getDamager();
@@ -350,6 +349,9 @@ public final class TurretListener implements Listener {
 	private void damageTurret(final LivingEntity entity, final Block block, final double damage) {
 		final TurretData turretData = TurretData.findByBlock(block);
 
+		if (turretData != null && TurretSettings.findByName(turretData.getType()).isInvincible())
+			return;
+
 		if (entity instanceof Player) {
 			final Player player = (Player) entity;
 			final PlayerCache cache = PlayerCache.from(player);
@@ -360,9 +362,6 @@ public final class TurretListener implements Listener {
 			cache.setTurretHit(true);
 			Common.runLater(20, () -> cache.setTurretHit(false));
 		}
-
-		if (!Settings.TurretSection.ENABLE_DAMAGEABLE_TURRETS)
-			return;
 
 		damageTurretQuiet(block, damage);
 

@@ -102,6 +102,8 @@ public final class SettingsMenu extends Menu {
 		@Position(23)
 		private final Button toolItemButton;
 
+		private final Button invincibleButton;
+
 		private SettingsEditMenu(final String typeName) {
 			super(SettingsMenu.this, true);
 
@@ -130,6 +132,24 @@ public final class SettingsMenu extends Menu {
 							.lore(Lang.ofArray("Settings_Menu.Head_Texture_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName))));
 
 			this.toolItemButton = new ButtonMenu(new ItemToolMenu(), ItemCreator.of(CompMaterial.DIAMOND_PICKAXE, Lang.of("Settings_Menu.Item_Tool_Title"), Lang.ofArray("Settings_Menu.Item_Tool_Button_Lore")));
+
+			this.invincibleButton = new Button() {
+				@Override
+				public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
+					final boolean isInvincible = settings.isInvincible();
+
+					settings.setInvincible(!isInvincible);
+					restartMenu(Lang.of("Settings_Menu.Invincibility_Enabled_Button_Animated_Message", "{enabledOrDisabled}", isInvincible ? "&cDisabled" : "&aEnabled"));
+				}
+
+				@Override
+				public ItemStack getItem() {
+					final boolean isInvincible = settings.isInvincible();
+
+					return ItemCreator.of(isInvincible ? CompMaterial.BLUE_STAINED_GLASS : CompMaterial.RED_STAINED_GLASS, Lang.of("Settings_Menu.Invincible_Button_Title"),
+							Lang.ofArray("Settings_Menu.Invincibility_Enabled_Button_Lore", "{enabledOrDisabled}", isInvincible ? "&aenabled" : "&cdisabled")).make();
+				}
+			};
 		}
 
 		@Override
