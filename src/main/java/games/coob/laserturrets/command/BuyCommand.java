@@ -9,7 +9,9 @@ import games.coob.laserturrets.tools.BeamTurret;
 import games.coob.laserturrets.tools.FireballTurret;
 import games.coob.laserturrets.util.Lang;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.Messenger;
+import org.mineacademy.fo.PlayerUtil;
 import org.mineacademy.fo.command.SimpleSubCommand;
 
 import java.util.List;
@@ -23,7 +25,7 @@ final class BuyCommand extends SimpleSubCommand {
 		super("buy");
 
 		setDescription(Lang.of("Turret_Commands.Buy_Description"));
-		setUsage("<buy> <turret_type>");
+		setUsage("<turret|ammo> <turret_type> <ammo_amount>");
 		setPermission(Permissions.Command.BUY);
 	}
 
@@ -34,24 +36,46 @@ final class BuyCommand extends SimpleSubCommand {
 	protected void onCommand() {
 		checkConsole();
 
-		if (args.length == 0)
+		if (args.length == 0 || args.length == 1)
 			returnInvalidArgs();
 
-		final String type = args[0];
+		final String subject = args[0];
 		final PlayerCache cache = PlayerCache.from(getPlayer());
-		final TurretSettings settings = TurretSettings.findByName(type);
-		final double price = settings.getLevels().get(0).getPrice();
 
-		if (cache.getCurrency(false) - price < 0) {
-			Messenger.error(getPlayer(), Lang.of("Turret_Commands.Balance_Cannot_Be_Negative"));
-			return;
+		if (args.length >= 2) {
+			final String type = args[1];
+			final TurretSettings settings = TurretSettings.findByName(type);
+			double price = 0;
+
+			if (subject.equals("turret")) {
+				price = settings.getLevels().get(0).getPrice();
+
+				if (cache.getCurrency(false) - price < 0) {
+					Messenger.error(getPlayer(), Lang.of("Turret_Commands.Balance_Cannot_Be_Negative"));
+					return;
+				}
+
+				giveTurret(type, getPlayer());
+				Messenger.success(getPlayer(), Lang.of("Turret_Commands.Buy_Turret_Message", "{turretType}", type, "{price}", price, "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
+			} else if (subject.equals("ammo")) {
+				final String amount = args[2];
+
+				if (!canParseInt(amount))
+					returnTell(Lang.of("Turret_Commands.Invalid_Number"));
+
+				price = settings.getAmmo().getThirdValue() * Integer.parseInt(amount);
+
+				if (cache.getCurrency(false) - price < 0) {
+					Messenger.error(getPlayer(), Lang.of("Turret_Commands.Balance_Cannot_Be_Negative"));
+					return;
+				}
+
+				giveAmmo(type, getPlayer(), Integer.parseInt(amount));
+				Messenger.success(getPlayer(), Lang.of("Turret_Commands.Buy_Ammo_Message", "{amount}", amount, "{turretType}", type, "{price}", price, "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
+			}
+
+			cache.takeCurrency(price, false);
 		}
-
-		cache.takeCurrency(price, false);
-		giveTurret(type, getPlayer());
-
-		Messenger.success(getPlayer(), Lang.of("Turret_Commands.Buy_Turret_Message", "{turretType}", type, "{price}", price, "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
-
 	}
 
 	private void giveTurret(final String type, final Player player) {
@@ -63,10 +87,35 @@ final class BuyCommand extends SimpleSubCommand {
 			FireballTurret.getInstance().give(player);
 	}
 
+	private void giveAmmo(final String ammoType, final Player player, final int amount) {
+		final String[] parts = ammoType.split("_", 2);  // Split the string into parts
+		final String type = parts[0];
+		final ItemStack ammo = TurretSettings.findByName(type).getAmmo().getSecondValue();
+
+		ammo.setAmount(amount);
+		PlayerUtil.addItems(player.getInventory(), ammo);
+	}
+
+	public boolean canParseInt(final String str) {
+		try {
+			Integer.parseInt(str);
+			return true;
+		} catch (final NumberFormatException e) {
+			return false;
+		}
+	}
+
 	@Override
 	protected List<String> tabComplete() {
 		if (this.args.length == 1)
+			return this.completeLastWord("turret", "ammo");
+
+		if (this.args.length == 2)
 			return this.completeLastWord("arrow", "beam", "fireball");
+
+		if (this.args.length == 3 && args[0].equals("ammo")) {
+			return this.completeLastWord("<ammo_amount>");
+		}
 
 		return NO_COMPLETE;
 	}

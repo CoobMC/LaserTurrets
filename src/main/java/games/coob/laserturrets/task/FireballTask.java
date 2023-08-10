@@ -33,6 +33,12 @@ public class FireballTask extends BukkitRunnable {
 			if (nearestEntity == null)
 				continue;
 
+			if (settings.getAmmo().getFirstValue()) {
+				if (turretData.hasAmmo())
+					turretData.deductAmmo();
+				else continue;
+			}
+
 			shootFireball(nearestEntity, block, turretData.getId());
 		}
 	}

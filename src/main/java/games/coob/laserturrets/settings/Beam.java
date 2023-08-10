@@ -23,7 +23,7 @@ public class Beam extends TurretSettings {
 	@Override
 	protected void onSave() {
 		super.onSave();
-
+		
 		this.set("Tool_Item", this.toolItem);
 		this.set("Head_Texture", this.base64Texture);
 	}

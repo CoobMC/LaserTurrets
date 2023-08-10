@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 @Getter
-public class TurretData extends YamlConfig { // TODO create ammo and number of kills
+public class TurretData extends YamlConfig { // TODO store number of kills
 
 	/**
 	 * The folder name where all items are stored
@@ -61,6 +61,8 @@ public class TurretData extends YamlConfig { // TODO create ammo and number of k
 	private int currentLevel;
 
 	private Hologram hologram;
+
+	private List<ItemStack> ammo;
 
 	private TurretData(final String id) {
 		this(id, null);
@@ -103,6 +105,7 @@ public class TurretData extends YamlConfig { // TODO create ammo and number of k
 		this.mobWhitelistEnabled = this.getBoolean("Use_Mob_Whitelist", false); // Add default value to load it if the key doesn't exist
 		this.currentLevel = this.getInteger("Current_Level", 1);
 		this.broken = this.getBoolean("Broken", false);
+		this.ammo = this.getList("Ammo", ItemStack.class);
 
 		this.save();
 	}
@@ -125,6 +128,7 @@ public class TurretData extends YamlConfig { // TODO create ammo and number of k
 		this.set("Current_Health", this.currentHealth);
 		this.set("Current_Level", this.currentLevel);
 		this.set("Broken", this.broken);
+		this.set("Ammo", this.ammo);
 		this.set("Hologram", this.hologram);
 	}
 
@@ -199,6 +203,47 @@ public class TurretData extends YamlConfig { // TODO create ammo and number of k
 
 		this.save();
 	}
+
+	public void setAmmo(final List<ItemStack> ammo) {
+		this.ammo = ammo;
+
+		this.save();
+	}
+
+	public void deductAmmo() {
+		int remainingDeduction = 1;
+		
+		for (final ItemStack itemStack : this.ammo) {
+
+			if (itemStack == null)
+				continue;
+
+			final int currentStackSize = itemStack.getAmount();
+
+			if (currentStackSize > remainingDeduction) {
+				itemStack.setAmount(currentStackSize - remainingDeduction);
+				break;
+			} else {
+				itemStack.setAmount(0);
+				if (currentStackSize < remainingDeduction) {
+					remainingDeduction -= currentStackSize;
+				} else {
+					remainingDeduction = 0;
+				}
+
+				if (remainingDeduction == 0) {
+					break;
+				}
+			}
+		}
+
+		this.save();
+	}
+
+	public boolean hasAmmo() {
+		return !this.ammo.isEmpty();
+	}
+
 
 	public void register(final Player player, final Block block, final String type, final String uniqueID) { // TODO register and create file
 		this.setLocation(block.getLocation());

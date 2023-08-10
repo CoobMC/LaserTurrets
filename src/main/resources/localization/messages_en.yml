@@ -101,6 +101,9 @@ Turret_Commands:
   Remove_Turret_Message: "&aSuccessfully removed the {turretType} turret with the id of &3{turretId}&a."
   Take_Turret_Message: "&aSuccessfully took the {turretType} turret with the id of &3{turretId}&a."
   Buy_Turret_Message: "&aSuccessfully bought an {turretType} turret for {price} {currencyName}."
+  Buy_Ammo_Message: "&aSuccessfully purchased {amount} {turretType} ammo for {price} {currencyName}."
+  Give_Turret_Message: "You have successfully given {playerName} {amount} turret(s)."
+  Give_Ammo_Message: "You have successfully given {playerName} {amount} ammo."
   Sync_Message: "&aSuccessfully synced your {turretType} settings with &3{turretAmount} &a{turretType} turret(s)."
   Balance_Cannot_Be_Negative: "Balance cannot be negative"
   Error_Not_Looking_At_Turret: "This block isn't a turret, you must be looking at the turrets base while using this command."
@@ -280,7 +283,11 @@ Settings_Menu:
     - "invincibility for this type of turret."
     - ""
     - "Current: {enabledOrDisabled}"
-  Invincibility_Enabled_Button_Animated_Message: "{enableOrDisabled} invincibility"
+  Invincibility_Enabled_Button_Animated_Message: "{enabledOrDisabled} invincibility"
+  Ammo_Button_Title: "Configure ammo"
+  Ammo_Button_Lore:
+    - "Click to configure the ammo"
+    - "{turretType} turrets use."
   Level_Edit_Button_Title: "Level Menu"
   Level_Edit_Button_Lore:
     - "Open this menu to upgrade"
@@ -307,7 +314,7 @@ Settings_Menu:
     - "lasers for this type of turret."
     - ""
     - "Current: {enabledOrDisabled}"
-  Laser_Enabled_Button_Animated_Message: "{enableOrDisabled} laser pointer"
+  Laser_Enabled_Button_Animated_Message: "{enabledOrDisabled} laser pointer"
   Laser_Damage_Button_Title: "Laser Damage"
   Laser_Damage_Button_Lore:
     - "Set the amount of damage"
@@ -407,6 +414,35 @@ Settings_Menu:
   Player_Prompt_Message: "&6What player shouldn't be targeted by this turret? You can add more players to the {listType} by using the /turret blacklist add <player> command."
   Player_Prompt_Invalid_Text: "Player '{invalidPlayer}' doesn't exist."
   Player_Prompt_Success: "You have successfully added {playerName} to the {listType}!"
+  Ammo_Menu_Title: "Ammo Settings"
+  Ammo_Menu_Info_Button:
+    - "Edit your ammo settings."
+    - "This ammo will be consumed"
+    - "when the turrets shoot."
+  Ammo_Price_Button_Title: "Ammo price"
+  Ammo_Price_Button_Lore:
+    - "Enter a the price players"
+    - "need to pay to receive ammo."
+    - ""
+    - "Current: {price} {currencyName}"
+  Ammo_Price_Prompt_Message: "Type in a decimal value between 0 and 999999 (recommended value : 1-5)."
+  Ammo_Enable_Button_Title: "Enable/Disable Ammo"
+  Ammo_Enable_Button_Lore:
+    - "Click to enable or disable"
+    - "ammo for this type of turret."
+    - ""
+    - "Current: {enabledOrDisabled}"
+  Ammo_Enable_Button_Animated_Message: "{enabledOrDisabled} ammo"
+  Ammo_Item_Button_Title: "Ammo Item"
+  Ammo_Item_Button_Lore:
+    - "Change the ammo item"
+    - "{turretType} turrets consume."
+  Ammo_Item_Menu_Info_Button:
+    - "Place or replace an item into"
+    - "the center of the menu."
+    - "This item will be used as"
+    - "the ammo {turretType} turrets"
+    - "consume when shooting."
 
 # -------------------------------------------------------------------------------------------------
 # Messages that are displayed in the turrets menu (accessed when using the "/lt menu" command)
@@ -483,6 +519,14 @@ Upgrade_Menu:
   Take_Turret_Button_Lore:
     - "Click to take this turret"
     - "into your inventory"
+  Ammo_Button_Title: "Ammo"
+  Ammo_Button_Lore:
+    - "Add ammo to your turret"
+  Ammo_Menu_Info_Button:
+    - "Add ammo to this menu"
+    - "to allow your turret to"
+    - "shoot. Use the '/lt buy'"
+    - "command to buy ammo."
 
 # -------------------------------------------------------------------------------------------------
 # Messages that are displayed in the shop menu (accessed when using the "/lt shop" command)

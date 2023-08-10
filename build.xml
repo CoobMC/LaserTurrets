@@ -27,7 +27,7 @@
          to compile your plugin to multiple servers. -->
 
     <target name="Build">
-        <jar jarfile="/Users/jack.bikar/Desktop/Test Servers/1.19/plugins/${ant.project.name}.jar"
+        <jar jarfile="/Users/jack.bikar/Desktop/Test Servers/1.20/plugins/${ant.project.name}.jar"
              basedir="./target/classes/"
              includes="**/*">
 

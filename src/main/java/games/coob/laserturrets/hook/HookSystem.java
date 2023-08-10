@@ -190,7 +190,7 @@ public class HookSystem {
 	// ------------------------------------------------------------------------------------------------------------
 
 	public static boolean canBuild(final Location location, final Player player) {
-		return canBuildInRegion(location, player) || canBuildKonquest(location, player) || canBuildInResidence(location, player) || canBuildInMedievalFaction(location, player) || canPlaceInTown(location.getBlock(), player) || canPlaceInSaberFaction(location, player) || canPlaceInFaction(location, player) || canPlaceInLand(location, player) || canPlaceInKingdom(location, player);
+		return canBuildKonquest(location, player) || canBuildInResidence(location, player) || canBuildInMedievalFaction(location, player) || canPlaceInTown(location.getBlock(), player) || canPlaceInSaberFaction(location, player) || canPlaceInFaction(location, player) || canPlaceInLand(location, player) || canPlaceInKingdom(location, player) || canBuildInRegion(location, player);
 	}
 
 	public static boolean isAlly(final Location location, final Player target, final OfflinePlayer turretOwner) {

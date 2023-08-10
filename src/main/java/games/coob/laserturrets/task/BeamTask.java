@@ -32,6 +32,12 @@ public class BeamTask extends BukkitRunnable {
 			if (nearestEntity == null)
 				continue;
 
+			if (settings.getAmmo().getFirstValue()) {
+				if (turretData.hasAmmo())
+					turretData.deductAmmo();
+				else continue;
+			}
+
 			final Location turretLocation = location.clone().add(0.5, 1.2, 0.5);
 
 			try {

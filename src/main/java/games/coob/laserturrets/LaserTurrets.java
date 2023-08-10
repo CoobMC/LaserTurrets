@@ -13,6 +13,7 @@ import games.coob.laserturrets.task.*;
 import games.coob.laserturrets.util.Hologram;
 import games.coob.laserturrets.util.SkullCreator;
 import games.coob.laserturrets.util.TurretUtil;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.*;
@@ -69,6 +70,9 @@ public final class LaserTurrets extends SimplePlugin {
 				final ItemStack itemStack = SkullCreator.itemFromBase64(settings.getHeadTexture());
 				settings.setToolItem(itemStack);
 			}
+
+			if (settings.getAmmo() == null)
+				settings.createAmmo(false, new ItemStack(Material.SNOWBALL), 1.0);
 		}
 
 		if (!VaultHook.setupEconomy(getServer()) && Settings.CurrencySection.USE_VAULT) {

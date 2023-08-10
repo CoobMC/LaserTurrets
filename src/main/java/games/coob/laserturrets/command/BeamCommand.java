@@ -1,4 +1,4 @@
-package games.coob.laserturrets.command;
+/*package games.coob.laserturrets.command;
 
 import games.coob.laserturrets.util.Beam_v1_8;
 import org.bukkit.Location;
@@ -156,4 +156,4 @@ public class BeamCommand extends SimpleSubCommand {
 			CompParticle.REDSTONE.spawn(laserLocation);
 		}
 	}
-}
+}*/

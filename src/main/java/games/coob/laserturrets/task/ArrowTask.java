@@ -32,6 +32,12 @@ public class ArrowTask extends BukkitRunnable {
 			if (nearestEntity == null)
 				continue;
 
+			if (settings.getAmmo().getFirstValue()) {
+				if (turretData.hasAmmo())
+					turretData.deductAmmo();
+				else continue;
+			}
+
 			shootArrowFromBlock(nearestEntity, location.getBlock(), turretData.getId());
 		}
 	}

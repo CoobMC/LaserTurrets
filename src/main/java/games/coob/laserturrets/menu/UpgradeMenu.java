@@ -10,15 +10,19 @@ import games.coob.laserturrets.util.SkullCreator;
 import games.coob.laserturrets.util.TurretUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.ChatUtil;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.MathUtil;
 import org.mineacademy.fo.Messenger;
+import org.mineacademy.fo.collection.StrictMap;
 import org.mineacademy.fo.menu.Menu;
+import org.mineacademy.fo.menu.MenuContainer;
 import org.mineacademy.fo.menu.button.Button;
 import org.mineacademy.fo.menu.button.ButtonMenu;
 import org.mineacademy.fo.menu.model.ItemCreator;
+import org.mineacademy.fo.menu.model.MenuClickLocation;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompSound;
 import org.mineacademy.fo.remain.Remain;
@@ -38,6 +42,8 @@ public class UpgradeMenu extends Menu {
 	private final Button blacklistButton;
 
 	private final Button takeButton;
+
+	private final Button ammoButton;
 
 	private TurretSettings settings;
 
@@ -151,12 +157,18 @@ public class UpgradeMenu extends Menu {
 		this.blacklistButton = new ButtonMenu(new AlliesMenu(UpgradeMenu.this, turretData, player), CompMaterial.KNOWLEDGE_BOOK,
 				Lang.of("Upgrade_Menu.Allies_Button_Title"),
 				Lang.ofArray("Upgrade_Menu.Allies_Button_Lore"));
+
+		this.ammoButton = new ButtonMenu(new AmmoMenu(), CompMaterial.fromMaterial(settings.getAmmo().getSecondValue().getType()),
+				Lang.of("Upgrade_Menu.Ammo_Button_Title"),
+				Lang.ofArray("Upgrade_Menu.Ammo_Button_Lore"));
 	}
 
 	@Override
 	public ItemStack getItemAt(final int slot) {
 		if (slot == this.getCenterSlot() + 1)
 			return this.upgradeButton.getItem();
+		if (settings.getAmmo().getFirstValue() && slot == this.getCenterSlot() + 9)
+			return this.ammoButton.getItem();
 		if (slot == this.getCenterSlot() - 1)
 			return this.blacklistButton.getItem();
 		if (slot == this.getBottomCenterSlot() + 4)
@@ -173,5 +185,41 @@ public class UpgradeMenu extends Menu {
 	@Override
 	protected String[] getInfo() {
 		return Lang.ofArray("Upgrade_Menu.Info_Button", "{balance}", PlayerCache.from(getViewer()).getCurrency(false), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME);
+	}
+
+	private class AmmoMenu extends MenuContainer {
+
+		AmmoMenu() {
+			super(UpgradeMenu.this);
+
+			this.setSize(54);
+			this.setTitle(Lang.of("Upgrade_Menu.Ammo_Button_Title"));
+		}
+
+		@Override
+		protected boolean canEditItem(final MenuClickLocation location, final int slot, final ItemStack clicked, final ItemStack cursor, final InventoryAction action) {
+			return cursor.isSimilar(settings.getAmmo().getSecondValue());
+		}
+
+		@Override
+		protected void onMenuClose(final StrictMap<Integer, ItemStack> items) {
+			final List<ItemStack> ammo = new ArrayList<>(items.values());
+			turretData.setAmmo(ammo);
+		}
+
+		@Override
+		protected ItemStack getDropAt(final int slot) {
+			final List<ItemStack> items = turretData.getAmmo();
+
+			if (turretData.getAmmo() == null)
+				return NO_ITEM;
+
+			return slot < items.size() ? items.get(slot) : NO_ITEM;
+		}
+
+		@Override
+		protected String[] getInfo() {
+			return Lang.ofArray("Upgrade_Menu.Ammo_Menu_Info_Button");
+		}
 	}
 }

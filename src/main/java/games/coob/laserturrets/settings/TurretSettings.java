@@ -1,5 +1,6 @@
 package games.coob.laserturrets.settings;
 
+import games.coob.laserturrets.util.Triple;
 import lombok.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
@@ -54,6 +55,8 @@ public abstract class TurretSettings extends YamlConfig {
 
 	private int turretLimit;
 
+	private Triple<Boolean, ItemStack, Double> ammo;
+
 	protected TurretSettings(final String turretName, @Nullable final TurretType type) {
 		this.loadConfiguration(FOLDER + "/" + type.toString().toLowerCase() + ".yml", FOLDER + "/" + turretName + ".yml");
 	}
@@ -71,6 +74,7 @@ public abstract class TurretSettings extends YamlConfig {
 		this.enableMobWhitelist = this.getBoolean("Use_Mob_Whitelist");
 		this.enablePlayerWhitelist = this.getBoolean("Use_Player_Whitelist");
 		this.invincible = this.getBoolean("Invincible");
+		this.ammo = this.isSet("Ammo") ? this.getTriple("Ammo", Boolean.class, ItemStack.class, Double.class) : null;
 		this.levels = this.getList("Levels", LevelData.class);
 	}
 
@@ -82,6 +86,7 @@ public abstract class TurretSettings extends YamlConfig {
 		this.set("Use_Player_Whitelist", this.enablePlayerWhitelist);
 		this.set("Use_Mob_Whitelist", this.enableMobWhitelist);
 		this.set("Invincible", this.invincible);
+		this.set("Ammo", this.ammo);
 		this.set("Levels", this.levels);
 	}
 
@@ -206,6 +211,38 @@ public abstract class TurretSettings extends YamlConfig {
 		this.invincible = invincible;
 
 		this.save();
+	}
+
+	public void setAmmoEnabled(final boolean enableAmmo) {
+		this.ammo.setFirstValue(enableAmmo);
+
+		this.save();
+	}
+
+	public void setAmmoItem(final ItemStack itemStack) {
+		this.ammo.setSecondValue(itemStack);
+
+		this.save();
+	}
+
+	public void setAmmoPrice(final double price) {
+		this.ammo.setThirdValue(price);
+
+		this.save();
+	}
+
+	public void createAmmo(final boolean enableAmmo, final ItemStack itemStack, final double price) {
+		this.ammo = new Triple<>(enableAmmo, itemStack, price);
+
+		this.save();
+	}
+
+	private <A, B, C> Triple<A, B, C> getTriple(final String key, final Class<A> firstType, final Class<B> secondType, final Class<C> thirdType) {
+		return this.getTriple(key, null, firstType, secondType, thirdType);
+	}
+
+	private <A, B, C> Triple<A, B, C> getTriple(final String key, final Triple<A, B, C> def, final Class<A> firstType, final Class<B> secondType, final Class<C> thirdType) {
+		return this.get(key, Triple.class, def, firstType, secondType, thirdType);
 	}
 
 	@Getter
