@@ -50,6 +50,8 @@ public class UnplacedData extends YamlConfig {
 
 	private ItemStack turretItem;
 
+	private List<ItemStack> ammo;
+
 	private UnplacedData(final String id) {
 		this(id, null);
 	}
@@ -84,6 +86,7 @@ public class UnplacedData extends YamlConfig {
 		this.currentLevel = this.getInteger("Current_Level", 1);
 		this.broken = this.getBoolean("Broken", false);
 		this.turretItem = this.getItemStack("Turret_Item");
+		this.ammo = this.getList("Ammo", ItemStack.class);
 
 		this.save();
 	}
@@ -101,6 +104,7 @@ public class UnplacedData extends YamlConfig {
 		this.set("Current_Health", this.currentHealth);
 		this.set("Current_Level", this.currentLevel);
 		this.set("Broken", this.broken);
+		this.set("Ammo", this.ammo);
 		this.set("Turret_Item", this.turretItem);
 	}
 
@@ -109,13 +113,14 @@ public class UnplacedData extends YamlConfig {
 		this.setOwner(turretData.getOwner());
 		this.setId(turretData.getId());
 		this.setCurrentLevel(turretData.getCurrentLevel());
-		this.setMobBlacklist(turretData.getMobBlacklist());
-		this.setPlayerBlacklist(turretData.getPlayerBlacklist());
+		this.setMobBlacklist(turretData.getMobAllies());
+		this.setPlayerBlacklist(turretData.getPlayerAllies());
 		this.setPlayerWhitelistEnabled(turretData.isPlayerWhitelistEnabled());
 		this.setMobWhitelistEnabled(turretData.isMobWhitelistEnabled());
 		this.setCurrentHealth(turretData.getCurrentHealth());
 		this.setCurrentLoot(turretData.getCurrentLoot());
 		this.setTurretItem(turretItem);
+		this.setAmmo(turretData.getAmmo());
 
 		this.save();
 	}

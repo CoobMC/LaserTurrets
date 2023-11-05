@@ -44,6 +44,9 @@ public final class Permissions {
 		@Permission("Executes a command to open the portal menu.")
 		public static final String SHOP = "turret.command.shop";
 
+		@Permission("Executes a command to open the players allies menu.")
+		public static final String ALLIES = "turret.command.allies";
+
 		@Permission("Executes a command to open the portal menu.")
 		public static final String SETTINGS = "turret.command.settings";
 	}

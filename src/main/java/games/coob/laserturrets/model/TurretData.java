@@ -1,5 +1,6 @@
 package games.coob.laserturrets.model;
 
+import games.coob.laserturrets.PlayerCache;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.Hologram;
 import games.coob.laserturrets.util.Lang;
@@ -48,9 +49,9 @@ public class TurretData extends YamlConfig { // TODO store number of kills
 
 	private List<ItemStack> currentLoot;
 
-	private Set<UUID> playerBlacklist = new HashSet<>();
+	private Set<UUID> playerAllies = new HashSet<>();
 
-	private Set<EntityType> mobBlacklist = new HashSet<>();
+	private Set<EntityType> mobAllies = new HashSet<>();
 
 	private boolean mobWhitelistEnabled;
 
@@ -98,8 +99,8 @@ public class TurretData extends YamlConfig { // TODO store number of kills
 		this.type = this.getString("Type", "type");
 		this.owner = this.get("Owner", UUID.class, new UUID(1, 5));
 		this.currentHealth = this.getDouble("Current_Health", 0.0);
-		this.playerBlacklist = this.getSet("Player_Blacklist", UUID.class);
-		this.mobBlacklist = this.getSet("Mob_Blacklist", EntityType.class);
+		this.playerAllies = this.getSet("Player_Blacklist", UUID.class); // TODO update name for premium version
+		this.mobAllies = this.getSet("Mob_Blacklist", EntityType.class);
 		this.currentLoot = this.getList("Current_Loot", ItemStack.class);
 		this.playerWhitelistEnabled = this.getBoolean("Use_Player_Whitelist", false);
 		this.mobWhitelistEnabled = this.getBoolean("Use_Mob_Whitelist", false); // Add default value to load it if the key doesn't exist
@@ -120,8 +121,8 @@ public class TurretData extends YamlConfig { // TODO store number of kills
 		this.set("Id", this.id);
 		this.set("Type", this.type);
 		this.set("Owner", this.owner);
-		this.set("Player_Blacklist", this.playerBlacklist);
-		this.set("Mob_Blacklist", this.mobBlacklist);
+		this.set("Player_Blacklist", this.playerAllies);
+		this.set("Mob_Blacklist", this.mobAllies);
 		this.set("Current_Loot", this.currentLoot);
 		this.set("Use_Player_Whitelist", this.playerWhitelistEnabled);
 		this.set("Use_Mob_Whitelist", this.mobWhitelistEnabled);
@@ -174,14 +175,14 @@ public class TurretData extends YamlConfig { // TODO store number of kills
 		this.save();
 	}
 
-	public void setMobBlacklist(final Set<EntityType> mobBlacklist) {
-		this.mobBlacklist = mobBlacklist;
+	public void setMobAllies(final Set<EntityType> mobAllies) {
+		this.mobAllies = mobAllies;
 
 		this.save();
 	}
 
-	public void setPlayerBlacklist(final Set<UUID> playerBlacklist) {
-		this.playerBlacklist = playerBlacklist;
+	public void setPlayerAllies(final Set<UUID> playerAllies) {
+		this.playerAllies = playerAllies;
 
 		this.save();
 	}
@@ -212,7 +213,7 @@ public class TurretData extends YamlConfig { // TODO store number of kills
 
 	public void deductAmmo() {
 		int remainingDeduction = 1;
-		
+
 		for (final ItemStack itemStack : this.ammo) {
 
 			if (itemStack == null)
@@ -245,7 +246,7 @@ public class TurretData extends YamlConfig { // TODO store number of kills
 	}
 
 
-	public void register(final Player player, final Block block, final String type, final String uniqueID) { // TODO register and create file
+	public void register(final Player player, final Block block, final String type, final String uniqueID) {
 		this.setLocation(block.getLocation());
 		this.setMaterial(CompMaterial.fromMaterial(block.getType()));
 		this.setType(type);
@@ -254,14 +255,16 @@ public class TurretData extends YamlConfig { // TODO store number of kills
 		this.setCurrentLevel(1);
 
 		final TurretSettings turretSettings = TurretSettings.findByName(type);
+		final PlayerCache cache = PlayerCache.from(player);
 
-		this.setMobBlacklist(turretSettings.getMobList());
-		this.setPlayerBlacklist(turretSettings.getPlayerList());
-		this.setPlayerWhitelistEnabled(turretSettings.isEnablePlayerWhitelist());
-		this.setMobWhitelistEnabled(turretSettings.isEnableMobWhitelist());
+		this.setMobAllies(cache.getMobAllies());
+		this.setPlayerAllies(cache.getPlayerAllies());
+
+		this.setPlayerWhitelistEnabled(cache.isPlayerWhitelistEnabled());
+		this.setMobWhitelistEnabled(cache.isMobWhitelistEnabled());
 
 		if (!this.isPlayerWhitelistEnabled())
-			this.playerBlacklist.add(player.getUniqueId());
+			this.playerAllies.add(player.getUniqueId());
 
 		this.setCurrentHealth(turretSettings.getLevel(1).getHealth());
 		this.setHologram(createHologram());
@@ -285,8 +288,8 @@ public class TurretData extends YamlConfig { // TODO store number of kills
 		this.setOwner(data.getOwner());
 		this.setId(data.getId());
 		this.setCurrentLevel(data.getCurrentLevel());
-		this.setMobBlacklist(data.getMobBlacklist());
-		this.setPlayerBlacklist(data.getPlayerBlacklist());
+		this.setMobAllies(data.getMobBlacklist());
+		this.setPlayerAllies(data.getPlayerBlacklist());
 		this.setPlayerWhitelistEnabled(data.isPlayerWhitelistEnabled());
 		this.setMobWhitelistEnabled(data.isMobWhitelistEnabled());
 		this.setCurrentHealth(data.getCurrentHealth());
@@ -314,27 +317,37 @@ public class TurretData extends YamlConfig { // TODO store number of kills
 		return hologram;
 	}
 
-	public void addPlayerToBlacklist(final UUID uuid) {
-		this.playerBlacklist.add(uuid);
+	public void addPlayerToAllies(final UUID uuid) {
+		this.playerAllies.add(uuid);
 
 		this.save();
 	}
 
-	public void removePlayerFromBlacklist(final UUID uuid) {
-		if (this.playerBlacklist != null)
-			this.playerBlacklist.remove(uuid);
+	public void addPlayersToAllies(final Set<UUID> uuids) {
+		this.playerAllies.addAll(uuids);
+		this.save();
+	}
+
+	public void removePlayerFromAllies(final UUID uuid) {
+		if (this.playerAllies != null)
+			this.playerAllies.remove(uuid);
 
 		this.save();
 	}
 
-	public void addMobToBlacklist(final EntityType entityType) {
-		this.mobBlacklist.add(entityType);
+	public void addMobToAllies(final EntityType entityType) {
+		this.mobAllies.add(entityType);
 
 		this.save();
 	}
 
-	public void removeMobFromBlacklist(final EntityType entityType) {
-		this.mobBlacklist.remove(entityType);
+	public void addMobsToAllies(final Set<EntityType> uuids) {
+		this.mobAllies.addAll(uuids);
+		this.save();
+	}
+
+	public void removeMobFromAllies(final EntityType entityType) {
+		this.mobAllies.remove(entityType);
 
 		this.save();
 	}
@@ -346,7 +359,7 @@ public class TurretData extends YamlConfig { // TODO store number of kills
 	}
 
 	public boolean isMobListedAsAlly(final EntityType entityType) {
-		return this.mobBlacklist.contains(entityType);
+		return this.mobAllies.contains(entityType);
 	}
 
 	public void enablePlayerWhitelist(final boolean enableWhitelist) {
@@ -356,8 +369,8 @@ public class TurretData extends YamlConfig { // TODO store number of kills
 	}
 
 	public boolean isPlayerListedAsAlly(final UUID uuid) {
-		if (this.playerBlacklist != null)
-			return this.playerBlacklist.contains(uuid);
+		if (this.playerAllies != null)
+			return this.playerAllies.contains(uuid);
 		else return false;
 	}
 
@@ -520,6 +533,16 @@ public class TurretData extends YamlConfig { // TODO store number of kills
 	 */
 	public static List<? extends TurretData> getTurrets() {
 		return loadedFiles.getItems();
+	}
+
+	public static List<TurretData> getOwningTurrets(final UUID owner) {
+		final List<TurretData> dataList = new ArrayList<>();
+
+		for (final TurretData turretData : getTurrets())
+			if (turretData.getOwner().equals(owner))
+				dataList.add(turretData);
+
+		return dataList;
 	}
 
 	/**

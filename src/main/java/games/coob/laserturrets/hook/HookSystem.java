@@ -690,6 +690,8 @@ class ResidenceHook {
 
 		return rPlayer.canPlaceBlock(location.getBlock(), true);
 	}
+
+	// TODO add griefprevention
 }
 
 

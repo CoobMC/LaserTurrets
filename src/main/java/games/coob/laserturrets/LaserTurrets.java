@@ -13,24 +13,16 @@ import games.coob.laserturrets.task.*;
 import games.coob.laserturrets.util.Hologram;
 import games.coob.laserturrets.util.SkullCreator;
 import games.coob.laserturrets.util.TurretUtil;
-import org.bukkit.Material;
-import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
-import org.mineacademy.fo.*;
-import org.mineacademy.fo.collection.SerializedMap;
+import org.mineacademy.fo.Common;
+import org.mineacademy.fo.MinecraftVersion;
+import org.mineacademy.fo.ReflectionUtil;
+import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.exception.CommandException;
 import org.mineacademy.fo.plugin.SimplePlugin;
-import org.mineacademy.fo.settings.YamlConfig;
+import org.mineacademy.fo.remain.CompMaterial;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
 import java.util.Arrays;
-import java.util.Set;
-import java.util.UUID;
 import java.util.function.Function;
 
 /**
@@ -40,7 +32,7 @@ import java.util.function.Function;
  * <p>
  * It uses Foundation for fast and efficient development process.
  */
-public final class LaserTurrets extends SimplePlugin {
+public final class LaserTurrets extends SimplePlugin { // TODO prevent buttons from being taken in the loot menu
 
 	/**
 	 * Automatically perform login ONCE when the plugin starts.
@@ -49,13 +41,13 @@ public final class LaserTurrets extends SimplePlugin {
 	protected void onPluginStart() {
 		Common.setLogPrefix("[LaserTurrets]");
 
-		final File dataFile = FileUtil.getFile("data.db");
-		final YamlConfig datadb = YamlConfig.fromFileFast(dataFile);
+		//final File dataFile = FileUtil.getFile("data.db");
+		//final YamlConfig datadb = YamlConfig.fromFileFast(dataFile);
 
-		if (datadb.isSet("Turrets")) {
-			convert();
+		/*if (datadb.isSet("Turrets")) { // TODO
+			//convert();
 			TurretData.loadTurrets();
-		}
+		}*/
 
 		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_9))
 			registerEvents(new TurretListenerLatest());
@@ -72,7 +64,7 @@ public final class LaserTurrets extends SimplePlugin {
 			}
 
 			if (settings.getAmmo() == null)
-				settings.createAmmo(false, new ItemStack(Material.SNOWBALL), 1.0);
+				settings.createAmmo(false, new ItemStack(CompMaterial.SNOWBALL.getMaterial()), 1.0);
 		}
 
 		if (!VaultHook.setupEconomy(getServer()) && Settings.CurrencySection.USE_VAULT) {
@@ -89,68 +81,6 @@ public final class LaserTurrets extends SimplePlugin {
 				Common.log("There is a new update available (v" + version + ").");
 		});
 	}
-
-	private void convert() {
-		final Path source = Paths.get(SimplePlugin.getInstance().getDataFolder().getPath(), "turrets");
-		final Path target = Paths.get(SimplePlugin.getInstance().getDataFolder().getPath(), "types");
-
-		try {
-			Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
-			Common.log("Folder renamed successfully from 'turrets' to 'types'.");
-		} catch (final IOException e) {
-			Common.log("An error occurred while renaming the folder 'turrets': " + e.getMessage());
-		}
-
-		final File dataFile = FileUtil.getFile("data.db");
-		final YamlConfig datadb = YamlConfig.fromFileFast(dataFile);
-		final Set<SerializedMap> turrets = datadb.getSet("Turrets", SerializedMap.class);
-
-		for (final SerializedMap turret : turrets) {
-			final File turretFile = FileUtil.getOrMakeFile("turrets/" + turret.getString("Id") + ".yml"); // TODO get id
-			final YamlConfig turretConfig = YamlConfig.fromFile(turretFile);
-
-			turretConfig.set("Block", turret.getString("Block"));
-			turretConfig.set("Id", turret.getString("Id"));
-			turretConfig.set("Type", turret.getString("Type"));
-			turretConfig.set("Owner", turret.get("Owner", UUID.class));
-			turretConfig.set("Player_Blacklist", turret.getSet("Player_Blacklist", UUID.class));
-			turretConfig.set("Mob_Blacklist", turret.getSet("Mob_Blacklist", EntityType.class));
-			turretConfig.set("Current_Loot", turret.getList("Current_Loot", ItemStack.class));
-			turretConfig.set("Use_Player_Whitelist", turret.getBoolean("Use_Player_Whitelist"));
-			turretConfig.set("Use_Mob_Whitelist", turret.getBoolean("Use_Mob_Whitelist"));
-			turretConfig.set("Current_Level", turret.getInteger("Current_Level"));
-			turretConfig.set("Current_Health", turret.getDouble("Current_Health"));
-			turretConfig.set("Broken", turret.getBoolean("Broken"));
-
-			turretConfig.save();
-		}
-
-		datadb.set("Turrets", null);
-		datadb.save(dataFile);
-
-		try {
-			renameKey(dataFile, "Currency", "Balance");
-		} catch (final IOException e) {
-			e.printStackTrace();
-		}
-
-		datadb.reload();
-
-		Common.log("Successfully updated folder.");
-	}
-
-	private static void renameKey(final File file, final String oldKey, final String newKey) throws IOException {
-		final Charset charset = StandardCharsets.UTF_8;
-		String content = new String(Files.readAllBytes(file.toPath()), charset);
-
-		content = content.replaceAll(oldKey, newKey);
-		Files.write(file.toPath(), content.getBytes(charset));
-
-		try (FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.WRITE)) {
-			channel.force(true);
-		}
-	}
-
 
 	@Override
 	protected void onPluginReload() {
@@ -175,8 +105,7 @@ public final class LaserTurrets extends SimplePlugin {
 	 */
 	@Override
 	protected void onReloadablesStart() {
-		if (!YamlConfig.fromFileFast(FileUtil.getFile("data.db")).isSet("Turrets"))
-			TurretData.loadTurrets();
+		TurretData.loadTurrets();
 		//
 		// Add your own plugin parts to load automatically here
 		// Please see @AutoRegister for parts you do not have to register manually
@@ -235,3 +164,64 @@ public final class LaserTurrets extends SimplePlugin {
 		return (LaserTurrets) SimplePlugin.getInstance();
 	}
 }
+
+	/*private void convert() {
+		final Path source = Paths.get(SimplePlugin.getInstance().getDataFolder().getPath(), "turrets");
+		final Path target = Paths.get(SimplePlugin.getInstance().getDataFolder().getPath(), "types");
+
+		try {
+			Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+			Common.log("Folder renamed successfully from 'turrets' to 'types'.");
+		} catch (final IOException e) {
+			Common.log("An error occurred while renaming the folder 'turrets': " + e.getMessage());
+		}
+
+		final File dataFile = FileUtil.getFile("data.db");
+		final YamlConfig datadb = YamlConfig.fromFileFast(dataFile);
+		final Set<SerializedMap> turrets = datadb.getSet("Turrets", SerializedMap.class);
+
+		for (final SerializedMap turret : turrets) {
+			final File turretFile = FileUtil.getOrMakeFile("turrets/" + turret.getString("Id") + ".yml"); // TODO get id
+			final YamlConfig turretConfig = YamlConfig.fromFile(turretFile);
+
+			turretConfig.set("Block", turret.getString("Block"));
+			turretConfig.set("Id", turret.getString("Id"));
+			turretConfig.set("Type", turret.getString("Type"));
+			turretConfig.set("Owner", turret.get("Owner", UUID.class));
+			turretConfig.set("Player_Blacklist", turret.getSet("Player_Blacklist", UUID.class));
+			turretConfig.set("Mob_Blacklist", turret.getSet("Mob_Blacklist", EntityType.class));
+			turretConfig.set("Current_Loot", turret.getList("Current_Loot", ItemStack.class));
+			turretConfig.set("Use_Player_Whitelist", turret.getBoolean("Use_Player_Whitelist"));
+			turretConfig.set("Use_Mob_Whitelist", turret.getBoolean("Use_Mob_Whitelist"));
+			turretConfig.set("Current_Level", turret.getInteger("Current_Level"));
+			turretConfig.set("Current_Health", turret.getDouble("Current_Health"));
+			turretConfig.set("Broken", turret.getBoolean("Broken"));
+
+			turretConfig.save();
+		}
+
+		datadb.set("Turrets", null);
+		datadb.save(dataFile);
+
+		try {
+			renameKey(dataFile, "Currency", "Balance");
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
+
+		datadb.reload();
+
+		Common.log("Successfully updated folder.");
+	}
+
+	private static void renameKey(final File file, final String oldKey, final String newKey) throws IOException {
+		final Charset charset = StandardCharsets.UTF_8;
+		String content = new String(Files.readAllBytes(file.toPath()), charset);
+
+		content = content.replaceAll(oldKey, newKey);
+		Files.write(file.toPath(), content.getBytes(charset));
+
+		try (FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.WRITE)) {
+			channel.force(true);
+		}
+	}*/

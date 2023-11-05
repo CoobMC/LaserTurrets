@@ -5,11 +5,8 @@ import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.SkullCreator;
 import games.coob.laserturrets.util.TurretUtil;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
@@ -17,12 +14,10 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.mineacademy.fo.Common;
-import org.mineacademy.fo.ItemUtil;
 import org.mineacademy.fo.collection.StrictMap;
 import org.mineacademy.fo.conversation.SimplePrompt;
 import org.mineacademy.fo.menu.Menu;
 import org.mineacademy.fo.menu.MenuContainerChances;
-import org.mineacademy.fo.menu.MenuPagged;
 import org.mineacademy.fo.menu.button.Button;
 import org.mineacademy.fo.menu.button.ButtonConversation;
 import org.mineacademy.fo.menu.button.ButtonMenu;
@@ -33,14 +28,10 @@ import org.mineacademy.fo.model.RangedValue;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
 import org.mineacademy.fo.remain.CompSound;
-import org.mineacademy.fo.remain.Remain;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 public final class SettingsMenu extends Menu {
 
@@ -90,8 +81,8 @@ public final class SettingsMenu extends Menu {
 		@Position(11)
 		private final Button levelEditButton;
 
-		@Position(13)
-		private final Button alliesManagerButton;
+		// @Position(13)
+		// private final Button alliesManagerButton;
 
 		@Position(15)
 		private final Button turretLimitButton;
@@ -126,36 +117,58 @@ public final class SettingsMenu extends Menu {
 					Lang.of("Settings_Menu.Level_Edit_Button_Title"),
 					Lang.ofArray("Settings_Menu.Level_Edit_Button_Lore"));
 
-			this.alliesManagerButton = new ButtonMenu(new SettingsAlliesMenu(SettingsEditMenu.this, viewer), CompMaterial.KNOWLEDGE_BOOK,
+			/*this.alliesManagerButton = new ButtonMenu(new SettingsAlliesMenu(SettingsEditMenu.this, viewer), CompMaterial.KNOWLEDGE_BOOK,
 					Lang.of("Settings_Menu.Allies_Manager_Button_Title"),
-					Lang.ofArray("Settings_Menu.Allies_Manager_Button_Lore"));
+					Lang.ofArray("Settings_Menu.Allies_Manager_Button_Lore"));*/
 
-			this.headTextureButton = new ButtonConversation(new HeadTexturePrompt(),
+			this.headTextureButton = new
+
+					ButtonConversation(new HeadTexturePrompt(),
 					ItemCreator.of(SkullCreator.itemFromBase64(this.settings.getHeadTexture()))
-							.name(Lang.of("Settings_Menu.Head_Texture_Button_Title", "{turretType}", TurretUtil.getDisplayName(typeName)))
-							.lore(Lang.ofArray("Settings_Menu.Head_Texture_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName))));
+									.
 
-			this.toolItemButton = new ButtonMenu(new ItemToolMenu(), ItemCreator.of(CompMaterial.DIAMOND_PICKAXE, Lang.of("Settings_Menu.Item_Tool_Title"), Lang.ofArray("Settings_Menu.Item_Tool_Button_Lore")));
+							name(Lang.of("Settings_Menu.Head_Texture_Button_Title", "{turretType}", TurretUtil.getDisplayName(typeName)))
+									.
 
-			this.invincibleButton = new Button() {
-				@Override
-				public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
-					final boolean isInvincible = settings.isInvincible();
+							lore(Lang.ofArray("Settings_Menu.Head_Texture_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName))));
 
-					settings.setInvincible(!isInvincible);
-					restartMenu(Lang.of("Settings_Menu.Invincibility_Enabled_Button_Animated_Message", "{enabledOrDisabled}", isInvincible ? "&cDisabled" : "&aEnabled"));
-				}
+			this.toolItemButton = new
 
-				@Override
-				public ItemStack getItem() {
-					final boolean isInvincible = settings.isInvincible();
+					ButtonMenu(new ItemToolMenu(), ItemCreator.
 
-					return ItemCreator.of(isInvincible ? CompMaterial.BLUE_STAINED_GLASS : CompMaterial.RED_STAINED_GLASS, Lang.of("Settings_Menu.Invincible_Button_Title"),
-							Lang.ofArray("Settings_Menu.Invincibility_Enabled_Button_Lore", "{enabledOrDisabled}", isInvincible ? "&aenabled" : "&cdisabled")).make();
-				}
-			};
+					of(CompMaterial.DIAMOND_PICKAXE, Lang.of("Settings_Menu.Item_Tool_Title"), Lang.
 
-			this.ammoButton = new ButtonMenu(new AmmoMenu(), ItemCreator.of(CompMaterial.SNOWBALL, Lang.of("Settings_Menu.Ammo_Button_Title"), Lang.ofArray("Settings_Menu.Ammo_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName))));
+							ofArray("Settings_Menu.Item_Tool_Button_Lore")));
+
+			this.invincibleButton = new
+
+					Button() {
+						@Override
+						public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
+							final boolean isInvincible = settings.isInvincible();
+
+							settings.setInvincible(!isInvincible);
+							restartMenu(Lang.of("Settings_Menu.Invincibility_Enabled_Button_Animated_Message", "{enabledOrDisabled}", isInvincible ? "&cDisabled" : "&aEnabled"));
+						}
+
+						@Override
+						public ItemStack getItem() {
+							final boolean isInvincible = settings.isInvincible();
+
+							return ItemCreator.of(isInvincible ? CompMaterial.BLUE_STAINED_GLASS : CompMaterial.RED_STAINED_GLASS, Lang.of("Settings_Menu.Invincible_Button_Title"),
+									Lang.ofArray("Settings_Menu.Invincibility_Enabled_Button_Lore", "{enabledOrDisabled}", isInvincible ? "&aenabled" : "&cdisabled")).make();
+						}
+					}
+
+			;
+
+			this.ammoButton = new
+
+					ButtonMenu(new AmmoMenu(), ItemCreator.
+
+					of(CompMaterial.SNOWBALL, Lang.of("Settings_Menu.Ammo_Button_Title"), Lang.
+
+							ofArray("Settings_Menu.Ammo_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName))));
 		}
 
 		@Override
@@ -262,11 +275,9 @@ public final class SettingsMenu extends Menu {
 
 				setSize(9 * 3);
 				setTitle(Lang.of("Settings_Menu.Ammo_Menu_Title"));
-
 				this.priceButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.WATER_BUCKET).name(Lang.of("Settings_Menu.Ammo_Price_Button_Title"))
 								.lore(Lang.ofArray("Settings_Menu.Ammo_Price_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName), "{price}", settings.getAmmo().getThirdValue(), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME)),
-						Lang.of("Settings_Menu.Ammo_Price_Prompt_Message", "{turretType}", TurretUtil.getDisplayName(typeName), "{amount}", settings.getAmmo().getThirdValue()),
-						new RangedValue(0, 999999), settings.getAmmo()::getThirdValue, settings::setAmmoPrice);
+						Lang.of("Settings_Menu.Ammo_Price_Prompt_Message", "{turretType}", TurretUtil.getDisplayName(typeName), "{amount}", settings.getAmmo().getThirdValue()), new RangedValue(0, 999999), settings.getAmmo()::getThirdValue, settings::setAmmoPrice);
 
 				this.enableButton = new Button() {
 					@Override
@@ -582,7 +593,7 @@ public final class SettingsMenu extends Menu {
 			}
 		}
 
-		public class SettingsAlliesMenu extends Menu {
+		/*public class SettingsAlliesMenu extends Menu {
 
 			@Position(14)
 			private final Button mobBlacklistButton;
@@ -637,15 +648,15 @@ public final class SettingsMenu extends Menu {
 							final boolean isWhitelist = settings.isEnableMobWhitelist();
 
 							settings.enableMobWhitelist(!isWhitelist);
-							setTitle(Lang.of("Settings_Menu.Mob_List_Type_Button_Title", "{listType}", settings.isEnableMobWhitelist() ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist"))));
-							restartMenu(Lang.of("Settings_Menu.Mob_List_Type_Animated_Message", "{listType}", isWhitelist ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist_Coloured")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist_Coloured"))));
+							setTitle(Lang.of("Settings_Menu.Mob_List_Type_Menu_Title", "{listType}", settings.isEnableMobWhitelist() ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist"))));
+							restartMenu(Lang.of("Settings_Menu.Mob_List_Type_Animated_Message", "{listType}", !isWhitelist ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist_Coloured")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist_Coloured"))));
 						}
 
 						@Override
 						public ItemStack getItem() {
 							final boolean isWhitelist = settings.isEnableMobWhitelist();
 
-							return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, Lang.of("Settings_Menu.Mob_List_Type_Button_Title", "{listType}", isWhitelist ? "&fWhitelist" : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist_Coloured"))),
+							return ItemCreator.of(isWhitelist ? CompMaterial.WHITE_WOOL : CompMaterial.BLACK_WOOL, Lang.of("Settings_Menu.Mob_List_Type_Menu_Title", "{listType}", isWhitelist ? "&fWhitelist" : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist_Coloured"))),
 									Lang.ofArray("Settings_Menu.Mob_List_Type_Button_Lore", "{listType}", !isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured"))).make();
 						}
 					};
@@ -660,7 +671,7 @@ public final class SettingsMenu extends Menu {
 				@Override
 				protected void onPageClick(final Player player, final EntityType entityType, final ClickType clickType) {
 					settings.removeMobFromBlacklist(entityType);
-					this.animateTitle(Lang.of("Settings_Menu.Mob_Egg_Animated_Message", "{entityName}", entityType.name()));
+					this.restartMenu(Lang.of("Settings_Menu.Mob_Egg_Animated_Message", "{entityName}", entityType.name()));
 				}
 
 				@Override
@@ -704,7 +715,7 @@ public final class SettingsMenu extends Menu {
 					@Override
 					protected void onPageClick(final org.bukkit.entity.Player player, final EntityType entityType, final ClickType clickType) {
 						settings.addMobToBlacklist(entityType);
-						this.restartMenu(Lang.of("Settings_Menu.Mob_Selection_Animated_Message", "{listType}", settings.isEnableMobWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"), "{entityName}", entityType.name()));
+						this.animateTitle(Lang.of("Settings_Menu.Mob_Selection_Animated_Message", "{listType}", settings.isEnableMobWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"), "{entityName}", entityType.name()));
 					}
 				}
 			}
@@ -737,7 +748,7 @@ public final class SettingsMenu extends Menu {
 
 							settings.enablePlayerWhitelist(!isWhitelist);
 							setTitle(Lang.of("Settings_Menu.Player_List_Type_Menu_Title", "{listType}", settings.isEnablePlayerWhitelist() ? TurretUtil.capitalizeWord(Lang.of("Placeholders.Whitelist")) : TurretUtil.capitalizeWord(Lang.of("Placeholders.Blacklist"))));
-							restartMenu(Lang.of("Settings_Menu.Player_List_Type_Menu_Animated_Message", "{listType}", isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured")));
+							restartMenu(Lang.of("Settings_Menu.Player_List_Type_Menu_Animated_Message", "{listType}", !isWhitelist ? Lang.of("Placeholders.Whitelist_Coloured") : Lang.of("Placeholders.Blacklist_Coloured")));
 						}
 
 						@Override
@@ -811,7 +822,7 @@ public final class SettingsMenu extends Menu {
 					@Override
 					protected void onPageClick(final Player player, final Player item, final ClickType click) {
 						settings.addPlayerToBlacklist(item.getUniqueId());
-						this.restartMenu(Lang.of("Settings_Menu.Player_Selection_Animated_Message", "{listType}", settings.isEnablePlayerWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"), "{playerName}", player.getName()));
+						this.animateTitle(Lang.of("Settings_Menu.Player_Selection_Animated_Message", "{listType}", settings.isEnablePlayerWhitelist() ? Lang.of("Placeholders.Whitelist") : Lang.of("Placeholders.Blacklist"), "{playerName}", player.getName()));
 					}
 				}
 			}
@@ -844,6 +855,6 @@ public final class SettingsMenu extends Menu {
 					return END_OF_CONVERSATION;
 				}
 			}
-		}
+		}*/
 	}
 }

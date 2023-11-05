@@ -2,7 +2,6 @@ package games.coob.laserturrets.settings;
 
 import games.coob.laserturrets.util.Triple;
 import lombok.*;
-import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.mineacademy.fo.Common;
@@ -14,10 +13,8 @@ import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.settings.ConfigItems;
 import org.mineacademy.fo.settings.YamlConfig;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 @Getter
 public abstract class TurretSettings extends YamlConfig {
@@ -43,13 +40,13 @@ public abstract class TurretSettings extends YamlConfig {
 
 	private List<LevelData> levels;
 
-	private Set<UUID> playerList = new HashSet<>();
+	/*private Set<UUID> playerList;
 
-	private Set<EntityType> mobList = new HashSet<>();
+	private Set<EntityType> mobList;
 
 	private boolean enableMobWhitelist;
 
-	private boolean enablePlayerWhitelist;
+	private boolean enablePlayerWhitelist;*/
 
 	private boolean invincible;
 
@@ -69,10 +66,10 @@ public abstract class TurretSettings extends YamlConfig {
 	@Override
 	protected void onLoad() {
 		this.turretLimit = this.getInteger("Turret_Limit");
-		this.playerList = this.getSet("Player_Blacklist", UUID.class);
+		/*this.playerList = this.getSet("Player_Blacklist", UUID.class);
 		this.mobList = this.getSet("Mob_Blacklist", EntityType.class);
 		this.enableMobWhitelist = this.getBoolean("Use_Mob_Whitelist");
-		this.enablePlayerWhitelist = this.getBoolean("Use_Player_Whitelist");
+		this.enablePlayerWhitelist = this.getBoolean("Use_Player_Whitelist");*/
 		this.invincible = this.getBoolean("Invincible");
 		this.ammo = this.isSet("Ammo") ? this.getTriple("Ammo", Boolean.class, ItemStack.class, Double.class) : null;
 		this.levels = this.getList("Levels", LevelData.class);
@@ -81,10 +78,10 @@ public abstract class TurretSettings extends YamlConfig {
 	@Override
 	protected void onSave() {
 		this.set("Turret_Limit", this.turretLimit);
-		this.set("Player_Blacklist", this.playerList);
+		/*this.set("Player_Blacklist", this.playerList);
 		this.set("Mob_Blacklist", this.mobList);
 		this.set("Use_Player_Whitelist", this.enablePlayerWhitelist);
-		this.set("Use_Mob_Whitelist", this.enableMobWhitelist);
+		this.set("Use_Mob_Whitelist", this.enableMobWhitelist);*/
 		this.set("Invincible", this.invincible);
 		this.set("Ammo", this.ammo);
 		this.set("Levels", this.levels);
@@ -169,7 +166,7 @@ public abstract class TurretSettings extends YamlConfig {
 		this.save();
 	}
 
-	public void addPlayerToBlacklist(final UUID uuid) {
+	/*public void addPlayerToBlacklist(final UUID uuid) {
 		this.playerList.add(uuid);
 
 		this.save();
@@ -205,7 +202,7 @@ public abstract class TurretSettings extends YamlConfig {
 		this.enablePlayerWhitelist = enablePlayerWhitelist;
 
 		this.save();
-	}
+	}*/
 
 	public void setInvincible(final boolean invincible) {
 		this.invincible = invincible;

@@ -147,7 +147,7 @@ public class TurretsMenu extends MenuPagged<TurretData> {
 			this.setSize(9 * 4);
 			this.setTitle(Lang.of("Turrets_Menu.Turret_Edit_Menu_Title", "{turretType}", TurretUtil.capitalizeWord(TurretUtil.getDisplayName(turretData.getType())), "{turretId}", turretData.getId()));
 
-			this.alliesButton = new ButtonMenu(new AlliesMenu(TurretEditMenu.this, turretData, player), CompMaterial.KNOWLEDGE_BOOK,
+			this.alliesButton = new ButtonMenu(new TurretAlliesMenu(TurretEditMenu.this, turretData, player), CompMaterial.KNOWLEDGE_BOOK,
 					Lang.of("Turrets_Menu.Allies_Button_Title"),
 					Lang.ofArray("Turrets_Menu.Allies_Button_Lore"));
 

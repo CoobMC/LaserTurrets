@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.mineacademy.fo.MathUtil;
 import org.mineacademy.fo.Messenger;
@@ -16,9 +17,7 @@ import org.mineacademy.fo.remain.Remain;
 import org.mineacademy.fo.settings.YamlConfig;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * A sample player cache storing permanent player information
@@ -42,12 +41,18 @@ public final class PlayerCache extends YamlConfig {
 	 */
 	private final String playerName;
 
-	@Getter
 	private double currency = 0;
 
-	@Getter
 	@Setter
 	private boolean turretHit;
+
+	private Set<UUID> playerAllies = new HashSet<>();
+
+	private Set<EntityType> mobAllies = new HashSet<>();
+
+	private boolean mobWhitelistEnabled;
+
+	private boolean playerWhitelistEnabled;
 
 	/*
 	 * Creates a new player cache (see the bottom)
@@ -63,6 +68,10 @@ public final class PlayerCache extends YamlConfig {
 	@Override
 	protected void onLoad() {
 		this.currency = getDouble("Balance", Settings.CurrencySection.DEFAULT_CURRENCY);
+		this.playerAllies = this.getSet("Player_Allies", UUID.class);
+		this.mobAllies = this.getSet("Mob_Allies", EntityType.class);
+		this.playerWhitelistEnabled = this.getBoolean("Use_Player_Whitelist", false);
+		this.mobWhitelistEnabled = this.getBoolean("Use_Mob_Whitelist", false); // Add default value to load it if the key doesn't exist
 	}
 
 	/**
@@ -71,6 +80,10 @@ public final class PlayerCache extends YamlConfig {
 	@Override
 	public void onSave() {
 		this.set("Balance", Double.parseDouble(this.currency + "000" + String.valueOf(Math.random()).replace(".", "")));
+		this.set("Player_Allies", this.playerAllies);
+		this.set("Mob_Allies", this.mobAllies);
+		this.set("Use_Player_Whitelist", this.playerWhitelistEnabled);
+		this.set("Use_Mob_Whitelist", this.mobWhitelistEnabled);
 	}
 
 	/* ------------------------------------------------------------------------------- */
@@ -163,6 +176,61 @@ public final class PlayerCache extends YamlConfig {
 	private double formatCurrency(final double currency) {
 		return MathUtil.formatTwoDigitsD(currency);
 	}
+
+	public void addPlayerToAllies(final UUID uuid) {
+		this.playerAllies.add(uuid);
+
+		this.save();
+	}
+
+	public void removePlayerFromAllies(final UUID uuid) {
+		if (this.playerAllies != null)
+			this.playerAllies.remove(uuid);
+
+		this.save();
+	}
+
+	public void enablePlayerWhitelist(final boolean enableWhitelist) {
+		this.playerWhitelistEnabled = enableWhitelist;
+		this.save();
+	}
+
+	public void addMobToAllies(final EntityType entityType) {
+		this.mobAllies.add(entityType);
+		this.save();
+	}
+
+	public void removeMobFromAllies(final EntityType entityType) {
+		this.mobAllies.remove(entityType);
+		this.save();
+	}
+
+	public void enableMobWhitelist(final boolean enableWhitelist) {
+		this.mobWhitelistEnabled = enableWhitelist;
+		this.save();
+	}
+
+	public void setPlayerAllies(final Set<UUID> playerAllies) {
+		this.playerAllies = playerAllies;
+		this.save();
+	}
+
+	public void setMobAllies(final Set<EntityType> mobAllies) {
+		this.mobAllies = mobAllies;
+		this.save();
+	}
+
+	public void setMobWhitelistEnabled(final boolean mobWhitelistEnabled) {
+		this.mobWhitelistEnabled = mobWhitelistEnabled;
+		this.save();
+	}
+
+	public void setPlayerWhitelistEnabled(final boolean playerWhitelistEnabled) {
+		this.playerWhitelistEnabled = playerWhitelistEnabled;
+		this.save();
+	}
+
+
 	//
 	// Implement your own data getter/setters here according to this example:
 	//

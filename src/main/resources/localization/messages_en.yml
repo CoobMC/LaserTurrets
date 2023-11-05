@@ -94,6 +94,7 @@ Turret_Commands:
   Buy_Description: "Buy turrets directly from this command."
   Tool_Description: "Give a turret tool to yourself or another player."
   Sync_Description: "Sync your turret settings with your already created turrets."
+  Allies_Description: "Manage your owning turrets allies via this menu."
   Balance_Give: "&aGave {playerName} &e{amount} &a{currencyName} and now has a total of &e{totalAmount} &a{currencyName}."
   Balance_Take: "&aTook &e{amount} &a{currencyName} from {playerName} who now has a total of &e{totalAmount} &a{currencyName}."
   Balance_Set: "&Set {playerName}'s amount of {currencyName} to &e{amount}&a."
@@ -129,14 +130,85 @@ Turret_Display:
   Turret_Player_Kill_Message: "&6{owner}'s {turretType} turret has killed &c{victim}&6!"
 
 # -------------------------------------------------------------------------------------------------
-# Messages that are displayed in the Manage Allies menu
+# Messages that are displayed in the Manage Turret Allies menu
 # -------------------------------------------------------------------------------------------------
-Manage_Allies_Menu:
-  Main_Title: "Manage Allies"
+Manage_Turret_Allies_Menu:
+  Main_Title: "Manage Turret Allies"
   Mob_Allies_Title: "Mob {listType}"
   Mob_Allies_Lore: "Edit your mob {listType}"
   Player_Allies_Title: "Player {listType}"
   Player_Allies_Lore: "Edit your player {listType}"
+  Main_Info:
+    - "&fWhitelisted&7 players/mobs are"
+    - "the only targets of the turret."
+    - ""
+    - "&8Blacklisted&7 players/mobs won't"
+    - "get targeted by the turret."
+  Mob_Add_Button_Title: "Add Mob"
+  Mob_Add_Button_Lore:
+    - "Open this menu to add"
+    - "mobs to the {listType}"
+  Mob_List_Type_Menu_Title: "&0Mob {listType}"
+  Mob_List_Type_Menu_Animated_Message: "Changed to {listType}"
+  Mob_List_Type_Button_Title: "{listType}"
+  Mob_List_Type_Button_Lore: "Click to change to {listType}"
+  Mob_Egg_Lore: "Click to remove"
+  Mob_Egg_Animated_Message: "&cRemoved {entityName}"
+  Mob_Menu_Info_Button:
+    - "Manage your mob {listType} by"
+    - "clicking the existing eggs"
+    - "to remove them or clicking"
+    - "the 'Add Mob' button to add"
+    - "mobs to your selection."
+  Mob_Selection_Menu_Title: "Select a Mob"
+  Mob_Available_For_Selection_Lore: "Click to add"
+  Mob_Already_Selected_Lore: "&aAlready in the {listType}"
+  Mob_Selection_Animated_Message: "&aAdded {entityName}"
+  Player_Add_Button_Title: "Add Player"
+  Player_Add_Button_Lore:
+    - "Open this menu to add"
+    - "players to the {listType}"
+  Player_Add_Prompt_Button_Title: "Type a name"
+  Player_Add_Prompt_Button_Lore:
+    - "Click this button if you"
+    - "would like to add a player"
+    - "to the {listType} by typing"
+    - "his name, this means you can"
+    - "also add offline players."
+  Player_List_Type_Menu_Title: "&0Player {listType}"
+  Player_Menu_Info_Button:
+    - "Edit your player {listType} by"
+    - "clicking the existing heads"
+    - "to remove them or clicking"
+    - "the 'Add Player' button to add"
+    - "players to your {listType}."
+  Player_List_Type_Button_Title: "{listType}"
+  Player_List_Type_Button_Lore: "Click to change to {listType}"
+  Player_List_Type_Menu_Animated_Message: "Changed to {listType}"
+  Player_Head_Lore: "Click to remove"
+  Player_Head_Animated_Message: "&cRemoved {playerName}"
+  Player_Selection_Menu_Title: "Select a player"
+  Player_Available_For_Selection_Lore: "Click to add"
+  Player_Already_Selected_Lore: "&aAlready in the {listType}"
+  Player_Selection_Animated_Message: "&aAdded {playerName}"
+  Player_Prompt_Message: "&6What player shouldn't be targeted by this turret?"
+  Player_Prompt_Invalid_Text: "Player '{invalidPlayer}' doesn't exist."
+  Player_Prompt_Success: "You have successfully added {playerName} to the {listType}!"
+
+# -------------------------------------------------------------------------------------------------
+# Messages that are displayed in the Manage Player Allies menu
+# -------------------------------------------------------------------------------------------------
+Manage_Player_Allies_Menu:
+  Main_Title: "Manage Player Allies"
+  Mob_Allies_Title: "Mob {listType}"
+  Mob_Allies_Lore: "Edit your mob {listType}"
+  Player_Allies_Title: "Player {listType}"
+  Player_Allies_Lore: "Edit your player {listType}"
+  Sync_Allies_Button_Title: "Sync Allies"
+  Sync_Allies_Button_Lore:
+    - "Sync your allies with all"
+    - "turrets you own."
+  Sync_Allies_Animated_Message: "&aSynced allies with turrets"
   Main_Info:
     - "&fWhitelisted&7 players/mobs are"
     - "the only targets of the turret."
@@ -376,7 +448,6 @@ Settings_Menu:
     - "mobs to the {listType}."
   Mob_List_Type_Menu_Title: "&0Mob {listType}"
   Mob_List_Type_Animated_Message: "&eChanged to {listType}"
-  Mob_List_Type_Button_Title: "{listType}"
   Mob_List_Type_Button_Lore: "Click to change to {listType}"
   Mob_Egg_Lore: "Click to remove"
   Mob_Egg_Animated_Message: "&cRemoved {entityName}"

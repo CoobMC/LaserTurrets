@@ -154,7 +154,7 @@ public class UpgradeMenu extends Menu {
 			}
 		};
 
-		this.blacklistButton = new ButtonMenu(new AlliesMenu(UpgradeMenu.this, turretData, player), CompMaterial.KNOWLEDGE_BOOK,
+		this.blacklistButton = new ButtonMenu(new TurretAlliesMenu(UpgradeMenu.this, turretData, player), CompMaterial.KNOWLEDGE_BOOK,
 				Lang.of("Upgrade_Menu.Allies_Button_Title"),
 				Lang.ofArray("Upgrade_Menu.Allies_Button_Lore"));
 

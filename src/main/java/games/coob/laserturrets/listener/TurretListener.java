@@ -59,7 +59,7 @@ public final class TurretListener implements Listener {
 		final Player player = event.getPlayer();
 
 		if (Settings.DatabaseSection.ENABLE_MYSQL)
-			Common.runLaterAsync(() -> TurretsDatabase.load(player));
+			Common.runLaterAsync(1, () -> TurretsDatabase.load(player));
 	}
 
 	@EventHandler
@@ -67,7 +67,7 @@ public final class TurretListener implements Listener {
 		final Player player = event.getPlayer();
 
 		if (Settings.DatabaseSection.ENABLE_MYSQL) {
-			Common.runLaterAsync(() -> {
+			Common.runLaterAsync(1, () -> {
 				TurretsDatabase.save(player);
 				PlayerCache.remove(player);
 			});

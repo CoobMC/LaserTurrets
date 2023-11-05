@@ -78,7 +78,7 @@ public final class Settings extends SimpleSettings {
 		}
 	}
 
-	public static class CurrencySection {
+	public static class CurrencySection { // TODO use experience levels
 		public static String CURRENCY_NAME;
 		public static Double DEFAULT_CURRENCY;
 		public static Boolean USE_VAULT;

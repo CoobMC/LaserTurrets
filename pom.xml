@@ -13,7 +13,7 @@
     <name>LaserTurrets</name>
 
     <!-- Change to the appropriate plugin's version, starting at 1.0.0. -->
-    <version>3.2.0</version>
+    <version>3.3.0</version>
 
     <!-- DO NOT EDIT. -->
     <packaging>jar</packaging>
@@ -38,7 +38,7 @@
 
         <!-- Change to the latest version from https://github.com/kangarko/Foundation/releases
              or change to "LATEST" if you downloaded Foundation to your disk and compiled it. -->
-        <foundation.version>6.4.7</foundation.version>
+        <foundation.version>6.5.5</foundation.version>
 
         <lands.version>6.28.11</lands.version>
         <kingdoms.version>1.15.4.2-SNAPSHOT</kingdoms.version>
@@ -169,6 +169,13 @@
             <version>LATEST</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/libs/Konquest-0.10.3.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.TechFortress</groupId>
+            <artifactId>GriefPrevention</artifactId>
+            <version>16.18</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

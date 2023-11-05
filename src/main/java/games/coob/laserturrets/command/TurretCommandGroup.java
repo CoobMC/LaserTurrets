@@ -71,6 +71,7 @@ public final class TurretCommandGroup extends SimpleCommandGroup {
 
 		// Register a sample command for this group
 		registerSubcommand(new SettingsCommand());
+		registerSubcommand(new AlliesCommand());
 		registerSubcommand(new ShopCommand());
 		registerSubcommand(new GiveCommand());
 		registerSubcommand(new BuyCommand());
@@ -79,7 +80,6 @@ public final class TurretCommandGroup extends SimpleCommandGroup {
 		registerSubcommand(new RemoveCommand());
 		registerSubcommand(new MenuCommand());
 		registerSubcommand(new BalanceCommand());
-		//registerSubcommand(new BeamCommand()); // TODO
 
 		// Register the premade commands from Foundation
 		registerSubcommand(new DebugCommand("turret.command.debug"));
