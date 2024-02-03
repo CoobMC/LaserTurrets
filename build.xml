@@ -12,12 +12,11 @@
     <!-- Ninja: We read pom.xml file to find the Foundation version to use -->
     <xmlproperty file="pom.xml" prefix="pom" keeproot="false"/>
     <property name="foundation.version" value="${pom.properties.foundation.version}"/>
-    <property name="lands.version" value="${pom.properties.lands.version}"/>
     <property name="kingdoms.version" value="${pom.properties.kingdoms.version}"/>
+    <property name="lands.version" value="${pom.properties.lands.version}"/>
     <property name="simpleclans.version" value="${pom.properties.simpleclans.version}"/>
     <property name="betterteams.version" value="${pom.properties.betterteams.version}"/>
     <property name="uclans.version" value="${pom.properties.uclans.version}"/>
-    <property name="foundation.version" value="${pom.properties.foundation.version}"/>
 
 
     <!-- Change the name="" key on the top to your plugin's name

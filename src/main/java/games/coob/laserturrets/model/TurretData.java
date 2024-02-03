@@ -1,10 +1,8 @@
 package games.coob.laserturrets.model;
 
 import games.coob.laserturrets.PlayerCache;
+import games.coob.laserturrets.hook.HologramHook;
 import games.coob.laserturrets.settings.TurretSettings;
-import games.coob.laserturrets.util.Hologram;
-import games.coob.laserturrets.util.Lang;
-import games.coob.laserturrets.util.TurretUtil;
 import lombok.Getter;
 import lombok.NonNull;
 import org.bukkit.Location;
@@ -13,12 +11,10 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.mineacademy.fo.MathUtil;
 import org.mineacademy.fo.SerializeUtil;
 import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
-import org.mineacademy.fo.remain.Remain;
 import org.mineacademy.fo.settings.ConfigItems;
 import org.mineacademy.fo.settings.YamlConfig;
 
@@ -28,278 +24,277 @@ import java.util.*;
 @Getter
 public class TurretData extends YamlConfig { // TODO store number of kills
 
-	/**
-	 * The folder name where all items are stored
-	 */
-	private static final String FOLDER = "turrets";
+    /**
+     * The folder name where all items are stored
+     */
+    private static final String FOLDER = "turrets";
 
-	private static final ConfigItems<TurretData> loadedFiles = ConfigItems.fromFolder(FOLDER, TurretData.class);
+    private static final ConfigItems<TurretData> loadedFiles = ConfigItems.fromFolder(FOLDER, TurretData.class);
 
-	private Location location;
+    private Location location;
 
-	private CompMaterial material;
+    private CompMaterial material;
 
-	private String id;
+    private String id;
 
-	private String type;
+    private String type;
 
-	private UUID owner;
+    private UUID owner;
 
-	private boolean broken;
+    private boolean broken;
 
-	private List<ItemStack> currentLoot;
+    private List<ItemStack> currentLoot;
 
-	private Set<UUID> playerAllies = new HashSet<>();
+    private Set<UUID> playerAllies = new HashSet<>();
 
-	private Set<EntityType> mobAllies = new HashSet<>();
+    private Set<EntityType> mobAllies = new HashSet<>();
 
-	private boolean mobWhitelistEnabled;
+    private boolean mobWhitelistEnabled;
 
-	private boolean playerWhitelistEnabled;
+    private boolean playerWhitelistEnabled;
 
-	private Double currentHealth;
+    private Double currentHealth;
 
-	private int currentLevel;
+    private int currentLevel;
 
-	private Hologram hologram;
+    private List<ItemStack> ammo;
 
-	private List<ItemStack> ammo;
+    private TurretData(final String id) {
+        this(id, null);
+    }
 
-	private TurretData(final String id) {
-		this(id, null);
-	}
+    private TurretData(final String id, @Nullable final Block block) {
+        this.id = id;
 
-	private TurretData(final String id, @Nullable final Block block) {
-		this.id = id;
+        if (block != null) {
+            this.material = CompMaterial.fromMaterial(block.getType());
+            this.location = block.getLocation();
+        }
 
-		if (block != null) {
-			this.material = CompMaterial.fromMaterial(block.getType());
-			this.location = block.getLocation();
-		}
+        this.loadConfiguration(NO_DEFAULT, FOLDER + "/" + id + ".yml");
+    }
 
-		this.loadConfiguration(NO_DEFAULT, FOLDER + "/" + id + ".yml");
-	}
+    @Override
+    protected void onLoad() {
+        if (this.location == null && this.material == null) {
+            Valid.checkBoolean(isSet("Block"), "Corrupted turret file: " + this.getFileName() + ", lacks the 'Block' key to determine the block where the turret is placed.");
 
-	@Override
-	protected void onLoad() {
-		if (this.location == null && this.material == null) {
-			Valid.checkBoolean(isSet("Block"), "Corrupted turret file: " + this.getFileName() + ", lacks the 'Block' key to determine the block where the turret is placed.");
+            final String hash = this.getString("Block");
 
-			final String hash = this.getString("Block");
+            final String[] split = hash.split(" \\| ");
+            final Location location = SerializeUtil.deserializeLocation(split[0]);
+            final CompMaterial material = CompMaterial.valueOf(split[1]);
 
-			final String[] split = hash.split(" \\| ");
-			final Location location = SerializeUtil.deserializeLocation(split[0]);
-			final CompMaterial material = CompMaterial.valueOf(split[1]);
+            this.location = location;
+            this.material = material;
+        }
 
-			this.location = location;
-			this.material = material;
-		}
+        this.id = this.getString("Id", "id");
+        this.type = this.getString("Type", "type");
+        this.owner = this.get("Owner", UUID.class, new UUID(1, 5));
+        this.currentHealth = this.getDouble("Current_Health", 0.0);
+        this.playerAllies = this.getSet("Player_Blacklist", UUID.class); // TODO update name for premium version
+        this.mobAllies = this.getSet("Mob_Blacklist", EntityType.class);
+        this.currentLoot = this.getList("Current_Loot", ItemStack.class);
+        this.playerWhitelistEnabled = this.getBoolean("Use_Player_Whitelist", false);
+        this.mobWhitelistEnabled = this.getBoolean("Use_Mob_Whitelist", false); // Add default value to load it if the key doesn't exist
+        this.currentLevel = this.getInteger("Current_Level", 1);
+        this.broken = this.getBoolean("Broken", false);
+        this.ammo = this.getList("Ammo", ItemStack.class);
 
-		this.id = this.getString("Id", "id");
-		this.type = this.getString("Type", "type");
-		this.owner = this.get("Owner", UUID.class, new UUID(1, 5));
-		this.currentHealth = this.getDouble("Current_Health", 0.0);
-		this.playerAllies = this.getSet("Player_Blacklist", UUID.class); // TODO update name for premium version
-		this.mobAllies = this.getSet("Mob_Blacklist", EntityType.class);
-		this.currentLoot = this.getList("Current_Loot", ItemStack.class);
-		this.playerWhitelistEnabled = this.getBoolean("Use_Player_Whitelist", false);
-		this.mobWhitelistEnabled = this.getBoolean("Use_Mob_Whitelist", false); // Add default value to load it if the key doesn't exist
-		this.currentLevel = this.getInteger("Current_Level", 1);
-		this.broken = this.getBoolean("Broken", false);
-		this.ammo = this.getList("Ammo", ItemStack.class);
+        this.save();
+    }
 
-		this.save();
-	}
+    private String toHash(final Location location, final CompMaterial material) {
+        return SerializeUtil.serializeLoc(location) + " | " + material;
+    }
 
-	private String toHash(final Location location, final CompMaterial material) {
-		return SerializeUtil.serializeLoc(location) + " | " + material;
-	}
+    @Override
+    protected void onSave() {
+        this.set("Block", toHash(this.location, this.material));
+        this.set("Id", this.id);
+        this.set("Type", this.type);
+        this.set("Owner", this.owner);
+        this.set("Player_Blacklist", this.playerAllies);
+        this.set("Mob_Blacklist", this.mobAllies);
+        this.set("Current_Loot", this.currentLoot);
+        this.set("Use_Player_Whitelist", this.playerWhitelistEnabled);
+        this.set("Use_Mob_Whitelist", this.mobWhitelistEnabled);
+        this.set("Current_Health", this.currentHealth);
+        this.set("Current_Level", this.currentLevel);
+        this.set("Broken", this.broken);
+        this.set("Ammo", this.ammo);
+    }
 
-	@Override
-	protected void onSave() {
-		this.set("Block", toHash(this.location, this.material));
-		this.set("Id", this.id);
-		this.set("Type", this.type);
-		this.set("Owner", this.owner);
-		this.set("Player_Blacklist", this.playerAllies);
-		this.set("Mob_Blacklist", this.mobAllies);
-		this.set("Current_Loot", this.currentLoot);
-		this.set("Use_Player_Whitelist", this.playerWhitelistEnabled);
-		this.set("Use_Mob_Whitelist", this.mobWhitelistEnabled);
-		this.set("Current_Health", this.currentHealth);
-		this.set("Current_Level", this.currentLevel);
-		this.set("Broken", this.broken);
-		this.set("Ammo", this.ammo);
-		this.set("Hologram", this.hologram);
-	}
+    public void setLocation(final Location location) {
+        this.location = location;
 
-	public void setLocation(final Location location) {
-		this.location = location;
+        this.save();
+    }
 
-		this.save();
-	}
+    public void setMaterial(final CompMaterial material) {
+        this.material = material;
 
-	public void setMaterial(final CompMaterial material) {
-		this.material = material;
+        this.save();
+    }
 
-		this.save();
-	}
+    public void setType(final String type) {
+        this.type = type;
 
-	public void setType(final String type) {
-		this.type = type;
+        this.save();
+    }
 
-		this.save();
-	}
+    public void setOwner(final UUID owner) {
+        this.owner = owner;
 
-	public void setOwner(final UUID owner) {
-		this.owner = owner;
+        this.save();
+    }
 
-		this.save();
-	}
+    public void setId(final String id) {
+        this.id = id;
 
-	public void setId(final String id) {
-		this.id = id;
+        this.save();
+    }
 
-		this.save();
-	}
+    public void setCurrentHealth(final Double currentHealth) {
+        this.currentHealth = currentHealth;
 
-	public void setCurrentHealth(final Double currentHealth) {
-		this.currentHealth = currentHealth;
+        this.save();
+    }
 
-		this.save();
-	}
+    public void setCurrentLevel(final int currentLevel) {
+        this.currentLevel = currentLevel;
 
-	public void setCurrentLevel(final int currentLevel) {
-		this.currentLevel = currentLevel;
+        this.save();
+    }
 
-		this.save();
-	}
+    public void setMobAllies(final Set<EntityType> mobAllies) {
+        this.mobAllies = mobAllies;
 
-	public void setMobAllies(final Set<EntityType> mobAllies) {
-		this.mobAllies = mobAllies;
+        this.save();
+    }
 
-		this.save();
-	}
+    public void setPlayerAllies(final Set<UUID> playerAllies) {
+        this.playerAllies = playerAllies;
 
-	public void setPlayerAllies(final Set<UUID> playerAllies) {
-		this.playerAllies = playerAllies;
+        this.save();
+    }
 
-		this.save();
-	}
+    public void setPlayerWhitelistEnabled(final boolean playerWhitelistEnabled) {
+        this.playerWhitelistEnabled = playerWhitelistEnabled;
 
-	public void setPlayerWhitelistEnabled(final boolean playerWhitelistEnabled) {
-		this.playerWhitelistEnabled = playerWhitelistEnabled;
+        this.save();
+    }
 
-		this.save();
-	}
+    public void setMobWhitelistEnabled(final boolean mobWhitelistEnabled) {
+        this.mobWhitelistEnabled = mobWhitelistEnabled;
 
-	public void setMobWhitelistEnabled(final boolean mobWhitelistEnabled) {
-		this.mobWhitelistEnabled = mobWhitelistEnabled;
+        this.save();
+    }
 
-		this.save();
-	}
-
-	public void setHologram(final Hologram hologram) {
+	/*public void setHologram(final Hologram hologram) {
 		this.hologram = hologram;
 
 		this.save();
-	}
+	}*/
 
-	public void setAmmo(final List<ItemStack> ammo) {
-		this.ammo = ammo;
+    public void setAmmo(final List<ItemStack> ammo) {
+        this.ammo = ammo;
 
-		this.save();
-	}
+        this.save();
+    }
 
-	public void deductAmmo() {
-		int remainingDeduction = 1;
+    public void deductAmmo() {
+        int remainingDeduction = 1;
 
-		for (final ItemStack itemStack : this.ammo) {
+        for (final ItemStack itemStack : this.ammo) {
 
-			if (itemStack == null)
-				continue;
+            if (itemStack == null)
+                continue;
 
-			final int currentStackSize = itemStack.getAmount();
+            final int currentStackSize = itemStack.getAmount();
 
-			if (currentStackSize > remainingDeduction) {
-				itemStack.setAmount(currentStackSize - remainingDeduction);
-				break;
-			} else {
-				itemStack.setAmount(0);
-				if (currentStackSize < remainingDeduction) {
-					remainingDeduction -= currentStackSize;
-				} else {
-					remainingDeduction = 0;
-				}
+            if (currentStackSize > remainingDeduction) {
+                itemStack.setAmount(currentStackSize - remainingDeduction);
+                break;
+            } else {
+                itemStack.setAmount(0);
+                if (currentStackSize < remainingDeduction) {
+                    remainingDeduction -= currentStackSize;
+                } else {
+                    remainingDeduction = 0;
+                }
 
-				if (remainingDeduction == 0) {
-					break;
-				}
-			}
-		}
+                if (remainingDeduction == 0) {
+                    break;
+                }
+            }
+        }
 
-		this.save();
-	}
+        this.save();
+    }
 
-	public boolean hasAmmo() {
-		return !this.ammo.isEmpty();
-	}
+    public boolean hasAmmo() {
+        return !this.ammo.isEmpty();
+    }
 
 
-	public void register(final Player player, final Block block, final String type, final String uniqueID) {
-		this.setLocation(block.getLocation());
-		this.setMaterial(CompMaterial.fromMaterial(block.getType()));
-		this.setType(type);
-		this.setOwner(player.getUniqueId());
-		this.setId(uniqueID);
-		this.setCurrentLevel(1);
+    public void register(final Player player, final Block block, final String type, final String uniqueID) {
+        this.setLocation(block.getLocation());
+        this.setMaterial(CompMaterial.fromMaterial(block.getType()));
+        this.setType(type);
+        this.setOwner(player.getUniqueId());
+        this.setId(uniqueID);
+        this.setCurrentLevel(1);
 
-		final TurretSettings turretSettings = TurretSettings.findByName(type);
-		final PlayerCache cache = PlayerCache.from(player);
+        final TurretSettings turretSettings = TurretSettings.findByName(type);
+        final PlayerCache cache = PlayerCache.from(player);
 
-		this.setMobAllies(cache.getMobAllies());
-		this.setPlayerAllies(cache.getPlayerAllies());
+        this.setMobAllies(cache.getMobAllies());
+        this.setPlayerAllies(cache.getPlayerAllies());
 
-		this.setPlayerWhitelistEnabled(cache.isPlayerWhitelistEnabled());
-		this.setMobWhitelistEnabled(cache.isMobWhitelistEnabled());
+        this.setPlayerWhitelistEnabled(cache.isPlayerWhitelistEnabled());
+        this.setMobWhitelistEnabled(cache.isMobWhitelistEnabled());
 
-		if (!this.isPlayerWhitelistEnabled())
-			this.playerAllies.add(player.getUniqueId());
+        if (!this.isPlayerWhitelistEnabled())
+            this.playerAllies.add(player.getUniqueId());
 
-		this.setCurrentHealth(turretSettings.getLevel(1).getHealth());
-		this.setHologram(createHologram());
+        this.setCurrentHealth(turretSettings.getLevel(1).getHealth());
+        HologramHook.createHologram(this);
 
-		this.save();
-	}
+        this.save();
+    }
 
-	public void unregister() {
-		removeTurret(this.id);
+    public void unregister() {
+        removeTurret(this.id);
 
-		if (this.getHologram() != null)
-			this.getHologram().remove();
+        HologramHook.removeHologram(this.id);
+		/*if (this.getHologram() != null)
+			this.getHologram().remove();*/
 
-		this.getLocation().getBlock().getRelative(BlockFace.UP).setType(CompMaterial.AIR.getMaterial());
-	}
+        this.getLocation().getBlock().getRelative(BlockFace.UP).setType(CompMaterial.AIR.getMaterial());
+    }
 
-	public void registerFromUnplaced(final UnplacedData data, final Block block) {
-		this.setLocation(block.getLocation());
-		this.setMaterial(CompMaterial.fromMaterial(block.getType()));
-		this.setType(data.getType());
-		this.setOwner(data.getOwner());
-		this.setId(data.getId());
-		this.setCurrentLevel(data.getCurrentLevel());
-		this.setMobAllies(data.getMobBlacklist());
-		this.setPlayerAllies(data.getPlayerBlacklist());
-		this.setPlayerWhitelistEnabled(data.isPlayerWhitelistEnabled());
-		this.setMobWhitelistEnabled(data.isMobWhitelistEnabled());
-		this.setCurrentHealth(data.getCurrentHealth());
-		this.setCurrentLoot(data.getCurrentLoot());
-		this.setHologram(createHologram());
+    public void registerFromUnplaced(final UnplacedData data, final Block block) {
+        this.setLocation(block.getLocation());
+        this.setMaterial(CompMaterial.fromMaterial(block.getType()));
+        this.setType(data.getType());
+        this.setOwner(data.getOwner());
+        this.setId(data.getId());
+        this.setCurrentLevel(data.getCurrentLevel());
+        this.setMobAllies(data.getMobBlacklist());
+        this.setPlayerAllies(data.getPlayerBlacklist());
+        this.setPlayerWhitelistEnabled(data.isPlayerWhitelistEnabled());
+        this.setMobWhitelistEnabled(data.isMobWhitelistEnabled());
+        this.setCurrentHealth(data.getCurrentHealth());
+        this.setCurrentLoot(data.getCurrentLoot());
 
-		this.save();
-	}
+        HologramHook.createHologram(this);
 
-	private Hologram createHologram() { // TODO
+        this.save();
+    }
+
+	/*private Hologram createHologram() {
 		final String type = this.type;
 		final List<String> lore = Lang.ofList("Turret_Display.Hologram", "{turretType}", TurretUtil.capitalizeWord(type), "{owner}", Remain.getOfflinePlayerByUUID(this.getOwner()).getName(), "{level}", MathUtil.toRoman(this.getCurrentLevel()), "{health}", this.getCurrentHealth());
 		final List<String> loreList = new ArrayList<>(lore);
@@ -315,271 +310,271 @@ public class TurretData extends YamlConfig { // TODO store number of kills
 		hologram.setLore(lines);
 
 		return hologram;
-	}
+	}*/
 
-	public void addPlayerToAllies(final UUID uuid) {
-		this.playerAllies.add(uuid);
+    public void addPlayerToAllies(final UUID uuid) {
+        this.playerAllies.add(uuid);
 
-		this.save();
-	}
+        this.save();
+    }
 
-	public void addPlayersToAllies(final Set<UUID> uuids) {
-		this.playerAllies.addAll(uuids);
-		this.save();
-	}
+    public void addPlayersToAllies(final Set<UUID> uuids) {
+        this.playerAllies.addAll(uuids);
+        this.save();
+    }
 
-	public void removePlayerFromAllies(final UUID uuid) {
-		if (this.playerAllies != null)
-			this.playerAllies.remove(uuid);
+    public void removePlayerFromAllies(final UUID uuid) {
+        if (this.playerAllies != null)
+            this.playerAllies.remove(uuid);
 
-		this.save();
-	}
+        this.save();
+    }
 
-	public void addMobToAllies(final EntityType entityType) {
-		this.mobAllies.add(entityType);
+    public void addMobToAllies(final EntityType entityType) {
+        this.mobAllies.add(entityType);
 
-		this.save();
-	}
+        this.save();
+    }
 
-	public void addMobsToAllies(final Set<EntityType> uuids) {
-		this.mobAllies.addAll(uuids);
-		this.save();
-	}
+    public void addMobsToAllies(final Set<EntityType> uuids) {
+        this.mobAllies.addAll(uuids);
+        this.save();
+    }
 
-	public void removeMobFromAllies(final EntityType entityType) {
-		this.mobAllies.remove(entityType);
+    public void removeMobFromAllies(final EntityType entityType) {
+        this.mobAllies.remove(entityType);
 
-		this.save();
-	}
+        this.save();
+    }
 
-	public void enableMobWhitelist(final boolean enableWhitelist) {
-		this.mobWhitelistEnabled = enableWhitelist;
+    public void enableMobWhitelist(final boolean enableWhitelist) {
+        this.mobWhitelistEnabled = enableWhitelist;
 
-		this.save();
-	}
+        this.save();
+    }
 
-	public boolean isMobListedAsAlly(final EntityType entityType) {
-		return this.mobAllies.contains(entityType);
-	}
+    public boolean isMobListedAsAlly(final EntityType entityType) {
+        return this.mobAllies.contains(entityType);
+    }
 
-	public void enablePlayerWhitelist(final boolean enableWhitelist) {
-		this.playerWhitelistEnabled = enableWhitelist;
+    public void enablePlayerWhitelist(final boolean enableWhitelist) {
+        this.playerWhitelistEnabled = enableWhitelist;
 
-		this.save();
-	}
+        this.save();
+    }
 
-	public boolean isPlayerListedAsAlly(final UUID uuid) {
-		if (this.playerAllies != null)
-			return this.playerAllies.contains(uuid);
-		else return false;
-	}
+    public boolean isPlayerListedAsAlly(final UUID uuid) {
+        if (this.playerAllies != null)
+            return this.playerAllies.contains(uuid);
+        else return false;
+    }
 
-	public void updateHologram() {
+	/*public void updateHologram() {
 		if (this.getHologram() != null)
 			this.getHologram().remove();
 
 		this.setHologram(createHologram());
 
 		this.save();
-	}
+	}*/
 
-	public void setCurrentTurretLevel(final int level) {
-		this.currentLevel = level;
+    public void setCurrentTurretLevel(final int level) {
+        this.currentLevel = level;
 
-		this.save();
-	}
+        this.save();
+    }
 
-	public void setTurretHealth(final Block block, final double health) {
-		if (isRegistered(block))
-			this.setCurrentHealth(health);
+    public void setTurretHealth(final Block block, final double health) {
+        if (isRegistered(block))
+            this.setCurrentHealth(health);
 
-		this.save();
-	}
+        this.save();
+    }
 
-	public void setTurretHealth(final double health) {
-		this.currentHealth = health;
+    public void setTurretHealth(final double health) {
+        this.currentHealth = health;
 
-		this.save();
-	}
+        this.save();
+    }
 
-	public void setBrokenAndFill(final Block block, final boolean broken) {
-		if (isRegistered(block)) {
-			this.broken = broken;
+    public void setBrokenAndFill(final Block block, final boolean broken) {
+        if (isRegistered(block)) {
+            this.broken = broken;
 
-			final TurretSettings turretSettings = TurretSettings.findByName(type);
+            final TurretSettings turretSettings = TurretSettings.findByName(type);
 
-			if (this.isBroken()) {
-				final List<Tuple<ItemStack, Double>> lootChances = turretSettings.getLevel(this.currentLevel).getLootChances();
-				this.currentLoot = randomItemPercentageList(lootChances);
-			}
+            if (this.isBroken()) {
+                final List<Tuple<ItemStack, Double>> lootChances = turretSettings.getLevel(this.currentLevel).getLootChances();
+                this.currentLoot = randomItemPercentageList(lootChances);
+            }
 
-			this.save();
-		}
-	}
+            this.save();
+        }
+    }
 
-	private List<ItemStack> randomItemPercentageList(final List<Tuple<ItemStack, Double>> lootChanceList) {
-		final List<ItemStack> items = new ArrayList<>();
+    private List<ItemStack> randomItemPercentageList(final List<Tuple<ItemStack, Double>> lootChanceList) {
+        final List<ItemStack> items = new ArrayList<>();
 
-		for (final Tuple<ItemStack, Double> lootChance : lootChanceList) {
-			if (lootChance != null) {
-				final Random random = new Random();
-				final double randomPercentage = random.nextDouble();
+        for (final Tuple<ItemStack, Double> lootChance : lootChanceList) {
+            if (lootChance != null) {
+                final Random random = new Random();
+                final double randomPercentage = random.nextDouble();
 
-				if (lootChance.getValue() >= randomPercentage)
-					items.add(lootChance.getKey());
-			}
-		}
+                if (lootChance.getValue() >= randomPercentage)
+                    items.add(lootChance.getKey());
+            }
+        }
 
-		return items;
-	}
+        return items;
+    }
 
-	public void setBroken(final boolean broken) {
-		this.broken = broken;
+    public void setBroken(final boolean broken) {
+        this.broken = broken;
 
-		final TurretSettings turretSettings = TurretSettings.findByName(type);
+        final TurretSettings turretSettings = TurretSettings.findByName(type);
 
-		if (!this.isBroken())
-			setTurretHealth(turretSettings.getLevel(this.getCurrentLevel()).getHealth());
+        if (!this.isBroken())
+            setTurretHealth(turretSettings.getLevel(this.getCurrentLevel()).getHealth());
 
-		this.save();
-	}
+        this.save();
+    }
 
-	public void setCurrentLoot(@Nullable final List<ItemStack> items) {
-		this.currentLoot = items;
+    public void setCurrentLoot(@Nullable final List<ItemStack> items) {
+        this.currentLoot = items;
 
-		this.save();
-	}
+        this.save();
+    }
 
-	public void removeCurrentLoot(final ItemStack item) {
-		this.currentLoot.remove(item);
+    public void removeCurrentLoot(final ItemStack item) {
+        this.currentLoot.remove(item);
 
-		this.save();
-	}
+        this.save();
+    }
 
-	@Override
-	protected boolean saveComments() {
-		return false;
-	}
+    @Override
+    protected boolean saveComments() {
+        return false;
+    }
 
-	// -----------------------------------------------------------------
-	// Static
-	// -----------------------------------------------------------------
+    // -----------------------------------------------------------------
+    // Static
+    // -----------------------------------------------------------------
 
-	public static boolean isRegistered(final Block block) {
-		for (final TurretData turretData : getTurrets()) {
-			if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation()))
-				return true;
-		}
+    public static boolean isRegistered(final Block block) {
+        for (final TurretData turretData : getTurrets()) {
+            if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation()))
+                return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public static boolean isRegistered(final String turretID) {
-		for (final TurretData turretData : getTurrets()) {
-			if (turretData.getId().equals(turretID))
-				return true;
-		}
+    public static boolean isRegistered(final String turretID) {
+        for (final TurretData turretData : getTurrets()) {
+            if (turretData.getId().equals(turretID))
+                return true;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public static TurretData findByBlock(final Block block) {
-		for (final TurretData turretData : getTurrets())
-			if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation()))
-				return turretData;
+    public static TurretData findByBlock(final Block block) {
+        for (final TurretData turretData : getTurrets())
+            if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation()))
+                return turretData;
 
-		return null;
-	}
+        return null;
+    }
 
-	public static List<TurretData> getTurretsOfType(final String turretType) {
-		final List<TurretData> dataList = new ArrayList<>();
+    public static List<TurretData> getTurretsOfType(final String turretType) {
+        final List<TurretData> dataList = new ArrayList<>();
 
-		for (final TurretData turretData : getTurrets())
-			if (turretData.getType().equals(turretType))
-				dataList.add(turretData);
+        for (final TurretData turretData : getTurrets())
+            if (turretData.getType().equals(turretType))
+                dataList.add(turretData);
 
-		return dataList;
-	}
+        return dataList;
+    }
 
-	public static List<Location> getTurretLocations() {
-		final List<Location> locations = new ArrayList<>();
+    public static List<Location> getTurretLocations() {
+        final List<Location> locations = new ArrayList<>();
 
-		for (final TurretData turretData : getTurrets())
-			locations.add(turretData.getLocation());
+        for (final TurretData turretData : getTurrets())
+            locations.add(turretData.getLocation());
 
-		return locations;
-	}
+        return locations;
+    }
 
-	public static List<Location> getTurretLocationsOfType(final String type) {
-		final List<Location> locations = new ArrayList<>();
+    public static List<Location> getTurretLocationsOfType(final String type) {
+        final List<Location> locations = new ArrayList<>();
 
-		for (final TurretData turretData : getTurretsOfType(type))
-			locations.add(turretData.getLocation());
+        for (final TurretData turretData : getTurretsOfType(type))
+            locations.add(turretData.getLocation());
 
-		return locations;
-	}
+        return locations;
+    }
 
-	public static boolean isTurretOfType(final Block block, final String type) {
-		for (final TurretData turretData : getTurretsOfType(type))
-			if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation()))
-				return true;
+    public static boolean isTurretOfType(final Block block, final String type) {
+        for (final TurretData turretData : getTurretsOfType(type))
+            if (turretData.getLocation().getBlock().getLocation().equals(block.getLocation()))
+                return true;
 
-		return false;
-	}
+        return false;
+    }
 
-	/**
-	 * @return
-	 * @see ConfigItems#getItems()
-	 */
-	public static List<? extends TurretData> getTurrets() {
-		return loadedFiles.getItems();
-	}
+    /**
+     * @return
+     * @see ConfigItems#getItems()
+     */
+    public static List<? extends TurretData> getTurrets() {
+        return loadedFiles.getItems();
+    }
 
-	public static List<TurretData> getOwningTurrets(final UUID owner) {
-		final List<TurretData> dataList = new ArrayList<>();
+    public static List<TurretData> getOwningTurrets(final UUID owner) {
+        final List<TurretData> dataList = new ArrayList<>();
 
-		for (final TurretData turretData : getTurrets())
-			if (turretData.getOwner().equals(owner))
-				dataList.add(turretData);
+        for (final TurretData turretData : getTurrets())
+            if (turretData.getOwner().equals(owner))
+                dataList.add(turretData);
 
-		return dataList;
-	}
+        return dataList;
+    }
 
-	/**
-	 * @return
-	 * @see ConfigItems#getItemNames()
-	 */
-	public static Set<String> getTurretIDs() {
-		return loadedFiles.getItemNames();
-	}
+    /**
+     * @return
+     * @see ConfigItems#getItemNames()
+     */
+    public static Set<String> getTurretIDs() {
+        return loadedFiles.getItemNames();
+    }
 
-	public static TurretData createTurret(@NonNull final String turretId, final Block block) {
-		return loadedFiles.loadOrCreateItem(turretId, () -> new TurretData(turretId, block));
-	}
+    public static TurretData createTurret(@NonNull final String turretId, final Block block) {
+        return loadedFiles.loadOrCreateItem(turretId, () -> new TurretData(turretId, block));
+    }
 
-	/**
-	 * @see ConfigItems#loadItems()
-	 */
-	public static void loadTurrets() {
-		loadedFiles.loadItems();
-	}
+    /**
+     * @see ConfigItems#loadItems()
+     */
+    public static void loadTurrets() {
+        loadedFiles.loadItems();
+    }
 
-	public static void removeTurret(final String turretId) {
-		loadedFiles.removeItemByName(turretId);
-	}
+    public static void removeTurret(final String turretId) {
+        loadedFiles.removeItemByName(turretId);
+    }
 
-	/**
-	 * @see ConfigItems#isItemLoaded(String)
-	 */
-	public static boolean isTurretLoaded(final String id) {
-		return loadedFiles.isItemLoaded(id);
-	}
+    /**
+     * @see ConfigItems#isItemLoaded(String)
+     */
+    public static boolean isTurretLoaded(final String id) {
+        return loadedFiles.isItemLoaded(id);
+    }
 
-	/**
-	 * @return
-	 * @see ConfigItems#findItem(String)
-	 */
-	public static TurretData findById(@NonNull final String id) {
-		return loadedFiles.findItem(id);
-	}
+    /**
+     * @return
+     * @see ConfigItems#findItem(String)
+     */
+    public static TurretData findById(@NonNull final String id) {
+        return loadedFiles.findItem(id);
+    }
 }

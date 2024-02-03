@@ -30,145 +30,145 @@ import java.util.Objects;
 
 public abstract class TurretTool extends VisualTool {
 
-	private final String turretType;
+    private final String turretType;
 
-	private final String displayName;
+    private final String displayName;
 
-	private final boolean oneUse;
+    private final boolean oneUse;
 
-	/**
-	 * The actual item stored here for maximum performance
-	 */
-	private ItemStack item;
+    /**
+     * The actual item stored here for maximum performance
+     */
+    private ItemStack item;
 
-	protected TurretTool(final String turretType, final String displayName, final boolean oneUse) {
-		this.turretType = turretType;
-		this.displayName = displayName;
-		this.oneUse = oneUse;
-	}
+    protected TurretTool(final String turretType, final String displayName, final boolean oneUse) {
+        this.turretType = turretType;
+        this.displayName = displayName;
+        this.oneUse = oneUse;
+    }
 
-	/**
-	 * @see Tool#getItem()
-	 */
-	@Override
-	public ItemStack getItem() {
-		final TurretSettings settings = TurretSettings.findByName(this.turretType);
+    /**
+     * @see Tool#getItem()
+     */
+    @Override
+    public ItemStack getItem() {
+        final TurretSettings settings = TurretSettings.findByName(this.turretType);
 
-		if (settings != null)
-			item = ItemCreator.of(settings.getToolItem())
-					.name(this.oneUse ? Lang.of("Tool.Title_Infinite_Use_Tool", "{turretType}", TurretUtil.capitalizeWord(this.displayName)) : Lang.of("Tool.Title_1_Use_Tool", "{turretType}", TurretUtil.capitalizeWord(this.displayName)))
-					.lore(this.oneUse ? Lang.ofArray("Tool.Lore_1_Use_Tool") : Lang.ofArray("Tool.Lore_Infinite_Use_Tool"))
-					.glow(true).make();
+        if (settings != null)
+            item = ItemCreator.of(settings.getToolItem())
+                    .name(this.oneUse ? Lang.of("Tool.Title_Infinite_Use_Tool", "{turretType}", TurretUtil.capitalizeWord(this.displayName)) : Lang.of("Tool.Title_1_Use_Tool", "{turretType}", TurretUtil.capitalizeWord(this.displayName)))
+                    .lore(this.oneUse ? Lang.ofArray("Tool.Lore_1_Use_Tool") : Lang.ofArray("Tool.Lore_Infinite_Use_Tool"))
+                    .glow(true).make();
 
-		return item;
-	}
+        return item;
+    }
 
-	@Override
-	protected void handleBlockClick(final Player player, final ClickType click, final Block block) {
-		final String type = this.turretType;
-		final Location location = block.getLocation();
-		final Location closestLocation = getClosestLocation(location, TurretData.getTurretLocations());
-		final TurretSettings settings = TurretSettings.findByName(type);
-		final Block blockUp = block.getRelative(BlockFace.UP);
+    @Override
+    protected void handleBlockClick(final Player player, final ClickType click, final Block block) {
+        final String type = this.turretType;
+        final Location location = block.getLocation();
+        final Location closestLocation = getClosestLocation(location, TurretData.getTurretLocations());
+        final TurretSettings settings = TurretSettings.findByName(type);
+        final Block blockUp = block.getRelative(BlockFace.UP);
 
-		if (Settings.TurretSection.BLACKLISTED_WORLDS.contains(block.getWorld().getName())) {
-			Messenger.error(player, Lang.of("Tool.Blacklisted_World"));
-			return;
-		}
+        if (Settings.TurretSection.BLACKLISTED_WORLDS.contains(block.getWorld().getName())) {
+            Messenger.error(player, Lang.of("Tool.Blacklisted_World"));
+            return;
+        }
 
-		if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_13) ? block.getType().isInteractable() : BlockUtil.isInteractable(block.getType()))
-			return;
+        if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_13) ? block.getType().isInteractable() : BlockUtil.isInteractable(block.getType()))
+            return;
 
-		if (Settings.TurretSection.BUILD_IN_OWN_TERRITORY && !HookSystem.canBuild(location, player) && !TurretData.isRegistered(block)) {
-			Messenger.error(player, Lang.of("Tool.Not_Permitted_In_Region"));
-			return;
-		}
+        if (Settings.TurretSection.BUILD_IN_OWN_TERRITORY && HookSystem.canBuild(location, player) && !TurretData.isRegistered(block)) {
+            Messenger.error(player, Lang.of("Tool.Not_Permitted_In_Region"));
+            return;
+        }
 
-		if (TurretData.getTurretsOfType(type).size() >= settings.getTurretLimit() && !TurretData.isRegistered(block)) {
-			Messenger.error(player, Lang.of("Tool.Turret_Limit_Reached", "{turretType}", this.displayName, "{turretLimit}", settings.getTurretLimit()));
-			return;
-		}
+        if (TurretData.getTurretsOfType(type).size() >= settings.getTurretLimit() && !TurretData.isRegistered(block)) {
+            Messenger.error(player, Lang.of("Tool.Turret_Limit_Reached", "{turretType}", this.displayName, "{turretLimit}", settings.getTurretLimit()));
+            return;
+        }
 
-		if (!block.getType().isSolid() || (!CompMaterial.isAir(blockUp) && !TurretData.isRegistered(block))) {
-			Messenger.error(player, Lang.of("Tool.Turret_Cannot_Be_Placed"));
-			return;
-		}
+        if (!block.getType().isSolid() || (!CompMaterial.isAir(blockUp) && !TurretData.isRegistered(block))) {
+            Messenger.error(player, Lang.of("Tool.Turret_Cannot_Be_Placed"));
+            return;
+        }
 
-		if (TurretData.isRegistered(block) && !Objects.equals(TurretData.findByBlock(block).getType(), this.turretType)) {
-			Messenger.error(player, Lang.of("Tool.Block_Is_Already_Turret"));
-			return;
-		}
+        if (TurretData.isRegistered(block) && !Objects.equals(TurretData.findByBlock(block).getType(), this.turretType)) {
+            Messenger.error(player, Lang.of("Tool.Block_Is_Already_Turret"));
+            return;
+        }
 
-		if (closestLocation != null && !TurretData.isRegistered(block) && Settings.TurretSection.TURRET_MIN_DISTANCE > closestLocation.distance(location)) {
-			Messenger.error(player, Lang.of("Tool.Turret_Min_Distance_Breached", "{distance}", Settings.TurretSection.TURRET_MIN_DISTANCE));
-			return;
-		}
+        if (closestLocation != null && !TurretData.isRegistered(block) && Settings.TurretSection.TURRET_MIN_DISTANCE > closestLocation.distance(location)) {
+            Messenger.error(player, Lang.of("Tool.Turret_Min_Distance_Breached", "{distance}", Settings.TurretSection.TURRET_MIN_DISTANCE));
+            return;
+        }
 
-		if (block.hasMetadata("IsCreating") || player.hasMetadata("CreatingTurret")) {
-			Messenger.error(player, Lang.of("Tool.Wait_Before_Place"));
-			return;
-		}
+        if (block.hasMetadata("IsCreating") || player.hasMetadata("CreatingTurret")) {
+            Messenger.error(player, Lang.of("Tool.Wait_Before_Place"));
+            return;
+        }
 
-		final boolean oneUse = this.oneUse;
-		final boolean isTurret = TurretData.isTurretOfType(block, type);
+        final boolean oneUse = this.oneUse;
+        final boolean isTurret = TurretData.isTurretOfType(block, type);
 
-		if (isTurret && !oneUse) {
-			final TurretData turretData = TurretData.findByBlock(block);
-			turretData.unregister();
-			Messenger.success(player, Lang.of("Tool.Unregistered_Turret_Message", "{turretType}", this.displayName, "{location}", Common.shortLocation(location)));
-		} else if (!isTurret) {
-			if (oneUse)
-				player.getInventory().removeItem(this.item);
+        if (isTurret && !oneUse) {
+            final TurretData turretData = TurretData.findByBlock(block);
+            turretData.unregister();
+            Messenger.success(player, Lang.of("Tool.Unregistered_Turret_Message", "{turretType}", this.displayName, "{location}", Common.shortLocation(location)));
+        } else if (!isTurret) {
+            if (oneUse)
+                player.getInventory().removeItem(this.item);
 
-			player.setMetadata("CreatingTurret", new FixedMetadataValue(SimplePlugin.getInstance(), ""));
-			block.setMetadata("IsCreating", new FixedMetadataValue(SimplePlugin.getInstance(), ""));
-			Sequence.TURRET_CREATION(player, block, type).start(location);
-			Messenger.success(player, Lang.of("Tool.Registered_Turret_Message", "{turretType}", this.displayName, "{location}", Common.shortLocation(location)));
-		}
-	}
+            player.setMetadata("CreatingTurret", new FixedMetadataValue(SimplePlugin.getInstance(), ""));
+            block.setMetadata("IsCreating", new FixedMetadataValue(SimplePlugin.getInstance(), ""));
+            Sequence.TURRET_CREATION(player, block, type).start(location);
+            Messenger.success(player, Lang.of("Tool.Registered_Turret_Message", "{turretType}", this.displayName, "{location}", Common.shortLocation(location)));
+        }
+    }
 
-	private Location getClosestLocation(final Location centerLocation, final List<Location> locations) {
-		Location closestLocation = null;
+    private Location getClosestLocation(final Location centerLocation, final List<Location> locations) {
+        Location closestLocation = null;
 
-		for (final Location location : locations) {
-			if (!location.getWorld().equals(centerLocation.getWorld()))
-				continue;
+        for (final Location location : locations) {
+            if (!location.getWorld().equals(centerLocation.getWorld()))
+                continue;
 
-			if (closestLocation == null || (location.distanceSquared(centerLocation) < closestLocation.distanceSquared(centerLocation)))
-				closestLocation = location;
-		}
+            if (closestLocation == null || (location.distanceSquared(centerLocation) < closestLocation.distanceSquared(centerLocation)))
+                closestLocation = location;
+        }
 
-		return closestLocation;
-	}
+        return closestLocation;
+    }
 
-	@Override
-	protected List<Location> getVisualizedPoints(final Player player) {
-		if (!this.oneUse)
-			return TurretData.getTurretLocationsOfType(this.turretType);
+    @Override
+    protected List<Location> getVisualizedPoints(final Player player) {
+        if (!this.oneUse)
+            return TurretData.getTurretLocationsOfType(this.turretType);
 
-		return new ArrayList<>();
-	}
+        return new ArrayList<>();
+    }
 
-	@Override
-	protected String getBlockName(final Block block, final Player player) {
-		if (!this.oneUse)
-			return Lang.of("Tool.Registered_Turret_Hologram", "{turretType}", TurretUtil.capitalizeWord(this.displayName));
+    @Override
+    protected String getBlockName(final Block block, final Player player) {
+        if (!this.oneUse)
+            return Lang.of("Tool.Registered_Turret_Hologram", "{turretType}", TurretUtil.capitalizeWord(this.displayName));
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
-	protected CompMaterial getBlockMask(final Block block, final Player player) {
-		return CompMaterial.EMERALD_BLOCK;
-	}
+    @Override
+    protected CompMaterial getBlockMask(final Block block, final Player player) {
+        return CompMaterial.EMERALD_BLOCK;
+    }
 
-	/**
-	 * Cancel the event so that we don't destroy blocks when selecting them
-	 *
-	 * @see Tool#autoCancel()
-	 */
-	@Override
-	protected boolean autoCancel() {
-		return true;
-	}
+    /**
+     * Cancel the event so that we don't destroy blocks when selecting them
+     *
+     * @see Tool#autoCancel()
+     */
+    @Override
+    protected boolean autoCancel() {
+        return true;
+    }
 }
