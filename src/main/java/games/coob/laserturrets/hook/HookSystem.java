@@ -37,6 +37,7 @@ import me.angeschossen.lands.api.LandsIntegration;
 import me.angeschossen.lands.api.land.Area;
 import me.angeschossen.lands.api.land.LandWorld;
 import me.angeschossen.lands.api.relations.Relation;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ulrich.clans.api.ClanAPIManager;
 import me.ulrich.clans.interfaces.UClans;
 import net.sacredlabyrinth.phaed.simpleclans.Clan;
@@ -91,6 +92,8 @@ public class HookSystem {
 
     private static ResidenceHook residenceHook;
 
+    private static GriefPreventionHook griefPreventionHook;
+
     // ------------------------------------------------------------------------------------------------------------
     // Main loading method
     // ------------------------------------------------------------------------------------------------------------
@@ -131,6 +134,9 @@ public class HookSystem {
 
         if (Common.doesPluginExist("Residence"))
             residenceHook = new ResidenceHook();
+
+        if (Common.doesPluginExist("GriefPrevention"))
+            griefPreventionHook = new GriefPreventionHook();
     }
 
     // ------------------------------------------------------------------------------------------------------------
@@ -185,12 +191,16 @@ public class HookSystem {
         return residenceHook != null;
     }
 
+    public static boolean isGriefPreventionLoaded() {
+        return griefPreventionHook != null;
+    }
+
     // ------------------------------------------------------------------------------------------------------------
     // Main methods
     // ------------------------------------------------------------------------------------------------------------
 
     public static boolean canBuild(final Location location, final Player player) {
-        return !canBuildKonquest(location, player) && !canBuildInResidence(location, player) && !canBuildInMedievalFaction(location, player) && !canPlaceInTown(location.getBlock(), player) && !canPlaceInSaberFaction(location, player) && !canPlaceInFaction(location, player) && !canPlaceInLand(location, player) && !canBuildInRegion(location, player) && !canPlaceInKingdom(location, player);
+        return !canBuildKonquest(location, player) && !canBuildInResidence(location, player) && !canBuildInMedievalFaction(location, player) && !canPlaceInTown(location.getBlock(), player) && !canPlaceInSaberFaction(location, player) && !canPlaceInFaction(location, player) && !canPlaceInLand(location, player) && !canBuildInRegion(location, player) && !canPlaceInKingdom(location, player) && !canPlaceInZone(location, player);
     }
 
     public static boolean isAlly(final Location location, final Player target, final OfflinePlayer turretOwner) {
@@ -323,6 +333,14 @@ public class HookSystem {
 
     public static boolean canBuildInResidence(final Location location, final Player player) {
         return isResidenceLoaded() && residenceHook.canPlaceInResidence(location, player);
+    }
+
+    // ------------------------------------------------------------------------------------------------------------
+    // GriefPrevention
+    // ------------------------------------------------------------------------------------------------------------
+
+    public static boolean canPlaceInZone(final Location location, final Player player) {
+        return isGriefPreventionLoaded() && griefPreventionHook.canPlaceInZone(location, player);
     }
 }
 
@@ -691,7 +709,17 @@ class ResidenceHook {
         return rPlayer.canPlaceBlock(location.getBlock(), true);
     }
 
-    // TODO add griefprevention
+}
+
+class GriefPreventionHook {
+
+    public boolean canPlaceInZone(final Location location, final Player player) {
+        final GriefPrevention griefPrevention = GriefPrevention.instance;
+        final String noBuildReason = griefPrevention.allowBuild(player, location);
+
+        // Return true if noBuildReason is null (player can build), otherwise return false
+        return noBuildReason == null;
+    }
 }
 
 
