@@ -47,9 +47,6 @@ public final class LaserTurrets extends SimplePlugin { // TODO prevent buttons f
     protected void onPluginStart() {
         Common.setLogPrefix("[LaserTurrets]");
 
-        //if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_9))
-        //  registerEvents(new TurretListenerLatest());
-
         for (final String type : getTypes()) {
             final TurretType turretType = findEnum(TurretType.class, type, null, "No such turret type. Available: " + Arrays.toString(getTypes()) + ".");
             TurretSettings.createTurretType(type, turretType);
