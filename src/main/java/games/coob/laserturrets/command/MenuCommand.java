@@ -10,44 +10,44 @@ import java.util.List;
 
 public final class MenuCommand extends SimpleSubCommand {
 
-	public MenuCommand() {
-		super("menu");
+    public MenuCommand() {
+        super("menu");
 
-		setPermission(Permissions.Command.MENU);
-		setDescription(Lang.of("Turret_Commands.Menu_Description"));
-	}
+        setPermission(Permissions.Command.MENU);
+        setDescription(Lang.of("Turret_Commands.Menu_Description"));
+    }
 
-	// See SpawnEntityCommand for help and comments.
-	@Override
-	protected void onCommand() {
-		checkConsole();
+    // See SpawnEntityCommand for help and comments.
+    @Override
+    protected void onCommand() {
+        checkConsole();
 
-		final Player player = getPlayer();
+        final Player player = getPlayer();
 
-		if (args.length == 0) {
-			TurretsMenu.openAllTurretsSelectionMenu(player);
-		} else {
-			final String param = args[0].toLowerCase();
+        if (args.length == 0) {
+            TurretsMenu.openAllTurretsSelectionMenu(player);
+        } else {
+            final String param = args[0].toLowerCase();
 
-			switch (param) {
-				case "arrow":
-					TurretsMenu.openArrowTurretsSelectionMenu(player);
-					break;
-				case "fireball":
-					TurretsMenu.openFireballTurretsSelectionMenu(player);
-					break;
-				case "beam":
-					TurretsMenu.openBeamTurretsSelectionMenu(player);
-					break;
-			}
-		}
-	}
+            switch (param) {
+                case "arrow":
+                    TurretsMenu.openArrowTurretsSelectionMenu(player);
+                    break;
+                case "fireball":
+                    TurretsMenu.openFireballTurretsSelectionMenu(player);
+                    break;
+                case "beam":
+                    TurretsMenu.openBeamTurretsSelectionMenu(player);
+                    break;
+            }
+        }
+    }
 
-	@Override
-	protected List<String> tabComplete() {
-		if (this.args.length == 1)
-			return completeLastWord("arrow", "fireball", "beam");
+    @Override
+    protected List<String> tabComplete() {
+        if (this.args.length == 1)
+            return completeLastWord("arrow", "fireball", "beam");
 
-		return NO_COMPLETE;
-	}
+        return NO_COMPLETE;
+    }
 }

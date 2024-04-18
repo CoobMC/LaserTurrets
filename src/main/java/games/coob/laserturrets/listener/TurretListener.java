@@ -40,7 +40,6 @@ import org.bukkit.util.Vector;
 import org.mineacademy.fo.Common;
 import org.mineacademy.fo.MathUtil;
 import org.mineacademy.fo.Messenger;
-import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.annotation.AutoRegister;
 import org.mineacademy.fo.menu.tool.Tool;
 import org.mineacademy.fo.plugin.SimplePlugin;
@@ -326,7 +325,7 @@ public final class TurretListener implements Listener {
             return;
         }
 
-        if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_13) ? block.getType().isInteractable() : BlockUtil.isInteractable(block.getType()))
+        if (BlockUtil.isInteractable(block.getType()))
             return;
 
         if (Settings.TurretSection.BUILD_IN_OWN_TERRITORY && HookSystem.canBuild(location, player) && !TurretData.isRegistered(block)) {

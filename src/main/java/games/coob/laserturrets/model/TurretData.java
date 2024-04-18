@@ -269,8 +269,6 @@ public class TurretData extends YamlConfig { // TODO store number of kills
         removeTurret(this.id);
 
         HologramHook.removeHologram(this.id);
-		/*if (this.getHologram() != null)
-			this.getHologram().remove();*/
 
         this.getLocation().getBlock().getRelative(BlockFace.UP).setType(CompMaterial.AIR.getMaterial());
     }

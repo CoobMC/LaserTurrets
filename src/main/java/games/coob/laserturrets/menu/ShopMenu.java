@@ -17,109 +17,109 @@ import org.mineacademy.fo.menu.model.ItemCreator;
 
 public class ShopMenu extends Menu {
 
-	private final PlayerCache cache;
+    private final PlayerCache cache;
 
-	@Position(11)
-	private final Button arrowTurretButton;
+    @Position(11)
+    private final Button arrowTurretButton;
 
-	@Position(13)
-	private final Button beamTurretButton;
+    @Position(13)
+    private final Button beamTurretButton;
 
-	@Position(15)
-	private final Button fireballTurretButton;
+    @Position(15)
+    private final Button fireballTurretButton;
 
-	public ShopMenu(final Player player) {
-		this.cache = PlayerCache.from(player);
+    public ShopMenu(final Player player) {
+        this.cache = PlayerCache.from(player);
 
-		this.setTitle(Lang.of("Shop_Menu.Menu_Title"));
-		this.setSize(27);
-		this.setViewer(player);
+        this.setTitle(Lang.of("Shop_Menu.Menu_Title"));
+        this.setSize(27);
+        this.setViewer(player);
 
-		this.arrowTurretButton = new Button() {
-			@Override
-			public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
-				final double buyPrice = TurretSettings.findByName("arrow").getLevels().get(0).getPrice();
+        this.arrowTurretButton = new Button() {
+            @Override
+            public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
+                final double buyPrice = TurretSettings.findByName("arrow").getLevels().get(0).getPrice();
 
-				if (cache.getCurrency(false) - buyPrice < 0) {
-					animateTitle(Lang.of("Menu.Not_Enough_Money_Animated_Message", "{moneyNeeded}", buyPrice - cache.getCurrency(false), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
-					return;
-				}
+                if (cache.getCurrency(false) - buyPrice < 0) {
+                    animateTitle(Lang.of("Menu.Not_Enough_Money_Animated_Message", "{moneyNeeded}", buyPrice - cache.getCurrency(false), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
+                    return;
+                }
 
-				ArrowTurret.getInstance().give(player);
-				cache.takeCurrency(buyPrice, false);
-				restartMenu(Lang.of("Shop_Menu.Arrow_Turret_Purchase_Animated_Message", "{price}", buyPrice));
-			}
+                ArrowTurret.getInstance().give(player);
+                cache.takeCurrency(buyPrice, false);
+                restartMenu(Lang.of("Shop_Menu.Arrow_Turret_Purchase_Animated_Message", "{price}", buyPrice));
+            }
 
-			@Override
-			public ItemStack getItem() {
-				final double buyPrice = TurretSettings.findByName("arrow").getLevels().get(0).getPrice();
+            @Override
+            public ItemStack getItem() {
+                final double buyPrice = TurretSettings.findByName("arrow").getLevels().get(0).getPrice();
 
-				return ItemCreator.of(TurretSettings.findByName("arrow").getToolItem())
-						.name(Lang.of("Shop_Menu.Arrow_Turret_Button_Title"))
-						.lore(Lang.ofArray("Shop_Menu.Arrow_Turret_Button_Lore", "{price}", buyPrice)).make();
-			}
-		};
+                return ItemCreator.of(TurretSettings.findByName("arrow").getToolItem())
+                        .name(Lang.of("Shop_Menu.Arrow_Turret_Button_Title"))
+                        .lore(Lang.ofArray("Shop_Menu.Arrow_Turret_Button_Lore", "{price}", buyPrice)).make();
+            }
+        };
 
-		this.fireballTurretButton = new Button() {
-			@Override
-			public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
-				final double buyPrice = TurretSettings.findByName("fireball").getLevels().get(0).getPrice();
+        this.fireballTurretButton = new Button() {
+            @Override
+            public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
+                final double buyPrice = TurretSettings.findByName("fireball").getLevels().get(0).getPrice();
 
-				if (cache.getCurrency(false) - buyPrice < 0) {
-					animateTitle(Lang.of("Menu.Not_Enough_Money_Animated_Message", "{moneyNeeded}", buyPrice - cache.getCurrency(false), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
-					return;
-				}
+                if (cache.getCurrency(false) - buyPrice < 0) {
+                    animateTitle(Lang.of("Menu.Not_Enough_Money_Animated_Message", "{moneyNeeded}", buyPrice - cache.getCurrency(false), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
+                    return;
+                }
 
-				FireballTurret.getInstance().give(player);
-				cache.takeCurrency(buyPrice, false);
-				restartMenu(Lang.of("Shop_Menu.Fireball_Turret_Purchase_Animated_Message", "{price}", buyPrice));
-			}
+                FireballTurret.getInstance().give(player);
+                cache.takeCurrency(buyPrice, false);
+                restartMenu(Lang.of("Shop_Menu.Fireball_Turret_Purchase_Animated_Message", "{price}", buyPrice));
+            }
 
-			@Override
-			public ItemStack getItem() {
-				final double buyPrice = TurretSettings.findByName("fireball").getLevels().get(0).getPrice();
+            @Override
+            public ItemStack getItem() {
+                final double buyPrice = TurretSettings.findByName("fireball").getLevels().get(0).getPrice();
 
-				return ItemCreator.of(TurretSettings.findByName("fireball").getToolItem())
-						.name(Lang.of("Shop_Menu.Fireball_Turret_Button_Title"))
-						.lore(Lang.ofArray("Shop_Menu.Fireball_Turret_Button_Lore", "{price}", buyPrice)).make();
-			}
-		};
+                return ItemCreator.of(TurretSettings.findByName("fireball").getToolItem())
+                        .name(Lang.of("Shop_Menu.Fireball_Turret_Button_Title"))
+                        .lore(Lang.ofArray("Shop_Menu.Fireball_Turret_Button_Lore", "{price}", buyPrice)).make();
+            }
+        };
 
-		this.beamTurretButton = new Button() {
-			@Override
-			public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
-				final double buyPrice = TurretSettings.findByName("beam").getLevels().get(0).getPrice();
+        this.beamTurretButton = new Button() {
+            @Override
+            public void onClickedInMenu(final Player player, final Menu menu, final ClickType click) {
+                final double buyPrice = TurretSettings.findByName("beam").getLevels().get(0).getPrice();
 
-				if (cache.getCurrency(false) - buyPrice < 0) {
-					animateTitle(Lang.of("Menu.Not_Enough_Money_Animated_Message", "{moneyNeeded}", buyPrice - cache.getCurrency(false), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
-					return;
-				}
+                if (cache.getCurrency(false) - buyPrice < 0) {
+                    animateTitle(Lang.of("Menu.Not_Enough_Money_Animated_Message", "{moneyNeeded}", buyPrice - cache.getCurrency(false), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
+                    return;
+                }
 
-				BeamTurret.getInstance().give(player);
-				cache.takeCurrency(buyPrice, false);
-				restartMenu(Lang.of("Shop_Menu.Fireball_Turret_Purchase_Animated_Message", "{price}", buyPrice));
-			}
+                BeamTurret.getInstance().give(player);
+                cache.takeCurrency(buyPrice, false);
+                restartMenu(Lang.of("Shop_Menu.Fireball_Turret_Purchase_Animated_Message", "{price}", buyPrice));
+            }
 
-			@Override
-			public ItemStack getItem() {
-				final double buyPrice = TurretSettings.findByName("beam").getLevels().get(0).getPrice();
+            @Override
+            public ItemStack getItem() {
+                final double buyPrice = TurretSettings.findByName("beam").getLevels().get(0).getPrice();
 
-				return ItemCreator.of(TurretSettings.findByName("fireball").getToolItem())
-						.name(Lang.of("Shop_Menu.Beam_Turret_Button_Title"))
-						.lore(Lang.ofArray("Shop_Menu.Beam_Turret_Button_Lore", "{price}", buyPrice)).make();
-			}
-		};
-	}
+                return ItemCreator.of(TurretSettings.findByName("fireball").getToolItem())
+                        .name(Lang.of("Shop_Menu.Beam_Turret_Button_Title"))
+                        .lore(Lang.ofArray("Shop_Menu.Beam_Turret_Button_Lore", "{price}", buyPrice)).make();
+            }
+        };
+    }
 
-	@Override
-	protected String[] getInfo() {
-		return Lang.ofArray("Shop_Menu.Info_Button", "{balance}", PlayerCache.from(this.getViewer()).getCurrency(false), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME);
-	}
+    @Override
+    protected String[] getInfo() {
+        return Lang.ofArray("Shop_Menu.Info_Button", "{balance}", PlayerCache.from(this.getViewer()).getCurrency(false), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME);
+    }
 
-	@Override
-	public Menu newInstance() {
-		return new ShopMenu(getViewer());
-	}
+    @Override
+    public Menu newInstance() {
+        return new ShopMenu(getViewer());
+    }
 }
 
 

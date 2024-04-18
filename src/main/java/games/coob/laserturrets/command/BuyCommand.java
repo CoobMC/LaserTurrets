@@ -21,102 +21,102 @@ import java.util.List;
  */
 final class BuyCommand extends SimpleSubCommand {
 
-	BuyCommand() {
-		super("buy");
+    BuyCommand() {
+        super("buy");
 
-		setDescription(Lang.of("Turret_Commands.Buy_Description"));
-		setUsage("<turret|ammo> <turret_type> <ammo_amount>");
-		setPermission(Permissions.Command.BUY);
-	}
+        setDescription(Lang.of("Turret_Commands.Buy_Description"));
+        setUsage("<turret|ammo> <turret_type> <ammo_amount>");
+        setPermission(Permissions.Command.BUY);
+    }
 
-	/**
-	 * Perform the main command logic.
-	 */
-	@Override
-	protected void onCommand() {
-		checkConsole();
+    /**
+     * Perform the main command logic.
+     */
+    @Override
+    protected void onCommand() {
+        checkConsole();
 
-		if (args.length == 0 || args.length == 1)
-			returnInvalidArgs();
+        if (args.length == 0 || args.length == 1)
+            returnInvalidArgs();
 
-		final String subject = args[0];
-		final PlayerCache cache = PlayerCache.from(getPlayer());
+        final String subject = args[0];
+        final PlayerCache cache = PlayerCache.from(getPlayer());
 
-		if (args.length >= 2) {
-			final String type = args[1];
-			final TurretSettings settings = TurretSettings.findByName(type);
-			double price = 0;
+        if (args.length >= 2) {
+            final String type = args[1];
+            final TurretSettings settings = TurretSettings.findByName(type);
+            double price = 0;
 
-			if (subject.equals("turret")) {
-				price = settings.getLevels().get(0).getPrice();
+            if (subject.equals("turret")) {
+                price = settings.getLevels().get(0).getPrice();
 
-				if (cache.getCurrency(false) - price < 0) {
-					Messenger.error(getPlayer(), Lang.of("Turret_Commands.Balance_Cannot_Be_Negative"));
-					return;
-				}
+                if (cache.getCurrency(false) - price < 0) {
+                    Messenger.error(getPlayer(), Lang.of("Turret_Commands.Balance_Cannot_Be_Negative"));
+                    return;
+                }
 
-				giveTurret(type, getPlayer());
-				Messenger.success(getPlayer(), Lang.of("Turret_Commands.Buy_Turret_Message", "{turretType}", type, "{price}", price, "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
-			} else if (subject.equals("ammo")) {
-				final String amount = args[2];
+                giveTurret(type, getPlayer());
+                Messenger.success(getPlayer(), Lang.of("Turret_Commands.Buy_Turret_Message", "{turretType}", type, "{price}", price, "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
+            } else if (subject.equals("ammo")) {
+                final String amount = args[2];
 
-				if (!canParseInt(amount))
-					returnTell(Lang.of("Turret_Commands.Invalid_Number"));
+                if (!canParseInt(amount))
+                    returnTell(Lang.of("Turret_Commands.Invalid_Number"));
 
-				price = settings.getAmmo().getThirdValue() * Integer.parseInt(amount);
+                price = settings.getAmmo().getThirdValue() * Integer.parseInt(amount);
 
-				if (cache.getCurrency(false) - price < 0) {
-					Messenger.error(getPlayer(), Lang.of("Turret_Commands.Balance_Cannot_Be_Negative"));
-					return;
-				}
+                if (cache.getCurrency(false) - price < 0) {
+                    Messenger.error(getPlayer(), Lang.of("Turret_Commands.Balance_Cannot_Be_Negative"));
+                    return;
+                }
 
-				giveAmmo(type, getPlayer(), Integer.parseInt(amount));
-				Messenger.success(getPlayer(), Lang.of("Turret_Commands.Buy_Ammo_Message", "{amount}", amount, "{turretType}", type, "{price}", price, "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
-			}
+                giveAmmo(type, getPlayer(), Integer.parseInt(amount));
+                Messenger.success(getPlayer(), Lang.of("Turret_Commands.Buy_Ammo_Message", "{amount}", amount, "{turretType}", type, "{price}", price, "{currencyName}", Settings.CurrencySection.CURRENCY_NAME));
+            }
 
-			cache.takeCurrency(price, false);
-		}
-	}
+            cache.takeCurrency(price, false);
+        }
+    }
 
-	private void giveTurret(final String type, final Player player) {
-		if ("arrow".equals(type))
-			ArrowTurret.getInstance().give(player);
-		else if ("beam".equals(type))
-			BeamTurret.getInstance().give(player);
-		else if ("fireball".equals(type))
-			FireballTurret.getInstance().give(player);
-	}
+    private void giveTurret(final String type, final Player player) {
+        if ("arrow".equals(type))
+            ArrowTurret.getInstance().give(player);
+        else if ("beam".equals(type))
+            BeamTurret.getInstance().give(player);
+        else if ("fireball".equals(type))
+            FireballTurret.getInstance().give(player);
+    }
 
-	private void giveAmmo(final String ammoType, final Player player, final int amount) {
-		final String[] parts = ammoType.split("_", 2);  // Split the string into parts
-		final String type = parts[0];
-		final ItemStack ammo = TurretSettings.findByName(type).getAmmo().getSecondValue();
+    private void giveAmmo(final String ammoType, final Player player, final int amount) {
+        final String[] parts = ammoType.split("_", 2);  // Split the string into parts
+        final String type = parts[0];
+        final ItemStack ammo = TurretSettings.findByName(type).getAmmo().getSecondValue();
 
-		ammo.setAmount(amount);
-		PlayerUtil.addItems(player.getInventory(), ammo);
-	}
+        ammo.setAmount(amount);
+        PlayerUtil.addItems(player.getInventory(), ammo);
+    }
 
-	public boolean canParseInt(final String str) {
-		try {
-			Integer.parseInt(str);
-			return true;
-		} catch (final NumberFormatException e) {
-			return false;
-		}
-	}
+    public boolean canParseInt(final String str) {
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (final NumberFormatException e) {
+            return false;
+        }
+    }
 
-	@Override
-	protected List<String> tabComplete() {
-		if (this.args.length == 1)
-			return this.completeLastWord("turret", "ammo");
+    @Override
+    protected List<String> tabComplete() {
+        if (this.args.length == 1)
+            return this.completeLastWord("turret", "ammo");
 
-		if (this.args.length == 2)
-			return this.completeLastWord("arrow", "beam", "fireball");
+        if (this.args.length == 2)
+            return this.completeLastWord("arrow", "beam", "fireball");
 
-		if (this.args.length == 3 && args[0].equals("ammo")) {
-			return this.completeLastWord("<ammo_amount>");
-		}
+        if (this.args.length == 3 && args[0].equals("ammo")) {
+            return this.completeLastWord("<ammo_amount>");
+        }
 
-		return NO_COMPLETE;
-	}
+        return NO_COMPLETE;
+    }
 }

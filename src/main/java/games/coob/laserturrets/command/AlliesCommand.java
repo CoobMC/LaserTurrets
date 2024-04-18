@@ -8,20 +8,20 @@ import org.mineacademy.fo.command.SimpleSubCommand;
 
 public final class AlliesCommand extends SimpleSubCommand {
 
-	public AlliesCommand() {
-		super("allies");
+    public AlliesCommand() {
+        super("allies");
 
-		setPermission(Permissions.Command.ALLIES);
-		setDescription(Lang.of("Turret_Commands.Allies_Description"));
-	}
+        setPermission(Permissions.Command.ALLIES);
+        setDescription(Lang.of("Turret_Commands.Allies_Description"));
+    }
 
-	// See SpawnEntityCommand for help and comments.
-	@Override
-	protected void onCommand() {
-		checkConsole();
+    // See SpawnEntityCommand for help and comments.
+    @Override
+    protected void onCommand() {
+        checkConsole();
 
-		final Player player = getPlayer();
+        final Player player = getPlayer();
 
-		new PlayerAlliesMenu(player).displayTo(player);
-	}
+        new PlayerAlliesMenu(player).displayTo(player);
+    }
 }

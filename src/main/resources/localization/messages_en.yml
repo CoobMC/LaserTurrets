@@ -28,7 +28,7 @@ Commands:
   Header_Secondary_Color: RED
   Reloading: "reloading"
   Disabled: "disabled"
-  Use_While_Null: "&cCannot use thxis command while the plugin is {state}."
+  Use_While_Null: "&cCannot use this command while the plugin is {state}."
   Incompatible: "This command requires Minecraft {0} or greater."
   Toggled_Plugin_Part: "'&7You are ' + (ignoring ? '&2no longer' : '&cnow') + ' &7ignoring {0}.'"
   Use_Alternative_Header: false

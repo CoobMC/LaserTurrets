@@ -7,19 +7,19 @@ import org.bukkit.entity.Player;
 import org.mineacademy.fo.command.SimpleSubCommand;
 
 public class SettingsCommand extends SimpleSubCommand {
-	protected SettingsCommand() {
-		super("settings");
+    protected SettingsCommand() {
+        super("settings");
 
-		setPermission(Permissions.Command.SETTINGS);
-		setDescription(Lang.of("Turret_Commands.Settings_Description"));
-	}
+        setPermission(Permissions.Command.SETTINGS);
+        setDescription(Lang.of("Turret_Commands.Settings_Description"));
+    }
 
-	@Override
-	protected void onCommand() {
-		checkConsole();
+    @Override
+    protected void onCommand() {
+        checkConsole();
 
-		final Player player = getPlayer();
+        final Player player = getPlayer();
 
-		new SettingsMenu(null, player).displayTo(player);
-	}
+        new SettingsMenu(null, player).displayTo(player);
+    }
 }

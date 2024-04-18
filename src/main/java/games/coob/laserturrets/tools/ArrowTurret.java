@@ -8,10 +8,10 @@ import org.mineacademy.fo.menu.tool.Tool;
 @AutoRegister
 public final class ArrowTurret extends TurretTool {
 
-	@Getter
-	private static final Tool instance = new ArrowTurret();
+    @Getter
+    private static final Tool instance = new ArrowTurret();
 
-	private ArrowTurret() {
-		super("arrow", Lang.of("Placeholders.Arrow"), true);
-	}
+    private ArrowTurret() {
+        super("arrow", Lang.of("Placeholders.Arrow"), true);
+    }
 }

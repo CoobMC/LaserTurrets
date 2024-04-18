@@ -161,7 +161,7 @@ public final class PlayerCache extends YamlConfig {
         final double currencyAmount = isUsingVault ? formatCurrency(economy.getBalance(player)) : formatCurrency(getCurrency());
 
         if (displayMessage)
-            Messenger.success(player, games.coob.laserturrets.util.Lang.of("Turret_Commands.Balance_Get", "{currencyName}", currencyName, "{playerName}", this.playerName, "{amount}", currencyAmount));
+            Messenger.success(player, Lang.of("Turret_Commands.Balance_Get", "{currencyName}", currencyName, "{playerName}", this.playerName, "{amount}", currencyAmount));
 
         return currencyAmount;
     }

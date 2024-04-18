@@ -8,10 +8,10 @@ import org.mineacademy.fo.menu.tool.Tool;
 @AutoRegister
 public final class BeamTurretTool extends TurretTool {
 
-	@Getter
-	private static final Tool instance = new BeamTurretTool();
+    @Getter
+    private static final Tool instance = new BeamTurretTool();
 
-	private BeamTurretTool() {
-		super("beam", Lang.of("Placeholders.Beam"), false);
-	}
+    private BeamTurretTool() {
+        super("beam", Lang.of("Placeholders.Beam"), false);
+    }
 }

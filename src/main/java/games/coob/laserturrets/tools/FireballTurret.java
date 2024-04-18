@@ -8,10 +8,10 @@ import org.mineacademy.fo.menu.tool.Tool;
 @AutoRegister
 public final class FireballTurret extends TurretTool {
 
-	@Getter
-	private static final Tool instance = new FireballTurret();
+    @Getter
+    private static final Tool instance = new FireballTurret();
 
-	private FireballTurret() {
-		super("fireball", Lang.of("Placeholders.Fireball"), true);
-	}
+    private FireballTurret() {
+        super("fireball", Lang.of("Placeholders.Fireball"), true);
+    }
 }

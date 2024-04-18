@@ -6,8 +6,8 @@ import games.coob.laserturrets.database.TurretsDatabase;
 import games.coob.laserturrets.hook.HologramHook;
 import games.coob.laserturrets.hook.HookSystem;
 import games.coob.laserturrets.hook.VaultHook;
-import games.coob.laserturrets.listener.TurretListenerLatest;
 import games.coob.laserturrets.model.TurretData;
+import games.coob.laserturrets.model.UnplacedData;
 import games.coob.laserturrets.sequence.Sequence;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
@@ -16,15 +16,15 @@ import games.coob.laserturrets.task.ArrowTask;
 import games.coob.laserturrets.task.BeamTask;
 import games.coob.laserturrets.task.FireballTask;
 import games.coob.laserturrets.task.LaserPointerTask;
-import games.coob.laserturrets.util.SkullCreator;
+import games.coob.laserturrets.util.Lang;
 import games.coob.laserturrets.util.TurretUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.mineacademy.fo.Common;
-import org.mineacademy.fo.MinecraftVersion;
 import org.mineacademy.fo.ReflectionUtil;
 import org.mineacademy.fo.Valid;
 import org.mineacademy.fo.exception.CommandException;
+import org.mineacademy.fo.menu.model.SkullCreator;
 import org.mineacademy.fo.plugin.SimplePlugin;
 import org.mineacademy.fo.remain.CompMaterial;
 
@@ -47,8 +47,8 @@ public final class LaserTurrets extends SimplePlugin { // TODO prevent buttons f
     protected void onPluginStart() {
         Common.setLogPrefix("[LaserTurrets]");
 
-        if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_9))
-            registerEvents(new TurretListenerLatest());
+        //if (MinecraftVersion.atLeast(MinecraftVersion.V.v1_9))
+        //  registerEvents(new TurretListenerLatest());
 
         for (final String type : getTypes()) {
             final TurretType turretType = findEnum(TurretType.class, type, null, "No such turret type. Available: " + Arrays.toString(getTypes()) + ".");
@@ -66,7 +66,7 @@ public final class LaserTurrets extends SimplePlugin { // TODO prevent buttons f
         }
 
         if (!VaultHook.setupEconomy(getServer()) && Settings.CurrencySection.USE_VAULT) {
-            Common.log("Disabled due to no Vault dependency found (an economy plugin is also required)!", getDescription().getName());
+            Common.log("Disabled due to no Vault dependency found (an economy plugin is also required)!");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -74,10 +74,15 @@ public final class LaserTurrets extends SimplePlugin { // TODO prevent buttons f
         if (Settings.DatabaseSection.ENABLE_MYSQL)
             TurretsDatabase.getInstance().connect(Settings.DatabaseSection.HOST, Settings.DatabaseSection.PORT, Settings.DatabaseSection.DATABASE, Settings.DatabaseSection.USER, Settings.DatabaseSection.PASSWORD);
 
-        new UpdateChecker(this, 105494).getVersion(version -> {
-            if (!this.getDescription().getVersion().equals(version))
-                Common.log("There is a new update available (v" + version + ").");
-        });
+        if (this.isEnabled())
+            new UpdateChecker(this, 105494).getVersion(version -> {
+                if (!this.getDescription().getVersion().equals(version))
+                    Common.log("There is a new update available (v" + version + ").");
+            });
+
+        // Example usage
+        final String message = Lang.of("Settings_Menu.Head_Texture_Prompt_Message", "{turretType}", TurretUtil.getDisplayName("arrow"));
+        System.out.println("Localized Message: " + message);
     }
 
     @Override
@@ -104,6 +109,7 @@ public final class LaserTurrets extends SimplePlugin { // TODO prevent buttons f
     @Override
     protected void onReloadablesStart() {
         TurretData.loadTurrets();
+        UnplacedData.loadTurrets();
         //
         // Add your own plugin parts to load automatically here
         // Please see @AutoRegister for parts you do not have to register manually

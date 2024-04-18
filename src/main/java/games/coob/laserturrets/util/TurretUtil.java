@@ -5,6 +5,7 @@ import games.coob.laserturrets.settings.TurretSettings;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Skull;
+import org.mineacademy.fo.menu.model.SkullCreator;
 import org.mineacademy.fo.remain.CompMaterial;
 
 public class TurretUtil {

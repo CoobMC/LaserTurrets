@@ -3,7 +3,6 @@ package games.coob.laserturrets.menu;
 import games.coob.laserturrets.settings.Settings;
 import games.coob.laserturrets.settings.TurretSettings;
 import games.coob.laserturrets.util.Lang;
-import games.coob.laserturrets.util.SkullCreator;
 import games.coob.laserturrets.util.TurretUtil;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
@@ -24,6 +23,7 @@ import org.mineacademy.fo.menu.button.ButtonMenu;
 import org.mineacademy.fo.menu.button.annotation.Position;
 import org.mineacademy.fo.menu.model.ItemCreator;
 import org.mineacademy.fo.menu.model.MenuClickLocation;
+import org.mineacademy.fo.menu.model.SkullCreator;
 import org.mineacademy.fo.model.RangedValue;
 import org.mineacademy.fo.model.Tuple;
 import org.mineacademy.fo.remain.CompMaterial;
@@ -35,563 +35,557 @@ import java.util.List;
 
 public final class SettingsMenu extends Menu {
 
-	private final Player viewer;
+    private final Player viewer;
 
-	@Position(11)
-	private final Button arrowSettingsButton;
+    @Position(11)
+    private final Button arrowSettingsButton;
 
-	@Position(13)
-	private final Button beamSettingsButton;
+    @Position(13)
+    private final Button beamSettingsButton;
 
-	@Position(15)
-	private final Button fireballSettingsButton;
+    @Position(15)
+    private final Button fireballSettingsButton;
 
-	public SettingsMenu(final @Nullable Menu parent, final Player player) {
-		super(parent);
+    public SettingsMenu(final @Nullable Menu parent, final Player player) {
+        super(parent);
 
-		this.viewer = player;
+        this.viewer = player;
 
-		this.setSize(27);
-		this.setTitle(Lang.of("Settings_Menu.Menu_Title"));
+        this.setSize(27);
+        this.setTitle(Lang.of("Settings_Menu.Menu_Title"));
 
-		this.arrowSettingsButton = new ButtonMenu(new SettingsEditMenu("arrow"), ItemCreator.of(TurretSettings.findByName("arrow").getToolItem())
-				.name(Lang.of("Settings_Menu.Arrow_Settings_Button_Title"))
-				.lore(Lang.ofArray("Settings_Menu.Arrow_Settings_Button_Lore")));
+        this.arrowSettingsButton = new ButtonMenu(new SettingsEditMenu("arrow"), ItemCreator.of(TurretSettings.findByName("arrow").getToolItem())
+                .name(Lang.of("Settings_Menu.Arrow_Settings_Button_Title"))
+                .lore(Lang.ofArray("Settings_Menu.Arrow_Settings_Button_Lore")));
 
-		this.fireballSettingsButton = new ButtonMenu(new SettingsEditMenu("fireball"), ItemCreator.of(TurretSettings.findByName("fireball").getToolItem())
-				.name(Lang.of("Settings_Menu.Fireball_Settings_Button_Title"))
-				.lore(Lang.ofArray("Settings_Menu.Fireball_Settings_Button_Lore")));
+        this.fireballSettingsButton = new ButtonMenu(new SettingsEditMenu("fireball"), ItemCreator.of(TurretSettings.findByName("fireball").getToolItem())
+                .name(Lang.of("Settings_Menu.Fireball_Settings_Button_Title"))
+                .lore(Lang.ofArray("Settings_Menu.Fireball_Settings_Button_Lore")));
 
-		this.beamSettingsButton = new ButtonMenu(new SettingsEditMenu("beam"), ItemCreator.of(TurretSettings.findByName("beam").getToolItem())
-				.name(Lang.of("Settings_Menu.Beam_Settings_Button_Title"))
-				.lore(Lang.ofArray("Settings_Menu.Beam_Settings_Button_Lore")));
-	}
+        this.beamSettingsButton = new ButtonMenu(new SettingsEditMenu("beam"), ItemCreator.of(TurretSettings.findByName("beam").getToolItem())
+                .name(Lang.of("Settings_Menu.Beam_Settings_Button_Title"))
+                .lore(Lang.ofArray("Settings_Menu.Beam_Settings_Button_Lore")));
+    }
 
-	@Override
-	public Menu newInstance() {
-		return new SettingsMenu(getParent(), this.viewer);
-	}
+    @Override
+    public Menu newInstance() {
+        return new SettingsMenu(getParent(), this.viewer);
+    }
 
-	private final class SettingsEditMenu extends Menu {
+    private final class SettingsEditMenu extends Menu {
 
-		private final String typeName;
+        private final String typeName;
 
-		private final TurretSettings settings;
+        private final TurretSettings settings;
 
-		@Position(11)
-		private final Button levelEditButton;
+        @Position(11)
+        private final Button levelEditButton;
 
-		// @Position(13)
-		// private final Button alliesManagerButton;
+        // @Position(13)
+        // private final Button alliesManagerButton;
 
-		@Position(15)
-		private final Button turretLimitButton;
+        @Position(15)
+        private final Button turretLimitButton;
 
-		@Position(19)
-		private final Button ammoButton;
+        @Position(19)
+        private final Button ammoButton;
 
-		@Position(21)
-		private final Button headTextureButton;
+        @Position(21)
+        private final Button headTextureButton;
 
-		@Position(23)
-		private final Button toolItemButton;
+        @Position(23)
+        private final Button toolItemButton;
 
-		@Position(25)
-		private final Button invincibleButton;
+        @Position(25)
+        private final Button invincibleButton;
 
-		private SettingsEditMenu(final String typeName) {
-			super(SettingsMenu.this, true);
+        private SettingsEditMenu(final String typeName) {
+            super(SettingsMenu.this, true);
 
-			this.typeName = typeName;
-			this.settings = TurretSettings.findByName(typeName);
+            this.typeName = typeName;
+            this.settings = TurretSettings.findByName(typeName);
 
-			this.setSize(9 * 5);
-			this.setTitle(Lang.of("Settings_Menu.Edit_Menu_Title", "{turretType}", TurretUtil.capitalizeWord(TurretUtil.getDisplayName(typeName))));
+            this.setSize(9 * 5);
+            this.setTitle(Lang.of("Settings_Menu.Edit_Menu_Title", "{turretType}", TurretUtil.capitalizeWord(TurretUtil.getDisplayName(typeName))));
 
-			this.turretLimitButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.CRAFTING_TABLE).name(Lang.of("Settings_Menu.Turret_Limit_Button_Title"))
-							.lore(Lang.ofArray("Settings_Menu.Turret_Limit_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName), "{limit}", this.settings.getTurretLimit())),
-					Lang.of("Settings_Menu.Turret_Limit_Prompt_Message", "{turretType}", TurretUtil.getDisplayName(typeName), "{limit}", this.settings.getTurretLimit()),
-					new RangedValue(0, 100), this.settings::getTurretLimit, this.settings::setTurretLimit);
+            this.turretLimitButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.CRAFTING_TABLE).name(Lang.of("Settings_Menu.Turret_Limit_Button_Title"))
+                            .lore(Lang.ofArray("Settings_Menu.Turret_Limit_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName), "{limit}", this.settings.getTurretLimit())),
+                    Lang.of("Settings_Menu.Turret_Limit_Prompt_Message", "{turretType}", TurretUtil.getDisplayName(typeName), "{limit}", this.settings.getTurretLimit()),
+                    new RangedValue(0, 100), this.settings::getTurretLimit, this.settings::setTurretLimit);
 
-			this.levelEditButton = new ButtonMenu(new LevelMenu(1), CompMaterial.EXPERIENCE_BOTTLE,
-					Lang.of("Settings_Menu.Level_Edit_Button_Title"),
-					Lang.ofArray("Settings_Menu.Level_Edit_Button_Lore"));
+            this.levelEditButton = new ButtonMenu(new LevelMenu(1), CompMaterial.EXPERIENCE_BOTTLE,
+                    Lang.of("Settings_Menu.Level_Edit_Button_Title"),
+                    Lang.ofArray("Settings_Menu.Level_Edit_Button_Lore"));
 
 			/*this.alliesManagerButton = new ButtonMenu(new SettingsAlliesMenu(SettingsEditMenu.this, viewer), CompMaterial.KNOWLEDGE_BOOK,
 					Lang.of("Settings_Menu.Allies_Manager_Button_Title"),
 					Lang.ofArray("Settings_Menu.Allies_Manager_Button_Lore"));*/
 
-			this.headTextureButton = new
+            this.headTextureButton = new ButtonConversation(new HeadTexturePrompt(),
+                    ItemCreator.of(SkullCreator.itemFromBase64(this.settings.getHeadTexture()))
+                            .name(Lang.of("Settings_Menu.Head_Texture_Button_Title", "{turretType}", TurretUtil.getDisplayName(typeName)))
+                            .lore(Lang.ofArray("Settings_Menu.Head_Texture_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName))));
 
-					ButtonConversation(new HeadTexturePrompt(),
-					ItemCreator.of(SkullCreator.itemFromBase64(this.settings.getHeadTexture()))
-									.
+            this.toolItemButton = new
 
-							name(Lang.of("Settings_Menu.Head_Texture_Button_Title", "{turretType}", TurretUtil.getDisplayName(typeName)))
-									.
+                    ButtonMenu(new ItemToolMenu(), ItemCreator.
 
-							lore(Lang.ofArray("Settings_Menu.Head_Texture_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName))));
+                    of(CompMaterial.DIAMOND_PICKAXE, Lang.of("Settings_Menu.Item_Tool_Title"), Lang.
 
-			this.toolItemButton = new
+                            ofArray("Settings_Menu.Item_Tool_Button_Lore")));
 
-					ButtonMenu(new ItemToolMenu(), ItemCreator.
+            this.invincibleButton = new
 
-					of(CompMaterial.DIAMOND_PICKAXE, Lang.of("Settings_Menu.Item_Tool_Title"), Lang.
+                    Button() {
+                        @Override
+                        public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
+                            final boolean isInvincible = settings.isInvincible();
 
-							ofArray("Settings_Menu.Item_Tool_Button_Lore")));
+                            settings.setInvincible(!isInvincible);
+                            restartMenu(Lang.of("Settings_Menu.Invincibility_Enabled_Button_Animated_Message", "{enabledOrDisabled}", isInvincible ? "&cDisabled" : "&aEnabled"));
+                        }
 
-			this.invincibleButton = new
+                        @Override
+                        public ItemStack getItem() {
+                            final boolean isInvincible = settings.isInvincible();
 
-					Button() {
-						@Override
-						public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
-							final boolean isInvincible = settings.isInvincible();
+                            return ItemCreator.of(isInvincible ? CompMaterial.BLUE_STAINED_GLASS : CompMaterial.RED_STAINED_GLASS, Lang.of("Settings_Menu.Invincible_Button_Title"),
+                                    Lang.ofArray("Settings_Menu.Invincibility_Enabled_Button_Lore", "{enabledOrDisabled}", isInvincible ? "&aenabled" : "&cdisabled")).make();
+                        }
+                    }
 
-							settings.setInvincible(!isInvincible);
-							restartMenu(Lang.of("Settings_Menu.Invincibility_Enabled_Button_Animated_Message", "{enabledOrDisabled}", isInvincible ? "&cDisabled" : "&aEnabled"));
-						}
+            ;
+
+            this.ammoButton = new
 
-						@Override
-						public ItemStack getItem() {
-							final boolean isInvincible = settings.isInvincible();
+                    ButtonMenu(new AmmoMenu(), ItemCreator.
 
-							return ItemCreator.of(isInvincible ? CompMaterial.BLUE_STAINED_GLASS : CompMaterial.RED_STAINED_GLASS, Lang.of("Settings_Menu.Invincible_Button_Title"),
-									Lang.ofArray("Settings_Menu.Invincibility_Enabled_Button_Lore", "{enabledOrDisabled}", isInvincible ? "&aenabled" : "&cdisabled")).make();
-						}
-					}
+                    of(CompMaterial.SNOWBALL, Lang.of("Settings_Menu.Ammo_Button_Title"), Lang.
 
-			;
+                            ofArray("Settings_Menu.Ammo_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName))));
+        }
 
-			this.ammoButton = new
+        @Override
+        protected String[] getInfo() {
+            return Lang.ofArray("Settings_Menu.Edit_Menu_Info_Button");
+        }
 
-					ButtonMenu(new AmmoMenu(), ItemCreator.
+        @Override
+        public Menu newInstance() {
+            return new SettingsEditMenu(this.typeName);
+        }
 
-					of(CompMaterial.SNOWBALL, Lang.of("Settings_Menu.Ammo_Button_Title"), Lang.
+        private final class HeadTexturePrompt extends SimplePrompt {
 
-							ofArray("Settings_Menu.Ammo_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName))));
-		}
+            private HeadTexturePrompt() {
+                super(true);
+            }
 
-		@Override
-		protected String[] getInfo() {
-			return Lang.ofArray("Settings_Menu.Edit_Menu_Info_Button");
-		}
+            @Override
+            protected String getPrompt(final ConversationContext ctx) {
+                return Lang.of("Settings_Menu.Head_Texture_Prompt_Message", "{turretType}", TurretUtil.getDisplayName(typeName));
+            }
 
-		@Override
-		public Menu newInstance() {
-			return new SettingsEditMenu(this.typeName);
-		}
+            @Override
+            protected boolean isInputValid(final ConversationContext context, final String input) {
+                return TurretUtil.isBase64ValueValid(input);
+            }
 
-		private final class HeadTexturePrompt extends SimplePrompt {
+            @Override
+            protected String getFailedValidationText(final ConversationContext context, final String invalidInput) {
+                return Lang.of("Settings_Menu.Head_Texture_Prompt_Invalid_Text", "{invalidType}", invalidInput);
+            }
 
-			private HeadTexturePrompt() {
-				super(true);
-			}
+            @Override
+            protected Prompt acceptValidatedInput(@NotNull final ConversationContext context, @NotNull final String input) {
+                settings.setHeadTexture(input);
 
-			@Override
-			protected String getPrompt(final ConversationContext ctx) {
-				return Lang.of("Settings_Menu.Head_Texture_Prompt_Message", "{turretType}", TurretUtil.getDisplayName(typeName));
-			}
+                return Prompt.END_OF_CONVERSATION;
+            }
+        }
 
-			@Override
-			protected boolean isInputValid(final ConversationContext context, final String input) {
-				return TurretUtil.isBase64ValueValid(input);
-			}
+        private final class ItemToolMenu extends Menu {
 
-			@Override
-			protected String getFailedValidationText(final ConversationContext context, final String invalidInput) {
-				return Lang.of("Settings_Menu.Head_Texture_Prompt_Invalid_Text", "{invalidType}", invalidInput);
-			}
+            /**
+             * Create a new menu
+             */
+            private ItemToolMenu() {
+                super(SettingsEditMenu.this, true);
 
-			@Override
-			protected Prompt acceptValidatedInput(@NotNull final ConversationContext context, @NotNull final String input) {
-				settings.setHeadTexture(input);
+                setSize(9 * 3);
+                setTitle(Lang.of("Settings_Menu.Item_Tool_Title"));
+            }
 
-				return Prompt.END_OF_CONVERSATION;
-			}
-		}
+            /**
+             * @see Menu#getItemAt(int)
+             */
+            @Override
+            public ItemStack getItemAt(final int slot) {
 
-		private final class ItemToolMenu extends Menu {
+                if (slot == getCenterSlot())
+                    return settings.getToolItem();
 
-			/**
-			 * Create a new menu
-			 */
-			private ItemToolMenu() {
-				super(SettingsEditMenu.this, true);
+                return ItemCreator.of(CompMaterial.GRAY_STAINED_GLASS_PANE).name(" ").make();
+            }
 
-				setSize(9 * 3);
-				setTitle(Lang.of("Settings_Menu.Item_Tool_Title"));
-			}
+            /**
+             * @see Menu#onMenuClose(Player, Inventory)
+             */
+            @Override
+            protected void onMenuClose(final Player player, final Inventory inventory) {
+                final ItemStack item = inventory.getItem(getCenterSlot());
 
-			/**
-			 * @see Menu#getItemAt(int)
-			 */
-			@Override
-			public ItemStack getItemAt(final int slot) {
+                settings.setToolItem(item);
+                CompSound.SUCCESSFUL_HIT.play(player);
+            }
 
-				if (slot == getCenterSlot())
-					return settings.getToolItem();
+            /**
+             * Enable clicking outside of the menu or in the slot item
+             */
+            @Override
+            protected boolean isActionAllowed(final MenuClickLocation location, final int slot, @org.jetbrains.annotations.Nullable final ItemStack clicked, @org.jetbrains.annotations.Nullable final ItemStack cursor, final InventoryAction action) {
+                return location != MenuClickLocation.MENU || (location == MenuClickLocation.MENU && slot == getCenterSlot());
+            }
 
-				return ItemCreator.of(CompMaterial.GRAY_STAINED_GLASS_PANE).name(" ").make();
-			}
+            /**
+             * @see Menu#getInfo()
+             */
+            @Override
+            protected String[] getInfo() {
+                return Lang.ofArray("Settings_Menu.Item_Tool_Menu_Info_Button");
+            }
+        }
 
-			/**
-			 * @see Menu#onMenuClose(Player, Inventory)
-			 */
-			@Override
-			protected void onMenuClose(final Player player, final Inventory inventory) {
-				final ItemStack item = inventory.getItem(getCenterSlot());
+        private final class AmmoMenu extends Menu {
 
-				settings.setToolItem(item);
-				CompSound.SUCCESSFUL_HIT.play(player);
-			}
+            private final Button enableButton;
 
-			/**
-			 * Enable clicking outside of the menu or in the slot item
-			 */
-			@Override
-			protected boolean isActionAllowed(final MenuClickLocation location, final int slot, @org.jetbrains.annotations.Nullable final ItemStack clicked, @org.jetbrains.annotations.Nullable final ItemStack cursor, final InventoryAction action) {
-				return location != MenuClickLocation.MENU || (location == MenuClickLocation.MENU && slot == getCenterSlot());
-			}
+            private final Button priceButton;
 
-			/**
-			 * @see Menu#getInfo()
-			 */
-			@Override
-			protected String[] getInfo() {
-				return Lang.ofArray("Settings_Menu.Item_Tool_Menu_Info_Button");
-			}
-		}
+            private final Button ammoItemButton;
 
-		private final class AmmoMenu extends Menu {
+            private AmmoMenu() {
+                super(SettingsEditMenu.this, true);
 
-			private final Button enableButton;
+                setSize(9 * 3);
+                setTitle(Lang.of("Settings_Menu.Ammo_Menu_Title"));
+                this.priceButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.WATER_BUCKET).name(Lang.of("Settings_Menu.Ammo_Price_Button_Title"))
+                                .lore(Lang.ofArray("Settings_Menu.Ammo_Price_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName), "{price}", settings.getAmmo().getThirdValue(), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME)),
+                        Lang.of("Settings_Menu.Ammo_Price_Prompt_Message", "{turretType}", TurretUtil.getDisplayName(typeName), "{amount}", settings.getAmmo().getThirdValue()), new RangedValue(0, 999999), settings.getAmmo()::getThirdValue, settings::setAmmoPrice);
 
-			private final Button priceButton;
-
-			private final Button ammoItemButton;
+                this.enableButton = new Button() {
+                    @Override
+                    public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
+                        final boolean isEnabled = settings.getAmmo().getFirstValue();
 
-			private AmmoMenu() {
-				super(SettingsEditMenu.this, true);
+                        settings.setAmmoEnabled(!isEnabled);
+                        restartMenu(Lang.of("Settings_Menu.Ammo_Enable_Button_Animated_Message", "{enabledOrDisabled}", isEnabled ? "&cDisabled" : "&aEnabled"));
+                    }
 
-				setSize(9 * 3);
-				setTitle(Lang.of("Settings_Menu.Ammo_Menu_Title"));
-				this.priceButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.WATER_BUCKET).name(Lang.of("Settings_Menu.Ammo_Price_Button_Title"))
-								.lore(Lang.ofArray("Settings_Menu.Ammo_Price_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName), "{price}", settings.getAmmo().getThirdValue(), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME)),
-						Lang.of("Settings_Menu.Ammo_Price_Prompt_Message", "{turretType}", TurretUtil.getDisplayName(typeName), "{amount}", settings.getAmmo().getThirdValue()), new RangedValue(0, 999999), settings.getAmmo()::getThirdValue, settings::setAmmoPrice);
+                    @Override
+                    public ItemStack getItem() {
+                        final boolean isEnabled = settings.getAmmo().getFirstValue();
 
-				this.enableButton = new Button() {
-					@Override
-					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
-						final boolean isEnabled = settings.getAmmo().getFirstValue();
+                        return ItemCreator.of(isEnabled ? CompMaterial.GREEN_WOOL : CompMaterial.RED_WOOL, Lang.of("Settings_Menu.Ammo_Enable_Button_Title"),
+                                Lang.ofArray("Settings_Menu.Ammo_Enable_Button_Lore", "{enabledOrDisabled}", isEnabled ? "&aenabled" : "&cdisabled")).make();
+                    }
+                };
 
-						settings.setAmmoEnabled(!isEnabled);
-						restartMenu(Lang.of("Settings_Menu.Ammo_Enable_Button_Animated_Message", "{enabledOrDisabled}", isEnabled ? "&cDisabled" : "&aEnabled"));
-					}
+                this.ammoItemButton = new ButtonMenu(new AmmoItemMenu(), ItemCreator.of(CompMaterial.fromMaterial(settings.getAmmo().getSecondValue().getType()), Lang.of("Settings_Menu.Ammo_Item_Button_Title"), Lang.ofArray("Settings_Menu.Ammo_Item_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName))));
+            }
 
-					@Override
-					public ItemStack getItem() {
-						final boolean isEnabled = settings.getAmmo().getFirstValue();
+            @Override
+            public ItemStack getItemAt(final int slot) {
 
-						return ItemCreator.of(isEnabled ? CompMaterial.GREEN_WOOL : CompMaterial.RED_WOOL, Lang.of("Settings_Menu.Ammo_Enable_Button_Title"),
-								Lang.ofArray("Settings_Menu.Ammo_Enable_Button_Lore", "{enabledOrDisabled}", isEnabled ? "&aenabled" : "&cdisabled")).make();
-					}
-				};
+                if (slot == getCenterSlot() - 2)
+                    return this.enableButton.getItem();
 
-				this.ammoItemButton = new ButtonMenu(new AmmoItemMenu(), ItemCreator.of(CompMaterial.fromMaterial(settings.getAmmo().getSecondValue().getType()), Lang.of("Settings_Menu.Ammo_Item_Button_Title"), Lang.ofArray("Settings_Menu.Ammo_Item_Button_Lore", "{turretType}", TurretUtil.getDisplayName(typeName))));
-			}
+                if (slot == getCenterSlot())
+                    return this.ammoItemButton.getItem();
 
-			@Override
-			public ItemStack getItemAt(final int slot) {
+                if (slot == getCenterSlot() + 2)
+                    return this.priceButton.getItem();
 
-				if (slot == getCenterSlot() - 2)
-					return this.enableButton.getItem();
+                return NO_ITEM;
+            }
 
-				if (slot == getCenterSlot())
-					return this.ammoItemButton.getItem();
+            @Override
+            protected String[] getInfo() {
+                return Lang.ofArray("Settings_Menu.Ammo_Menu_Info_Button");
+            }
 
-				if (slot == getCenterSlot() + 2)
-					return this.priceButton.getItem();
+            @Override
+            public Menu newInstance() {
+                return new AmmoMenu();
+            }
 
-				return NO_ITEM;
-			}
+            private final class AmmoItemMenu extends Menu {
 
-			@Override
-			protected String[] getInfo() {
-				return Lang.ofArray("Settings_Menu.Ammo_Menu_Info_Button");
-			}
+                private AmmoItemMenu() {
+                    super(AmmoMenu.this, true);
 
-			@Override
-			public Menu newInstance() {
-				return new AmmoMenu();
-			}
+                    setSize(9 * 3);
+                    setTitle(Lang.of("Settings_Menu.Ammo_Item_Button_Title"));
+                }
 
-			private final class AmmoItemMenu extends Menu {
+                @Override
+                public ItemStack getItemAt(final int slot) {
 
-				private AmmoItemMenu() {
-					super(AmmoMenu.this, true);
+                    if (slot == getCenterSlot())
+                        return settings.getAmmo().getSecondValue();
 
-					setSize(9 * 3);
-					setTitle(Lang.of("Settings_Menu.Ammo_Item_Button_Title"));
-				}
+                    return ItemCreator.of(CompMaterial.GRAY_STAINED_GLASS_PANE).name(" ").make();
+                }
 
-				@Override
-				public ItemStack getItemAt(final int slot) {
+                @Override
+                protected void onMenuClose(final Player player, final Inventory inventory) {
+                    final ItemStack item = inventory.getItem(getCenterSlot());
 
-					if (slot == getCenterSlot())
-						return settings.getAmmo().getSecondValue();
+                    if (item == null)
+                        return;
 
-					return ItemCreator.of(CompMaterial.GRAY_STAINED_GLASS_PANE).name(" ").make();
-				}
+                    settings.setAmmoItem(item);
+                    CompSound.SUCCESSFUL_HIT.play(player);
+                }
 
-				@Override
-				protected void onMenuClose(final Player player, final Inventory inventory) {
-					final ItemStack item = inventory.getItem(getCenterSlot());
+                /**
+                 * Enable clicking outside of the menu or in the slot item
+                 */
+                @Override
+                protected boolean isActionAllowed(final MenuClickLocation location, final int slot, @org.jetbrains.annotations.Nullable final ItemStack clicked, @org.jetbrains.annotations.Nullable final ItemStack cursor, final InventoryAction action) {
+                    return location != MenuClickLocation.MENU || (location == MenuClickLocation.MENU && slot == getCenterSlot());
+                }
 
-					if (item == null)
-						return;
+                @Override
+                protected String[] getInfo() {
+                    return Lang.ofArray("Settings_Menu.Ammo_Item_Menu_Info_Button", "{turretType}", TurretUtil.getDisplayName(typeName));
+                }
+            }
+        }
 
-					settings.setAmmoItem(item);
-					CompSound.SUCCESSFUL_HIT.play(player);
-				}
+        private class LevelMenu extends Menu {
 
-				/**
-				 * Enable clicking outside of the menu or in the slot item
-				 */
-				@Override
-				protected boolean isActionAllowed(final MenuClickLocation location, final int slot, @org.jetbrains.annotations.Nullable final ItemStack clicked, @org.jetbrains.annotations.Nullable final ItemStack cursor, final InventoryAction action) {
-					return location != MenuClickLocation.MENU || (location == MenuClickLocation.MENU && slot == getCenterSlot());
-				}
+            private final TurretSettings.LevelData level;
 
-				@Override
-				protected String[] getInfo() {
-					return Lang.ofArray("Settings_Menu.Ammo_Item_Menu_Info_Button", "{turretType}", TurretUtil.getDisplayName(typeName));
-				}
-			}
-		}
+            private final int turretLevel;
 
-		private class LevelMenu extends Menu {
+            @Position(11)
+            private final Button rangeButton;
 
-			private final TurretSettings.LevelData level;
+            @Position(13)
+            private final Button laserEnabledButton;
 
-			private final int turretLevel;
+            @Position(15)
+            private final Button laserDamageButton;
 
-			@Position(11)
-			private final Button rangeButton;
+            @Position(21)
+            private final Button lootButton;
 
-			@Position(13)
-			private final Button laserEnabledButton;
+            @Position(23)
+            private final Button healthButton;
 
-			@Position(15)
-			private final Button laserDamageButton;
+            @Position(39)
+            private final Button previousLevelButton;
 
-			@Position(21)
-			private final Button lootButton;
+            @Position(41)
+            private final Button nextLevelButton;
 
-			@Position(23)
-			private final Button healthButton;
+            private final Button removeLevelButton;
 
-			@Position(39)
-			private final Button previousLevelButton;
+            @Position(40)
+            private final Button priceButton;
 
-			@Position(41)
-			private final Button nextLevelButton;
+            public LevelMenu(final int turretLevel) {
+                super(SettingsEditMenu.this, true);
 
-			private final Button removeLevelButton;
+                final boolean nextLevelExists = turretLevel < settings.getLevelsSize() || settings.getLevelsSize() == 0;
 
-			@Position(40)
-			private final Button priceButton;
+                this.level = getOrMakeLevel(turretLevel);
+                this.turretLevel = turretLevel;
 
-			public LevelMenu(final int turretLevel) {
-				super(SettingsEditMenu.this, true);
+                this.setTitle(Lang.of("Settings_Menu.Level_Menu_Title", "{level}", turretLevel));
+                this.setSize(9 * 5);
 
-				final boolean nextLevelExists = turretLevel < settings.getLevelsSize() || settings.getLevelsSize() == 0;
+                this.rangeButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.BOW).name(Lang.of("Settings_Menu.Range_Button_Title"))
+                                .lore(Lang.ofArray("Settings_Menu.Range_Button_Lore", "{range}", this.level.getRange())),
+                        Lang.of("Settings_Menu.Range_Prompt_Message", "{range}", this.level.getRange()),
+                        new RangedValue(0, 40), level::getRange, (Integer input) -> settings.setSettingsRange(this.level, input));
 
-				this.level = getOrMakeLevel(turretLevel);
-				this.turretLevel = turretLevel;
 
-				this.setTitle(Lang.of("Settings_Menu.Level_Menu_Title", "{level}", turretLevel));
-				this.setSize(9 * 5);
+                this.laserEnabledButton = new Button() {
+                    @Override
+                    public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
+                        final boolean isEnabled = level.isLaserEnabled();
 
-				this.rangeButton = Button.makeIntegerPrompt(ItemCreator.of(CompMaterial.BOW).name(Lang.of("Settings_Menu.Range_Button_Title"))
-								.lore(Lang.ofArray("Settings_Menu.Range_Button_Lore", "{range}", this.level.getRange())),
-						Lang.of("Settings_Menu.Range_Prompt_Message", "{range}", this.level.getRange()),
-						new RangedValue(0, 40), level::getRange, (Integer input) -> settings.setSettingsRange(this.level, input));
+                        settings.setLaserEnabled(level, !isEnabled);
+                        restartMenu(Lang.of("Settings_Menu.Laser_Enabled_Button_Animated_Message", "{enabledOrDisabled}", isEnabled ? "&cDisabled" : "&aEnabled"));
+                    }
 
+                    @Override
+                    public ItemStack getItem() {
+                        final boolean isEnabled = level.isLaserEnabled();
 
-				this.laserEnabledButton = new Button() {
-					@Override
-					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
-						final boolean isEnabled = level.isLaserEnabled();
+                        return ItemCreator.of(isEnabled ? CompMaterial.GREEN_WOOL : CompMaterial.RED_WOOL, Lang.of("Settings_Menu.Laser_Enabled_Button_Title"),
+                                Lang.ofArray("Settings_Menu.Laser_Enabled_Button_Lore", "{enabledOrDisabled}", isEnabled ? "&aenabled" : "&cdisabled")).make();
+                    }
+                };
 
-						settings.setLaserEnabled(level, !isEnabled);
-						restartMenu(Lang.of("Settings_Menu.Laser_Enabled_Button_Animated_Message", "{enabledOrDisabled}", isEnabled ? "&cDisabled" : "&aEnabled"));
-					}
+                this.laserDamageButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.BLAZE_POWDER).name(Lang.of("Settings_Menu.Laser_Damage_Button_Title"))
+                                .lore(Lang.ofArray("Settings_Menu.Laser_Damage_Button_Lore", "{damage}", this.level.getLaserDamage())),
+                        Lang.of("Settings_Menu.Laser_Damage_Prompt_Message", "{damage}", this.level.getLaserDamage()),
+                        new RangedValue(0.0, 500.0), this.level::getLaserDamage, (Double input) -> settings.setLaserDamage(this.level, input));
 
-					@Override
-					public ItemStack getItem() {
-						final boolean isEnabled = level.isLaserEnabled();
+                this.lootButton = new ButtonMenu(new LevelMenu.TurretLootChancesMenu(), CompMaterial.CHEST,
+                        Lang.of("Settings_Menu.Loot_Drop_Button_Title"),
+                        Lang.ofArray("Settings_Menu.Loot_Drop_Button_Lore"));
 
-						return ItemCreator.of(isEnabled ? CompMaterial.GREEN_WOOL : CompMaterial.RED_WOOL, Lang.of("Settings_Menu.Laser_Enabled_Button_Title"),
-								Lang.ofArray("Settings_Menu.Laser_Enabled_Button_Lore", "{enabledOrDisabled}", isEnabled ? "&aenabled" : "&cdisabled")).make();
-					}
-				};
+                this.healthButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.DIAMOND_CHESTPLATE).name(Lang.of("Settings_Menu.Health_Button_Title"))
+                                .lore(Lang.ofArray("Settings_Menu.Health_Button_Lore", "{health}", this.level.getHealth())),
+                        Lang.of("Settings_Menu.Health_Prompt_Message", "{health}", this.level.getHealth()),
+                        new RangedValue(0.0, 5000.0), this.level::getHealth, (Double input) -> settings.setHealth(this.level, input));
 
-				this.laserDamageButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.BLAZE_POWDER).name(Lang.of("Settings_Menu.Laser_Damage_Button_Title"))
-								.lore(Lang.ofArray("Settings_Menu.Laser_Damage_Button_Lore", "{damage}", this.level.getLaserDamage())),
-						Lang.of("Settings_Menu.Laser_Damage_Prompt_Message", "{damage}", this.level.getLaserDamage()),
-						new RangedValue(0.0, 500.0), this.level::getLaserDamage, (Double input) -> settings.setLaserDamage(this.level, input));
 
-				this.lootButton = new ButtonMenu(new LevelMenu.TurretLootChancesMenu(), CompMaterial.CHEST,
-						Lang.of("Settings_Menu.Loot_Drop_Button_Title"),
-						Lang.ofArray("Settings_Menu.Loot_Drop_Button_Lore"));
+                this.previousLevelButton = new Button() {
 
-				this.healthButton = Button.makeDecimalPrompt(ItemCreator.of(CompMaterial.DIAMOND_CHESTPLATE).name(Lang.of("Settings_Menu.Health_Button_Title"))
-								.lore(Lang.ofArray("Settings_Menu.Health_Button_Lore", "{health}", this.level.getHealth())),
-						Lang.of("Settings_Menu.Health_Prompt_Message", "{health}", this.level.getHealth()),
-						new RangedValue(0.0, 5000.0), this.level::getHealth, (Double input) -> settings.setHealth(this.level, input));
+                    final boolean aboveFirstLevel = turretLevel > 1;
 
+                    @Override
+                    public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
+                        if (this.aboveFirstLevel)
+                            new LevelMenu(turretLevel - 1).displayTo(player);
+                    }
 
-				this.previousLevelButton = new Button() {
+                    @Override
+                    public ItemStack getItem() {
+                        return ItemCreator
+                                .of(this.aboveFirstLevel ? CompMaterial.LIME_DYE : CompMaterial.GRAY_DYE,
+                                        this.aboveFirstLevel ? Lang.of("Settings_Menu.Previous_Level_Button_Title_2") : Lang.of("Settings_Menu.Previous_Level_Button_Title_1")).make();
+                    }
+                };
 
-					final boolean aboveFirstLevel = turretLevel > 1;
+                this.nextLevelButton = new Button() {
 
-					@Override
-					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
-						if (this.aboveFirstLevel)
-							new LevelMenu(turretLevel - 1).displayTo(player);
-					}
+                    @Override
+                    public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
+                        final Menu nextLevelMenu;
 
-					@Override
-					public ItemStack getItem() {
-						return ItemCreator
-								.of(this.aboveFirstLevel ? CompMaterial.LIME_DYE : CompMaterial.GRAY_DYE,
-										this.aboveFirstLevel ? Lang.of("Settings_Menu.Previous_Level_Button_Title_2") : Lang.of("Settings_Menu.Previous_Level_Button_Title_1")).make();
-					}
-				};
+                        nextLevelMenu = new LevelMenu(turretLevel + 1);
+                        nextLevelMenu.displayTo(player);
+                    }
 
-				this.nextLevelButton = new Button() {
+                    @Override
+                    public ItemStack getItem() {
+                        return ItemCreator.of(nextLevelExists ? CompMaterial.LIME_DYE : CompMaterial.PURPLE_DYE,
+                                nextLevelExists ? Lang.of("Settings_Menu.Next_Level_Button_Title_2") : Lang.of("Settings_Menu.Next_Level_Button_Title_1")).make();
+                    }
+                };
 
-					@Override
-					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
-						final Menu nextLevelMenu;
+                this.removeLevelButton = new Button() {
 
-						nextLevelMenu = new LevelMenu(turretLevel + 1);
-						nextLevelMenu.displayTo(player);
-					}
+                    @Override
+                    public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
+                        settings.removeLevel(turretLevel);
 
-					@Override
-					public ItemStack getItem() {
-						return ItemCreator.of(nextLevelExists ? CompMaterial.LIME_DYE : CompMaterial.PURPLE_DYE,
-								nextLevelExists ? Lang.of("Settings_Menu.Next_Level_Button_Title_2") : Lang.of("Settings_Menu.Next_Level_Button_Title_1")).make();
-					}
-				};
+                        final Menu previousMenu = new LevelMenu(turretLevel - 1);
 
-				this.removeLevelButton = new Button() {
+                        previousMenu.displayTo(player);
+                        Common.runLater(() -> previousMenu.animateTitle(Lang.of("Settings_Menu.Remove_Level_Button_Animated_Message", "{level}", turretLevel)));
+                    }
 
-					@Override
-					public void onClickedInMenu(final Player player, final Menu menu, final ClickType clickType) {
-						settings.removeLevel(turretLevel);
+                    @Override
+                    public ItemStack getItem() {
+                        return ItemCreator.of(CompMaterial.BARRIER, Lang.of("Settings_Menu.Remove_Level_Button_Title", "{level}", turretLevel)).make();
+                    }
+                };
 
-						final Menu previousMenu = new LevelMenu(turretLevel - 1);
+                this.priceButton = Button.makeDecimalPrompt(ItemCreator.of(
+                                CompMaterial.SUNFLOWER,
+                                Lang.of("Settings_Menu.Price_Button_Title"),
+                                Lang.ofArray("Settings_Menu.Price_Button_Lore", "{price}", this.level.getPrice(), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME)),
+                        Lang.of("Settings_Menu.Price_Prompt_Message", "{price}", this.level.getPrice(), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME),
+                        RangedValue.parse("0-100000"), (Double input) -> settings.setLevelPrice(this.level, input));
+            }
 
-						previousMenu.displayTo(player);
-						Common.runLater(() -> previousMenu.animateTitle(Lang.of("Settings_Menu.Remove_Level_Button_Animated_Message", "{level}", turretLevel)));
-					}
+            @Override
+            public ItemStack getItemAt(final int slot) {
+                final boolean nextLevelExists = this.turretLevel < settings.getLevelsSize() || settings.getLevelsSize() == 0;
 
-					@Override
-					public ItemStack getItem() {
-						return ItemCreator.of(CompMaterial.BARRIER, Lang.of("Settings_Menu.Remove_Level_Button_Title", "{level}", turretLevel)).make();
-					}
-				};
+                if (!nextLevelExists && slot == this.getBottomCenterSlot() + 3)
+                    return this.removeLevelButton.getItem();
 
-				this.priceButton = Button.makeDecimalPrompt(ItemCreator.of(
-								CompMaterial.SUNFLOWER,
-								Lang.of("Settings_Menu.Price_Button_Title"),
-								Lang.ofArray("Settings_Menu.Price_Button_Lore", "{price}", this.level.getPrice(), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME)),
-						Lang.of("Settings_Menu.Price_Prompt_Message", "{price}", this.level.getPrice(), "{currencyName}", Settings.CurrencySection.CURRENCY_NAME),
-						RangedValue.parse("0-100000"), (Double input) -> settings.setLevelPrice(this.level, input));
-			}
+                return NO_ITEM;
+            }
 
-			@Override
-			public ItemStack getItemAt(final int slot) {
-				final boolean nextLevelExists = this.turretLevel < settings.getLevelsSize() || settings.getLevelsSize() == 0;
+            private TurretSettings.LevelData getOrMakeLevel(final int turretLevel) {
+                TurretSettings.LevelData level = settings.getLevel(turretLevel);
 
-				if (!nextLevelExists && slot == this.getBottomCenterSlot() + 3)
-					return this.removeLevelButton.getItem();
+                if (level == null) {
+                    level = settings.addLevel();
+                }
 
-				return NO_ITEM;
-			}
+                return level;
+            }
 
-			private TurretSettings.LevelData getOrMakeLevel(final int turretLevel) {
-				TurretSettings.LevelData level = settings.getLevel(turretLevel);
+            @Override
+            protected String[] getInfo() {
+                return Lang.ofArray("Settings_Menu.Level_Menu_Info_Button");
+            }
 
-				if (level == null) {
-					level = settings.addLevel();
-				}
+            @Override
+            public Menu newInstance() {
+                return new LevelMenu(this.turretLevel);
+            }
 
-				return level;
-			}
+            private class TurretLootChancesMenu extends MenuContainerChances {
 
-			@Override
-			protected String[] getInfo() {
-				return Lang.ofArray("Settings_Menu.Level_Menu_Info_Button");
-			}
+                TurretLootChancesMenu() {
+                    super(LevelMenu.this, true);
 
-			@Override
-			public Menu newInstance() {
-				return new LevelMenu(this.turretLevel);
-			}
+                    this.setSize(54);
+                    this.setTitle(Lang.of("Settings_Menu.Turret_Loot_Menu_Title"));
+                }
 
-			private class TurretLootChancesMenu extends MenuContainerChances {
+                @Override
+                public Menu newInstance() {
+                    return new TurretLootChancesMenu();
+                }
 
-				TurretLootChancesMenu() {
-					super(LevelMenu.this, true);
+                @Override
+                protected boolean canEditItem(final MenuClickLocation location, final int slot, final ItemStack clicked, final ItemStack cursor, final InventoryAction action) {
+                    return true;
+                }
 
-					this.setSize(54);
-					this.setTitle(Lang.of("Settings_Menu.Turret_Loot_Menu_Title"));
-				}
+                @Override
+                protected ItemStack getDropAt(final int slot) {
+                    final Tuple<ItemStack, Double> tuple = this.getTuple(slot);
 
-				@Override
-				public Menu newInstance() {
-					return new TurretLootChancesMenu();
-				}
+                    return tuple != null ? tuple.getKey() : NO_ITEM;
+                }
 
-				@Override
-				protected boolean canEditItem(final MenuClickLocation location, final int slot, final ItemStack clicked, final ItemStack cursor, final InventoryAction action) {
-					return true;
-				}
+                @Override
+                protected double getDropChance(final int slot) {
+                    final Tuple<ItemStack, Double> tuple = this.getTuple(slot);
 
-				@Override
-				protected ItemStack getDropAt(final int slot) {
-					final Tuple<ItemStack, Double> tuple = this.getTuple(slot);
+                    return tuple != null ? tuple.getValue() : 0;
+                }
 
-					return tuple != null ? tuple.getKey() : NO_ITEM;
-				}
+                private Tuple<ItemStack, Double> getTuple(final int slot) {
+                    final List<Tuple<ItemStack, Double>> items = level.getLootChances();
 
-				@Override
-				protected double getDropChance(final int slot) {
-					final Tuple<ItemStack, Double> tuple = this.getTuple(slot);
+                    return slot < items.size() ? items.get(slot) : null;
+                }
 
-					return tuple != null ? tuple.getValue() : 0;
-				}
+                @Override
+                protected void onMenuClose(final StrictMap<Integer, Tuple<ItemStack, Double>> items) {
+                    settings.setLootChances(level, new ArrayList<>(items.values()));
+                }
 
-				private Tuple<ItemStack, Double> getTuple(final int slot) {
-					final List<Tuple<ItemStack, Double>> items = level.getLootChances();
-
-					return slot < items.size() ? items.get(slot) : null;
-				}
-
-				@Override
-				protected void onMenuClose(final StrictMap<Integer, Tuple<ItemStack, Double>> items) {
-					settings.setLootChances(level, new ArrayList<>(items.values()));
-				}
-
-				@Override
-				public boolean allowDecimalQuantities() {
-					return true;
-				}
-			}
-		}
+                @Override
+                public boolean allowDecimalQuantities() {
+                    return true;
+                }
+            }
+        }
 
 		/*public class SettingsAlliesMenu extends Menu {
 
@@ -856,5 +850,5 @@ public final class SettingsMenu extends Menu {
 				}
 			}
 		}*/
-	}
+    }
 }
